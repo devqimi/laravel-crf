@@ -234,7 +234,7 @@ export default function ShowCrf({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="View CRF" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4 bg-gradient-to-b from-blue-300 to-blue-500 rounded-xl">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4 rounded-xl">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>CRF Details - #{crf.id}</CardTitle>
@@ -469,7 +469,7 @@ export default function ShowCrf({
                         {!can_update && crf.it_remark && (
                             <div className="space-y-2">
                                 <Label>IT Remark</Label>
-                                <p className="rounded border p-3 bg-gray-50">{crf.it_remark}</p>
+                                <p className="rounded border p-3 bg-gray-50 dark:bg-gray-800">{crf.it_remark}</p>
                             </div>
                         )}
 
@@ -497,7 +497,7 @@ export default function ShowCrf({
                                     <TableBody>
                                         {crf.status_timeline && crf.status_timeline.length > 0 ? (
                                             crf.status_timeline.map((timeline, index) => (
-                                                <TableRow key={timeline.id} className="hover:bg-gray-50">
+                                                <TableRow key={timeline.id} className="hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700">
                                                     <TableCell className="font-medium align-top">
                                                         {index + 1}
                                                     </TableCell>
@@ -517,7 +517,7 @@ export default function ShowCrf({
                                                                 {timeline.status}
                                                             </span>
                                                             {timeline.remark && (
-                                                                <p className="text-sm text-gray-700 whitespace-pre-wrap mt-2">
+                                                                <p className="text-sm text-gray-700 whitespace-pre-wrap mt-2 dark:text-gray-300">
                                                                     {timeline.remark}
                                                                 </p>
                                                             )}
@@ -526,7 +526,7 @@ export default function ShowCrf({
                                                     <TableCell className="align-top">
                                                         {timeline.action_by}
                                                     </TableCell>
-                                                    <TableCell className="text-sm text-gray-600 align-top">
+                                                    <TableCell className="text-sm text-gray-600 align-top dark:text-gray-400">
                                                         {new Date(timeline.created_at).toLocaleString('en-MY', {
                                                             year: 'numeric',
                                                             month: 'short',

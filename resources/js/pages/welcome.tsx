@@ -21,7 +21,7 @@ export default function Welcome() {
             </Head>
 
             {/* Full Page Container */}
-            <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 dark:text-slate-100">
+            <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-slate-100 to-blue-400 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 dark:text-slate-100">
 
                 {/* Fixed Top Navigation Bar */}
                 <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 shadow-sm">

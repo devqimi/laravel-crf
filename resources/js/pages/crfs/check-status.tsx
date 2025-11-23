@@ -137,7 +137,7 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
                                     required
                                 />
                             </div>
-                            <Button className="bg-blue-700 hover:bg-blue-800" type="submit" disabled={isSearching}>
+                            <Button className="bg-blue-700 hover:bg-blue-800 dark:text-white" type="submit" disabled={isSearching}>
                                 <Search className="mr-2 h-4 w-4" />
                                 {isSearching ? 'Searching...' : 'Search'}
                             </Button>
@@ -175,7 +175,7 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
                                     {searchResults.map((crf) => (
                                         <div
                                             key={crf.id}
-                                            className="rounded-lg border p-4 hover:bg-gray-50 transition"
+                                            className="rounded-lg border p-4 hover:bg-gray-50 transition dark:hover:bg-gray-800"
                                         >
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1 space-y-2">

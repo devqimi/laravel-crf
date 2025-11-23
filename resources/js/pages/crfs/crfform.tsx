@@ -309,7 +309,7 @@ export default function CrfForm({ user, departments, categories }: Props) {
                     >
                         <option value="">Select</option>
                         {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
+                            <option key={cat.id} value={cat.id} className="dark:text-black">
                                 {cat.cname}
                             </option>
                         ))}

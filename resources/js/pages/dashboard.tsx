@@ -285,7 +285,7 @@ export default function Dashboard({
                                 <Link href={'crfs/create'}>
                                     <Button 
                                         variant={'default'}
-                                        className="bg-blue-700 hover:bg-blue-800">
+                                        className="bg-blue-700 hover:bg-blue-800 dark:text-white">
                                         Create CRF
                                     </Button>
                                 </Link>
@@ -352,7 +352,7 @@ export default function Dashboard({
                                 </TableHeader>
                                 <TableBody>
                                     {crfs.data.map((crf, index) => (
-                                        <TableRow key={crf.id} className="bg-white">
+                                        <TableRow key={crf.id} className="bg-white dark:bg-gray-800">
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell>{crf.fname}</TableCell>
                                             <TableCell>{crf.nric}</TableCell>
@@ -586,7 +586,7 @@ export default function Dashboard({
                                     </TableHeader>
                                     <TableBody>
                                         {department_crfs.map((crf, index) => (
-                                            <TableRow key={crf.id} className="bg-white">
+                                            <TableRow key={crf.id} className="bg-white dark:bg-gray-800">
                                                 <TableCell>{index + 1}</TableCell>
                                                 <TableCell>{crf.fname}</TableCell>
                                                 <TableCell>{crf.nric}</TableCell>
