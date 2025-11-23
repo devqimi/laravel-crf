@@ -40,40 +40,46 @@ export default function CRFStats({
     pending 
 }: CRFStatsProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-2">
-            
-            <StatCard
-                title="Pending"
-                value={pending}
-                icon={<AlertCircle className="w-6 h-6" />}
-                bgColor="bg-gradient-to-br from-orange-400 to-orange-500"
-                iconColor="text-orange-500"
-                textColor="text-white"
-            />
-            <StatCard
-                title="In Progress"
-                value={inProgress}
-                icon={<Clock className="w-6 h-6" />}
-                bgColor="bg-gradient-to-br from-blue-400 to-blue-500"
-                iconColor="text-blue-500"
-                textColor="text-white"
-            />
-            <StatCard
-                title="Completed"
-                value={completed}
-                icon={<CheckCircle className="w-6 h-6" />}
-                bgColor="bg-gradient-to-br from-green-400 to-green-500"
-                iconColor="text-green-500"
-                textColor="text-white"
-            />
-            <StatCard
-                title="Total CRF"
-                value={totalCRF}
-                icon={<FileText className="w-6 h-6" />}
-                bgColor="bg-gradient-to-br from-purple-400 to-purple-500"
-                iconColor="text-purple-500"
-                textColor="text-white"
-            />
+        
+        <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2 px-3">
+                <h2 className="text-xl font-semibold text-gray-900">CRFs Progress</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-2">
+                
+                <StatCard
+                    title="Pending"
+                    value={pending}
+                    icon={<AlertCircle className="w-6 h-6" />}
+                    bgColor="bg-gradient-to-br from-orange-400 to-orange-500"
+                    iconColor="text-orange-500"
+                    textColor="text-white"
+                />
+                <StatCard
+                    title="In Progress"
+                    value={inProgress}
+                    icon={<Clock className="w-6 h-6" />}
+                    bgColor="bg-gradient-to-br from-blue-400 to-blue-500"
+                    iconColor="text-blue-500"
+                    textColor="text-white"
+                />
+                <StatCard
+                    title="Completed"
+                    value={completed}
+                    icon={<CheckCircle className="w-6 h-6" />}
+                    bgColor="bg-gradient-to-br from-green-400 to-green-500"
+                    iconColor="text-green-500"
+                    textColor="text-white"
+                />
+                <StatCard
+                    title="Total CRF"
+                    value={totalCRF}
+                    icon={<FileText className="w-6 h-6" />}
+                    bgColor="bg-gradient-to-br from-purple-400 to-purple-500"
+                    iconColor="text-purple-500"
+                    textColor="text-white"
+                />
+            </div>
         </div>
     );
 }
