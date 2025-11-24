@@ -378,7 +378,7 @@ export default function ShowCrf({
                                     >
                                         <option value="">Select Factor</option>
                                         {factors.map((factor) => (
-                                            <option key={factor.id} value={factor.id}>
+                                            <option key={factor.id} value={factor.id} className="dark:text-gray-900">
                                                 {factor.name}
                                             </option>
                                         ))}
@@ -434,7 +434,7 @@ export default function ShowCrf({
                                                 onChange={(e) => setData('it_remark', e.target.value)}
                                                 rows={4}
                                                 placeholder="Add your remark here..."
-                                                className="w-full rounded border p-2"
+                                                className="w-full rounded border p-2 dark:bg-gray-800 dark:text-white"
                                             />
                                             {errors.it_remark && (
                                                 <p className="text-sm text-red-500">{errors.it_remark}</p>
@@ -454,7 +454,7 @@ export default function ShowCrf({
                                         </>
                                     ) : (
                                         <>
-                                            <p className="rounded border p-3 bg-gray-50">
+                                            <p className="rounded border p-3 bg-gray-50 dark:bg-gray-800 whitespace-pre-wrap">
                                                 {crf.it_remark || 'No remark yet'}
                                             </p>
                                             <Button type="button" onClick={() => setIsEditing(true)}>
@@ -602,7 +602,7 @@ export default function ShowCrf({
                             {/* Show current assignment */}
                             <div className="bg-gray-50 p-3 rounded border">
                                 <p className="text-sm text-gray-600">Currently assigned to:</p>
-                                <p className="font-medium">{crf.assigned_user?.name || 'Unknown'}</p>
+                                <p className="font-medium dark:text-black">{crf.assigned_user?.name || 'Unknown'}</p>
                             </div>
 
                             {/* Assignment Type (if both permissions) */}

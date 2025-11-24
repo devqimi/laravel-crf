@@ -47,7 +47,7 @@ export default function MyCRFStats({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-2 px-3">
-                <h2 className="text-xl font-semibold text-gray-900">My CRFs Progress</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">My CRFs Progress</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
