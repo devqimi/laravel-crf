@@ -84,8 +84,13 @@ export default function CRFReportGenerator({ categories, vendors }: ReportGenera
         // Create a temporary link to download the file
         const downloadUrl = `/reports/crf/export?${params.toString()}`;
         
-        // Open in new window to trigger download
-        window.location.href = downloadUrl;
+        // Create a hidden link and click it to trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = ''; // Let the server set the filename
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         
         setTimeout(() => {
             setIsGenerating(false);
@@ -173,17 +178,17 @@ export default function CRFReportGenerator({ categories, vendors }: ReportGenera
                         <div className="space-y-2">
                             <Label htmlFor="actionBy">Action By (Vendor)</Label>
                             <Select
-                                value={filters.actionBy}
+                                value={filters.actionBy || "all"}
                                 onValueChange={(value) => setFilters(prev => ({ 
                                     ...prev, 
-                                    actionBy: value 
+                                    actionBy: value === "all" ? "" : value 
                                 }))}
                             >
                                 <SelectTrigger id="actionBy">
                                     <SelectValue placeholder="Select vendor (optional)" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Vendors</SelectItem>
+                                    <SelectItem value="all">All Vendors</SelectItem>
                                     {vendors.map((vendor) => (
                                         <SelectItem key={vendor.id} value={vendor.id.toString()}>
                                             {vendor.name}
