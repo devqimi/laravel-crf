@@ -40,7 +40,7 @@ class RegisteredUserController extends Controller
             'nric' => 'required|string|max:20|unique:users,nric',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'designation' => 'required|string|max:255',
-            'extno' => 'string|max:10',
+            'extno' => 'nullable|string|max:10',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'department_id' => 'required|exists:departments,id',
             'role' => 'required|exists:roles,name',

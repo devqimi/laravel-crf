@@ -56,7 +56,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'designation' => 'required|string|max:255',
-            'extno' => 'string|max:10',
+            'extno' => 'nullable|string|max:10',
             'roles' => 'array',
             'roles.*' => 'string|exists:roles,name',
             'department_id' => 'required|exists:departments,id', // Add this
