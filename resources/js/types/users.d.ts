@@ -4,7 +4,9 @@ import { SingleRole } from "./roles";
 export interface SingleUser {
     id: number;
     name: string;
+    nric: string;
     email: string;
+    phone: string;
     roles: string[];
     created_at: string;
 }

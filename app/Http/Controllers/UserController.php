@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
@@ -36,8 +37,11 @@ class UserController extends Controller
      */
     public function create()
     {
+        $departments = Department::all();
+        
         return Inertia::render('users/create', [
-            'roles' => Role::all()->pluck('name')
+            'departments' => $departments,
+            'roles' => Role::all(),
         ]);
     }
 
@@ -52,16 +56,22 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
             'roles' => 'array',
             'roles.*' => 'string|exists:roles,name',
+            'department_id' => 'required|exists:departments,id', // Add this
+            'role' => 'required|string|exists:roles,name', // Add this
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'nric' => $request->nric,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'phone' => $request->phone,
+            'department_id' => $request->department_id, // Add this
+
         ]);
 
-        if ($request->roles) {
-            $user->syncRoles($request->roles);
+        if ($request->role) {
+            $user->assignRole($request->role);
         }
 
         return to_route('users.index')->with('message', 'User created successfully!');
@@ -82,7 +92,8 @@ class UserController extends Controller
     {
         return Inertia::render('users/edit', [
             'user' => $user->load('roles'),
-            'roles' => Role::all()->pluck('name') 
+            'departments' => Department::all(),
+            'roles' => Role::all()
         ]);
     }
 
@@ -96,15 +107,20 @@ class UserController extends Controller
             'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'roles' => 'array',
             'roles.*' => 'string|exists:roles,name',
+            'department_id' => 'required|exists:departments,id', // Add this
+            'role' => 'required|string|exists:roles,name', // Add this
         ]);
 
         $user->update([
             'name' => $request->name,
+            'nric' => $request->nric,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'department_id' => $request->department_id, // Add this
         ]);
 
-        if ($request->roles) {
-            $user->syncRoles($request->roles);
+        if ($request->role) {
+            $user->syncRoles($request->role);
         }
 
         return to_route('users.index')->with('message', 'User updated successfully!');

@@ -70,11 +70,11 @@ export default function Users({ users }: { users: User }) {
                                         <TableCell>{index + 1}</TableCell>
                                         <TableCell>{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
-                                        <TableCell className='flex flex-wrap items-center gap-2'>{user.roles.map((role,index) => (
+                                        <TableCell className='flex flex-wrap items-center gap-2'>
                                             <Badge variant={'outline'} key={index}>
-                                                {role}
+                                                {user.roles}
                                             </Badge>
-                                        ))}</TableCell>
+                                        </TableCell>
                                         <TableCell>{user.created_at}</TableCell>
                                         <TableCell>
                                             {can('update users') && (
