@@ -39,6 +39,8 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'nric' => 'required|string|max:20|unique:users,nric',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'designation' => 'required|string|max:255',
+            'extno' => 'string|max:10',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'department_id' => 'required|exists:departments,id',
             'role' => 'required|exists:roles,name',
@@ -49,6 +51,8 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'nric' => $validated['nric'],
             'email' => $request->email,
+            'designation' => $request->designation,
+            'extno' => $request->extno,
             'department_id' => $validated['department_id'],
             'phone' => $validated['phone'], // ✅ add this
             'password' => Hash::make($request->password),

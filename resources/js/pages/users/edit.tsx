@@ -22,6 +22,8 @@ type User = {
     email: string;
     phone: string;
     department_id: number;
+    designation?: string;
+    extno?: string;
     roles: Array<{ name: string }>; // User's current roles
 };
 
@@ -42,6 +44,7 @@ type Props = {
 };
 
 export default function EditUsers({ departments = [], roles = [], user }: Props) {
+    
     // Get user's current role (first role)
     const currentRole = user.roles && user.roles.length > 0 ? user.roles[0].name : '';
 
@@ -50,6 +53,8 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
         nric: user.nric,
         email: user.email,
         phone: user.phone,
+        designation: user.designation || '',
+        extno: user.extno || '',
         department_id: user.department_id?.toString() || '',
         role: currentRole,
     });
@@ -160,6 +165,32 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
                                     value={data.phone} 
                                     onChange={(e) => setData('phone', e.target.value)} 
                                     aria-invalid={!!errors.phone} 
+                                />
+                                <InputError message={errors.phone} />
+                            </div>
+
+                            <div className='mb-4'>
+                                <Label htmlFor="designation">Designation</Label>
+                                <Input 
+                                    id="designation" 
+                                    name="designation" 
+                                    type="text" 
+                                    value={data.designation} 
+                                    onChange={(e) => setData('designation', e.target.value)} 
+                                    aria-invalid={!!errors.designation} 
+                                />
+                                <InputError message={errors.designation} />
+                            </div>
+                            
+                            <div className='mb-4'>
+                                <Label htmlFor="extno">Ext No</Label>
+                                <Input 
+                                    id="extno" 
+                                    name="extno" 
+                                    type="text" 
+                                    value={data.extno} 
+                                    onChange={(e) => setData('extno', e.target.value)} 
+                                    aria-invalid={!!errors.extno} 
                                 />
                                 <InputError message={errors.phone} />
                             </div>

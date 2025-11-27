@@ -40,6 +40,8 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
         email: '',
         password: '',
         phone: '',
+        designation: '',
+        extno: '',
         department_id: '',
         role: '',
     });
@@ -126,9 +128,19 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
                                 <InputError message={errors.password} />
                             </div>
                             <div className='mb-4'>
-                                <Label htmlFor="password">Phone Number</Label>
+                                <Label htmlFor="phone">Phone Number</Label>
                                 <Input id="phone" name="phone" type="text" value={data.phone} onChange={(e) => setData('phone', e.target.value)} aria-invalid={!!errors.phone} />
                                 <InputError message={errors.phone} />
+                            </div>
+                            <div className='mb-4'>
+                                <Label htmlFor="designation">Designation</Label>
+                                <Input id="designation" name="designation" type="text" value={data.designation} onChange={(e) => setData('designation', e.target.value)} aria-invalid={!!errors.designation} />
+                                <InputError message={errors.designation} />
+                            </div>
+                            <div className='mb-4'>
+                                <Label htmlFor="extno">Ext No</Label>
+                                <Input id="extno" name="extno" type="text" value={data.extno} onChange={(e) => setData('extno', e.target.value)} aria-invalid={!!errors.extno} />
+                                <InputError message={errors.extno} />
                             </div>
 
                             <div className="grid gap-2 mb-4">

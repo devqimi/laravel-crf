@@ -18,6 +18,8 @@ type User = {
     name: string;
     nric: string;
     email: string;
+    designation: string;
+    extno: string;
     department_id: number | null;
     department_name?: string;
 };
@@ -45,8 +47,8 @@ export default function CrfForm({ user, departments, categories }: Props) {
         name: user?.name || '',
         nric: user?.nric || '',
         department_id: user?.department_id || '',
-        designation: '',
-        extno: '',
+        designation: user?.designation || '',
+        extno: user?.extno || '',
         category_id: '',
         factor_id: '',
         issue: '',
@@ -177,8 +179,8 @@ export default function CrfForm({ user, departments, categories }: Props) {
                     name: user?.name || '',
                     nric: user?.nric || '',
                     department_id: user?.department_id || '',
-                    designation: '',
-                    extno: '',
+                    designation: user?.designation || '',
+                    extno: user?.extno || '',
                     category_id: '',
                     factor_id: '',
                     issue: '',
@@ -201,8 +203,8 @@ export default function CrfForm({ user, departments, categories }: Props) {
             name: user?.name || '',
             nric: user?.nric || '',
             department_id: user?.department_id || '',
-            designation: '',
-            extno: '',
+            designation: user?.designation || '',
+            extno: user?.extno || '',
             category_id: '',
             factor_id: '',
             issue: '',
@@ -278,8 +280,9 @@ export default function CrfForm({ user, departments, categories }: Props) {
                         className="w-full rounded border border-gray-900 px-2 py-1"
                         type="text"
                         name="designation"
-                        value={formData.designation}
+                        value={user?.designation || ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, designation: e.target.value }))}
+                        readOnly
                         required
                     />
                 </div>
@@ -291,9 +294,10 @@ export default function CrfForm({ user, departments, categories }: Props) {
                         className="w-full rounded border border-gray-900 px-2 py-1"
                         type="text"
                         name="extno"
-                        value={formData.extno}
+                        value={user?.extno || ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, extno: e.target.value }))}
                         required
+                        readOnly
                     />
                 </div>
                 <div>

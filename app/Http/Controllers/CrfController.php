@@ -45,6 +45,8 @@ class CrfController extends Controller
                 'name' => $user->name,
                 'nric' => $user->nric,
                 'email' => $user->email,
+                'designation' => $user->designation,
+                'extno' => $user->extno,
                 'department_id' => $user->department_id,
                 'department_name' => $user->department?->dname,
             ],

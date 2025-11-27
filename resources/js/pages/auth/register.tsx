@@ -30,6 +30,8 @@ export default function Register({ departments, roles }: RegisterProps) {
         email: '',
         password: '',
         password_confirmation: '',
+        designation: '',
+        extno: '',
         department_id: '',
         role: '',
         phone: '',
@@ -156,6 +158,29 @@ export default function Register({ departments, roles }: RegisterProps) {
                         required
                     />
                     <InputError message={errors.password_confirmation} />
+                </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="designation">Designation</Label>
+                    <Input
+                        id="designation"
+                        type="text"
+                        value={data.designation}
+                        onChange={(e) => setData('designation', e.target.value)}
+                        required
+                    />
+                    <InputError message={errors.designation} />
+                </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="extno">Ext No</Label>
+                    <Input
+                        id="extno"
+                        type="text"
+                        value={data.extno}
+                        onChange={(e) => setData('extno', e.target.value)}
+                    />
+                    <InputError message={errors.extno} />
                 </div>
 
                 <div className="grid gap-2">

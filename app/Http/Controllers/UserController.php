@@ -55,6 +55,8 @@ class UserController extends Controller
             'nric' => 'required|string|max:20|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'designation' => 'required|string|max:255',
+            'extno' => 'string|max:10',
             'roles' => 'array',
             'roles.*' => 'string|exists:roles,name',
             'department_id' => 'required|exists:departments,id', // Add this
@@ -67,6 +69,8 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'phone' => $request->phone,
+            'designation' => $request->designation,
+            'extno' => $request->extno,
             'department_id' => $request->department_id, // Add this
 
         ]);
@@ -109,8 +113,10 @@ class UserController extends Controller
             'nric' => 'required|string|max:20|unique:users,nric,'.$user->id,
             'roles' => 'array',
             'roles.*' => 'string|exists:roles,name',
-            'department_id' => 'required|exists:departments,id', // Add this
-            'role' => 'required|string|exists:roles,name', // Add this
+            'department_id' => 'required|exists:departments,id',
+            'role' => 'required|string|exists:roles,name',
+            'designation' => 'required',
+            'extno' => 'nullable|string',
         ]);
 
         $user->update([
@@ -118,7 +124,9 @@ class UserController extends Controller
             'nric' => $request->nric,
             'email' => $request->email,
             'phone' => $request->phone,
-            'department_id' => $request->department_id, // Add this
+            'department_id' => $request->department_id,
+            'designation' => $request->designation,
+            'extno' => $request->extno,
         ]);
 
         if ($request->role) {

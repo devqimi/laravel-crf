@@ -25,6 +25,8 @@ class User extends Authenticatable
         'nric',
         'email',
         'phone',
+        'designation',
+        'extno',
         'password',
         'department_id',
     ];
