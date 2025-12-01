@@ -218,7 +218,7 @@ class CrfController extends Controller
 
             // Add timeline entry
             $crf->addTimelineEntry(
-                status: 'Verified',
+                status: 'Approved',
                 actionType: 'status_change',
                 remark: 'Approved by HOU: ' . $user->name,
                 userId: $user->id
@@ -328,6 +328,81 @@ class CrfController extends Controller
         $user->notify(new CrfAssigned($crf));
 
         return redirect()->route('dashboard')->with('success', 'CRF assigned to Vendor successfully!');
+    }
+
+    public function assignByITAssign(Request $request, Crf $crf)
+    {
+        $request->validate([
+            'assign_type' => 'required|in:itd,vendor',
+            'assigned_to' => 'required_if:assign_type,itd|exists:users,id',
+            'vendor_admin_id' => 'required_if:assign_type,vendor|exists:users,id',
+        ]);
+
+        
+        if ($request->assign_type === 'itd') {
+            
+            $user = User::find($request['assigned_to']);
+
+            // Assign directly to ITD PIC
+            $crf->update([
+                'assigned_to' => $request->assigned_to,
+                'application_status_id' => 4, // Assigned to ITD
+            ]);
+
+            // Add timeline entry
+            $crf->addTimelineEntry(
+                status: 'Assigned to ITD',
+                actionType: 'status_change',
+                remark: 'Assigned to ' . $user->name,
+                userId: Auth::id()
+            );
+            
+            return redirect()->back()->with('message', 'CRF assigned to ITD PIC successfully!');
+        } else {
+
+            $user = User::find($request['vendor_admin_id']);
+
+            // Assign to Vendor Admin first
+            $crf->update([
+                'assigned_vendor_admin_id' => $request->vendor_admin_id,
+                'application_status_id' => 12, // Assigned to Vendor Admin (new status ID)
+            ]);
+
+            $crf->addTimelineEntry(
+                status: 'Assigned to Vendor Admin',
+                actionType: 'status_change',
+                remark: 'Assigned to ' . $user->name,
+                userId: Auth::id()
+            );
+            
+            return redirect()->back()->with('message', 'CRF assigned to Vendor Admin successfully!');
+        }
+    }
+
+    public function assignVendorPIC(Request $request, Crf $crf)
+    {
+        // Only vendor admin can do this
+        Gate::authorize('Assign Vendor PIC');
+        
+        $request->validate([
+            'assigned_to' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request['assigned_to']);
+
+        $crf->update([
+            'assigned_to' => $request->assigned_to,
+            'application_status_id' => 5, // Assigned to Vendor
+        ]);
+
+        $crf->addTimelineEntry(
+                status: 'Assigned to Vendor PIC',
+                actionType: 'status_change',
+                remark: 'Assigned to ' . $user->name,
+                userId: Auth::id()
+            );
+        
+        return redirect()->back()->with('message', 'CRF assigned to Vendor PIC successfully!');
     }
 
     public function reassignToItd(Request $request, Crf $crf)
@@ -646,7 +721,7 @@ class CrfController extends Controller
 
         // Add timeline entry
         $crf->addTimelineEntry(
-            status: 'Verified by TP',
+            status: 'Approved by TP',
             actionType: 'status_change',
             remark: 'Approved by Timbalan Pengarah: ' . $user->name,
             userId: $user->id

@@ -37,6 +37,7 @@ class RolePermissionSeeder extends Seeder
             'Acknowledge CRF by ITD',
             'Assign CRF To ITD',
             'Assign CRF to Vendor',
+            'Assign Vendor PIC',
             'Re Assign CRF To Vendor',
             'ITD Follow Up / Assign Allocate PIC',
             'Vendor Follow Up / Assign Allocate PIC',
@@ -132,6 +133,7 @@ class RolePermissionSeeder extends Seeder
             'View Department CRF',
             'View Personal CRF',
             'View Vendor CRF',
+            'Assign Vendor PIC',
         ]);
 
         // 6. VENDOR PIC Role - ID: 6
@@ -146,6 +148,24 @@ class RolePermissionSeeder extends Seeder
             'View Vendor CRF',
         ]);
 
+        // 7. IT ASSIGN Role - NEW
+        $itAssign = Role::firstOrCreate(['name' => 'IT ASSIGN']);
+        $itAssign->syncPermissions([
+            'view dashboard',
+            'View ITD CRF',
+            'View Vendor CRF',
+            'Assign CRF To ITD',
+            'Assign CRF to Vendor',
+        ]);
+
+        // 8. TIMBALAN PENGARAH Role (if not exists)
+        $tp = Role::firstOrCreate(['name' => 'TIMBALAN PENGARAH']);
+        $tp->syncPermissions([
+            'approved by TP',
+            'view dashboard',
+            'View Personal CRF',
+        ]);
+
         $this->command->info('Roles and Permissions created successfully!');
         $this->command->info('');
         $this->command->info('Created Roles:');
@@ -155,5 +175,7 @@ class RolePermissionSeeder extends Seeder
         $this->command->info('4. USER - 3 permissions');
         $this->command->info('5. VENDOR ADMIN - 8 permissions');
         $this->command->info('6. VENDOR PIC - 7 permissions');
+        $this->command->info('7. IT ASSIGN - 3 permissions');
+        $this->command->info('8. TIMBALAN PENGARAH - 3 permissions');
     }
 }

@@ -504,14 +504,39 @@ export default function ShowCrf({
                                                     <TableCell className="align-top">
                                                         <div className="space-y-2">
                                                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                                timeline.status === 'Closed' 
+
+                                                                timeline.status === 'First Created'
+                                                                    ? 'bg-amber-100 text-amber-800'
+
+                                                                    : timeline.status === 'Approved'
                                                                     ? 'bg-green-100 text-green-800'
-                                                                    : timeline.status === 'Work in progress'
+
+                                                                    : timeline.status === 'ITD Acknowledged'
+                                                                    ? 'bg-indigo-100 text-indigo-800'
+
+                                                                    : timeline.status === 'Assigned to ITD'
                                                                     ? 'bg-blue-100 text-blue-800'
-                                                                    : timeline.status.includes('Assigned') || timeline.status.includes('Reassigned')
+                                                                    
+                                                                    : timeline.status === 'Assigned to Vendor'
+                                                                    ? 'bg-cyan-100 text-cyan-800'
+                                                                    
+                                                                    : timeline.status === 'Reassigned to ITD'
+                                                                    ? 'bg-blue-200 text-blue-900'
+                                                                    
+                                                                    : timeline.status === 'Reassigned to Vendor'
+                                                                    ? 'bg-cyan-200 text-cyan-900'
+
+                                                                    : timeline.status === 'Work in progress'
+                                                                    ? 'bg-sky-100 text-sky-800'
+
+                                                                    : timeline.status === 'Closed' 
+                                                                    ? 'bg-gray-200 text-gray-800'
+                                                                    
+                                                                    : timeline.status === 'Approved by HOU' || timeline.status === 'Approved by TP'
+                                                                    ? 'bg-green-200 text-green-800'
+                                                                    
+                                                                    : timeline.status === 'Assigned to Vendor Admin' 
                                                                     ? 'bg-purple-100 text-purple-800'
-                                                                    : timeline.status === 'Verified'
-                                                                    ? 'bg-yellow-100 text-yellow-800'
                                                                     : 'bg-gray-100 text-gray-800'
                                                             }`}>
                                                                 {timeline.status}

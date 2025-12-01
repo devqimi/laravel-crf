@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
+import { useForm } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,6 +22,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+type User = {
+    id: number;
+    name: string;
+    nric: string;
+    email: string;
+    phone: string;
+    designation?: string;
+    extno?: string;
+};
+
 export default function Profile({
     mustVerifyEmail,
     status,
@@ -28,6 +39,19 @@ export default function Profile({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
+
+
+    // const { data, setData, put, processing, errors } = useForm({
+    //     name: user.name,
+    //     nric: user.nric,
+    //     email: user.email,
+    //     phone: user.phone,
+    //     designation: user.designation || '',
+    //     extno: user.extno || '',
+    //     department_id: user.department_id?.toString() || '',
+    //     role: currentRole,
+    // });
+
     const { auth } = usePage<SharedData>().props;
 
     return (
@@ -38,7 +62,7 @@ export default function Profile({
                 <div className="space-y-6">
                     <HeadingSmall
                         title="Profile information"
-                        description="Update your name and email address"
+                        description="Update your information"
                     />
 
                     <Form
@@ -69,6 +93,25 @@ export default function Profile({
                                     />
                                 </div>
 
+                                {/* <div className="grid gap-2">
+                                    <Label htmlFor="nric">NRIC</Label>
+
+                                    <Input
+                                        id="nric"
+                                        type="text"
+                                        className="mt-1 block w-full"
+                                        value={auth.user.nric}
+                                        name="nric"
+                                        required
+                                        placeholder="NRIC"
+                                    />
+
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.email}
+                                    />
+                                </div> */}
+                                
                                 <div className="grid gap-2">
                                     <Label htmlFor="email">Email address</Label>
 

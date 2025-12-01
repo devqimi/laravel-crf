@@ -75,6 +75,11 @@ class Crf extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    public function assignedVendorAdmin()
+    {
+        return $this->belongsTo(User::class, 'assigned_vendor_admin_id');
+    }
+
     public function remarks(){
         return $this->hasMany(CrfRemark::class, 'crf_id');
     }

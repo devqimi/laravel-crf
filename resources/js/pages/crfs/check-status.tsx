@@ -75,10 +75,10 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
         );
     };
 
-    const handleViewDetails = (crf: CrfResult) => {
-        setSelectedCrf(crf);
-        setModalOpen(true);
-    };
+    // const handleViewDetails = (crf: CrfResult) => {
+    //     setSelectedCrf(crf);
+    //     setModalOpen(true);
+    // };
 
     const getStatusColor = (status: string) => {
         const colors: Record<string, string> = {

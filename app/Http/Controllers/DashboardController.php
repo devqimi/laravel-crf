@@ -55,6 +55,41 @@ class DashboardController extends Controller
             $isAdminOrHOU = true;
         }
 
+        // IT ASSIGN view approved crf by hou
+        elseif (Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                ->where('application_status_id', [2, 11])
+                ->latest()
+                ->paginate(10);
+
+            $isAdminOrHOU = false;
+            $stats = [
+                'my_total' => Crf::where('application_status_id', 2)->count(),
+                'my_pending' => Crf::where('application_status_id', 2)->count(),
+                'my_in_progress' => 0,
+                'my_completed' => 0,
+                'my_this_month' => 0,
+            ];
+        }
+
+        // VENDOR ADMIN can view CRFs assigned to them
+        elseif (Gate::allows('Assign Vendor PIC')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                ->where('assigned_vendor_admin_id', $user->id)
+                ->whereIn('application_status_id', [12]) // 12 = Assigned to Vendor Admin
+                ->latest()
+                ->paginate(10);
+
+            $isAdminOrHOU = false;
+            $stats = [
+                'my_total' => Crf::where('assigned_vendor_admin_id', $user->id)->count(),
+                'my_pending' => Crf::where('assigned_vendor_admin_id', $user->id)->where('application_status_id', 12)->count(),
+                'my_in_progress' => Crf::where('assigned_vendor_admin_id', $user->id)->where('application_status_id', 8)->count(),
+                'my_completed' => Crf::where('assigned_vendor_admin_id', $user->id)->where('application_status_id', 9)->count(),
+                'my_this_month' => 0,
+            ];
+        }
+
         // HOU can verify CRFs from their department
         elseif (Gate::allows('verified CRF') && Gate::allows('View Department CRF')) {
 
@@ -158,6 +193,7 @@ class DashboardController extends Controller
         
         $itdPics = User::role('ITD PIC')->select('id', 'name')->get();
         $vendorPics = User::role('VENDOR PIC')->select('id', 'name')->get();
+        $vendorAdmins = User::role('VENDOR ADMIN')->select('id','name')->get();
 
         return Inertia::render('dashboard', [
             'crfs' => $crfs,
@@ -174,9 +210,12 @@ class DashboardController extends Controller
             'can_assign_itd' => Gate::allows('Assign CRF To ITD') || Gate::allows('Re Assign PIC ITD'),
             'can_assign_vendor' => Gate::allows('Assign CRF to Vendor') || Gate::allows('Re Assign PIC Vendor'),
             'can_update_own_crf' => Gate::allows('Update CRF (own CRF)'),
+            'can_assign_by_it' => Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor'),
+            'can_assign_vendor_pic' => Gate::allows('Assign Vendor PIC'),
             'categories' => Category::all(),
             'itd_pics' => $itdPics,
             'vendor_pics' => $vendorPics,
+            'vendor_admins' => $vendorAdmins,
             'can_approve_tp' => Gate::allows('approved by TP'),
         ]);
     }
