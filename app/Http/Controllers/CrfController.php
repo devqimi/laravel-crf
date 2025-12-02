@@ -15,12 +15,14 @@ use App\Models\ApplicationStatus;
 use App\Notifications\CrfCreated;
 use App\Notifications\CrfAssigned;
 use App\Notifications\CrfVerified;
-use App\Notifications\CrfVerifiedByHOU;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-
+use App\Notifications\CrfVerifiedByHOU;
+use App\Notifications\CrfAssignedToITDNotification;
+use App\Notifications\CrfAssignedToVendorAdminNotification;
+use App\Notifications\CrfAssignedToVendorPICNotification;
 
 class CrfController extends Controller
 {
@@ -349,6 +351,8 @@ class CrfController extends Controller
                 'application_status_id' => 4, // Assigned to ITD
             ]);
 
+            $user->notify(new CrfAssignedToITDNotification($crf));
+
             // Add timeline entry
             $crf->addTimelineEntry(
                 status: 'Assigned to ITD',
@@ -367,6 +371,8 @@ class CrfController extends Controller
                 'assigned_vendor_admin_id' => $request->vendor_admin_id,
                 'application_status_id' => 12, // Assigned to Vendor Admin (new status ID)
             ]);
+
+            $user->notify(new CrfAssignedToVendorAdminNotification($crf));
 
             $crf->addTimelineEntry(
                 status: 'Assigned to Vendor Admin',
@@ -394,6 +400,8 @@ class CrfController extends Controller
             'assigned_to' => $request->assigned_to,
             'application_status_id' => 5, // Assigned to Vendor
         ]);
+
+        $user->notify(new CrfAssignedToVendorPICNotification ($crf));
 
         $crf->addTimelineEntry(
                 status: 'Assigned to Vendor PIC',

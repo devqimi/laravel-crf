@@ -167,15 +167,5 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $this->command->info('Roles and Permissions created successfully!');
-        $this->command->info('');
-        $this->command->info('Created Roles:');
-        $this->command->info('1. HOU - 3 permissions');
-        $this->command->info('2. ITD ADMIN - 26 permissions');
-        $this->command->info('3. ITD PIC - 8 permissions');
-        $this->command->info('4. USER - 3 permissions');
-        $this->command->info('5. VENDOR ADMIN - 8 permissions');
-        $this->command->info('6. VENDOR PIC - 7 permissions');
-        $this->command->info('7. IT ASSIGN - 3 permissions');
-        $this->command->info('8. TIMBALAN PENGARAH - 3 permissions');
     }
 }
