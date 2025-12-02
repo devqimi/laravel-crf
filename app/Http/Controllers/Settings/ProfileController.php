@@ -7,6 +7,7 @@ use App\Http\Requests\Settings\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,15 +30,27 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'nric' => ['required', 'string', 'max:12'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($request->user()->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'designation' => ['nullable', 'string', 'max:255'],
+            'extno' => ['nullable', 'string', 'max:20'],
+        ]);
 
-        $request->user()->save();
+        // $request->user()->fill($request->validated());
+        $request->user()->update($validated);
 
-        return to_route('profile.edit');
+        // if ($request->user()->isDirty('email')) {
+        //     $request->user()->email_verified_at = null;
+        // }
+
+        // $request->user()->save();
+
+        // return to_route('profile.edit');
+        return back()->with('status', 'profile-updated');
     }
 
     /**

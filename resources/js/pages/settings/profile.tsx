@@ -40,7 +40,6 @@ export default function Profile({
     status?: string;
 }) {
 
-
     // const { data, setData, put, processing, errors } = useForm({
     //     name: user.name,
     //     nric: user.nric,
@@ -74,9 +73,9 @@ export default function Profile({
                     >
                         {({ processing, recentlySuccessful, errors }) => (
                             <>
+                                {/* Name */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="name">Name</Label>
-
                                     <Input
                                         id="name"
                                         className="mt-1 block w-full"
@@ -86,21 +85,21 @@ export default function Profile({
                                         autoComplete="name"
                                         placeholder="Full name"
                                     />
-
                                     <InputError
                                         className="mt-2"
                                         message={errors.name}
                                     />
                                 </div>
 
-                                {/* <div className="grid gap-2">
+                                {/* NRIC */}
+                                <div className="grid gap-2">
                                     <Label htmlFor="nric">NRIC</Label>
 
                                     <Input
                                         id="nric"
                                         type="text"
                                         className="mt-1 block w-full"
-                                        value={auth.user.nric}
+                                        defaultValue={auth.user.nric || ''}
                                         name="nric"
                                         required
                                         placeholder="NRIC"
@@ -108,10 +107,11 @@ export default function Profile({
 
                                     <InputError
                                         className="mt-2"
-                                        message={errors.email}
+                                        message={errors.nric}
                                     />
-                                </div> */}
-                                
+                                </div>
+
+                                {/* Email */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="email">Email address</Label>
 
@@ -130,6 +130,48 @@ export default function Profile({
                                         className="mt-2"
                                         message={errors.email}
                                     />
+                                </div>
+
+                                {/* Phone */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Input
+                                        id="phone"
+                                        type="text"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.phone || ''}
+                                        name="phone"
+                                        placeholder="Phone number"
+                                    />
+                                    <InputError className="mt-2" message={errors.phone} />
+                                </div>
+
+                                {/* Designation */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="designation">Designation</Label>
+                                    <Input
+                                        id="designation"
+                                        type="text"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.designation || ''}
+                                        name="designation"
+                                        placeholder="Job title or designation"
+                                    />
+                                    <InputError className="mt-2" message={errors.designation} />
+                                </div>
+
+                                {/* Extension Number */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="extno">Ext Number</Label>
+                                    <Input
+                                        id="extno"
+                                        type="text"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.extno || ''}
+                                        name="extno"
+                                        placeholder="Extension number"
+                                    />
+                                    <InputError className="mt-2" message={errors.extno} />
                                 </div>
 
                                 {mustVerifyEmail &&
@@ -183,7 +225,6 @@ export default function Profile({
                         )}
                     </Form>
                 </div>
-
                 <DeleteUser />
             </SettingsLayout>
         </AppLayout>
