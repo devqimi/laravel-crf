@@ -28,9 +28,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Textarea } from '@headlessui/react';
 import { Head, router, useForm } from '@inertiajs/react';
-import { UserCog, FileIcon, Download } from 'lucide-react';
+import { UserCog, FileIcon, Download, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
+import ITAssignModal from '@/components/ITAssignModal';
 
 type User = {
     id: number;
@@ -90,8 +91,10 @@ type Props = {
     can_assign_itd: boolean,
     can_assign_vendor: boolean,
     can_update: boolean;
+    can_assign_by_it: boolean;
     can_reassign_itd?: boolean;
     can_reassign_vendor?: boolean;
+    vendor_admins?: User[];
     itd_pics?: User[];
     vendor_pics?: User[];
     factors: Factor[];
@@ -110,8 +113,10 @@ export default function ShowCrf({
     can_assign_itd,
     can_assign_vendor,
     can_update,
+    can_assign_by_it,
     can_reassign_itd = false,
     can_reassign_vendor = false,
+    vendor_admins = [],
     itd_pics = [],
     vendor_pics = [],
     factors = [],
@@ -123,6 +128,7 @@ export default function ShowCrf({
     const [isReassigning, setIsReassigning] = useState(false);
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
+    const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
 
     const { data, setData, put, processing, errors } = useForm({
         it_remark: crf.it_remark || '',
@@ -152,6 +158,11 @@ export default function ShowCrf({
                 preserveScroll: true,
             });
         }
+    };
+
+    const handleOpenITAssignModal = (crfId: number) => {
+        setSelectedCrfId(crfId);
+        setItAssignModalOpen(true);
     };
 
     const handleOpenAssignModal = (crfId: number) => {
@@ -239,6 +250,8 @@ export default function ShowCrf({
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>CRF Details - #{crf.id}</CardTitle>
                         <div className="flex gap-2">
+                            
+                            {/* FOR ITD ADMIN TO REASSIGN */}
                             {canReassign && (
                                 <Button 
                                     onClick={handleOpenReassignModal}
@@ -274,6 +287,19 @@ export default function ShowCrf({
                                     }}
                                     className="bg-green-600 hover:bg-green-700">
                                     TP Approve
+                                </Button>
+                            )}
+
+                            {/* For IT ASSIGN to assign */}
+                            {(can_assign_by_it && (crf.application_status_id === 2 || crf.application_status_id === 11)) && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => handleOpenITAssignModal(crf.id)}
+                                    className="bg-purple-600 hover:bg-purple-700"
+                                    title="Assign CRF"
+                                >
+                                    <UserPlus className="h-4 w-4" />
                                 </Button>
                             )}
 
@@ -634,7 +660,8 @@ export default function ShowCrf({
                             {(can_reassign_itd && can_reassign_vendor) && (
                                 <div className="grid gap-2">
                                     <Label>Reassign To</Label>
-                                    <div className="flex gap-4">
+
+                                    {/* <div className="flex gap-4">
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input
                                                 type="radio"
@@ -663,6 +690,39 @@ export default function ShowCrf({
                                             />
                                             <span>Vendor PIC</span>
                                         </label>
+                                    </div> */}
+
+                                    <div className="space-y-2">
+                                        <div className="flex gap-4">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="reassignType"
+                                                    value="itd"
+                                                    checked={reassignType === 'itd'}
+                                                    onChange={(e) => {
+                                                        setReassignType('itd');
+                                                        setSelectedUser('');
+                                                    }}
+                                                    className="h-4 w-4"
+                                                />
+                                                <span>Reassign to ITD</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="reassignType"
+                                                    value="vendor"
+                                                    checked={reassignType === 'vendor'}
+                                                    onChange={(e) => {
+                                                        setReassignType('vendor');
+                                                        setSelectedUser('');
+                                                    }}
+                                                    className="h-4 w-4"
+                                                />
+                                                <span>Reassign to Vendor</span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -732,6 +792,17 @@ export default function ShowCrf({
                         vendorPics={vendor_pics}
                         canAssignItd={can_assign_itd}
                         canAssignVendor={can_assign_vendor}
+                    />
+                )}
+
+                {/* IT ASSIGN Modal */}
+                {selectedCrfId && (
+                    <ITAssignModal
+                        crfId={selectedCrfId}
+                        isOpen={itAssignModalOpen}
+                        onClose={() => setItAssignModalOpen(false)}
+                        itdPics={itd_pics}
+                        vendorAdmins={vendor_admins}
                     />
                 )}
 
