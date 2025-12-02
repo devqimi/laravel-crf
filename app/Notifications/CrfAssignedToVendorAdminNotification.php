@@ -28,7 +28,7 @@ class CrfAssignedToVendorAdminNotification extends Notification
             'title' => 'CRF Assigned - Select Vendor PIC',
             'message' => "CRF #{$this->crf->id} for {$this->crf->fname} requires Vendor PIC assignment.",
             'crf_id' => $this->crf->id,
-            'url' => url('/crfs/' . $this->crf->id),
+            'action_url' => '/crfs/' . $this->crf->id,
             'type' => 'crf_assigned_vendor_admin',
             'created_at' => now()->toDateTimeString(),
         ];

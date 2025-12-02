@@ -1,4 +1,5 @@
 <?php
+// app/Notifications/CrfVerified.php
 
 namespace App\Notifications;
 
@@ -6,7 +7,7 @@ use App\Models\Crf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class CrfVerifiedByHOU extends Notification
+class CrfApproved extends Notification
 {
     use Queueable;
 
@@ -26,10 +27,10 @@ class CrfVerifiedByHOU extends Notification
     {
         return [
             'crf_id' => $this->crf->id,
-            'title' => 'CRF Verified by HOU - Awaiting Your Approval',
-            'message' => 'Hardware Relocation CRF #' . $this->crf->id . ' has been verified by HOU and requires your approval',
+            'title' => 'CRF Approved by HOU',
+            'message' => 'CRF #' . $this->crf->id . ' has been approved by HOU and requires acknowledgment',
             'action_url' => '/crfs/' . $this->crf->id,
-            'type' => 'crf_verified_by_hou',
+            'type' => 'crf_approved',
         ];
     }
 }

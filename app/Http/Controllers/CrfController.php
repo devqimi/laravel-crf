@@ -14,12 +14,12 @@ use App\Models\CrfAttachment;
 use App\Models\ApplicationStatus;
 use App\Notifications\CrfCreated;
 use App\Notifications\CrfAssigned;
-use App\Notifications\CrfVerified;
+use App\Notifications\CrfApproved;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use App\Notifications\CrfVerifiedByHOU;
+use App\Notifications\CrfApprovedByHOU;
 use App\Notifications\CrfAssignedToITDNotification;
 use App\Notifications\CrfAssignedToVendorAdminNotification;
 use App\Notifications\CrfAssignedToVendorPICNotification;
@@ -205,14 +205,14 @@ class CrfController extends Controller
             // Notify Timbalan Pengarah
             $tpUsers = $this->getTPs();
             foreach ($tpUsers as $tp) {
-                $tp->notify(new CrfVerifiedByHOU($crf));
+                $tp->notify(new CrfApprovedByHOU($crf));
             }
 
             return redirect()->route('dashboard')->with('success', 'CRF approved. Notification sent to Timbalan Pengarah for final approval.');
         
         } else {
 
-            // For other categories: Normal flow - Status "Verified" (go directly to ITD Admin)
+            // For other categories: Normal flow - Status "Approved" (go directly to ITD Admin/IT ASSIGN)
             $crf->update([
                 'application_status_id' => 2, // Verified
                 'approved_by' => $user->id,
@@ -229,7 +229,13 @@ class CrfController extends Controller
             // Notify ITD Admin
             $itdAdmins = $this->getITDAdmins();
             foreach ($itdAdmins as $admin) {
-                $admin->notify(new CrfVerified($crf));
+                $admin->notify(new CrfApproved($crf));
+            }
+
+            // Notify IT Assign
+            $itAssigns = $this->getITAssign();
+            foreach ($itAssigns as $itAssign){
+                $itAssign->notify(new CrfApproved($crf));
             }
 
             return redirect()->route('dashboard')->with('success', 'CRF approved successfully!');
@@ -351,8 +357,7 @@ class CrfController extends Controller
                 'application_status_id' => 4, // Assigned to ITD
             ]);
 
-            $user->notify(new CrfAssignedToITDNotification($crf));
-
+            
             // Add timeline entry
             $crf->addTimelineEntry(
                 status: 'Assigned to ITD',
@@ -361,7 +366,10 @@ class CrfController extends Controller
                 userId: Auth::id()
             );
             
+            $user->notify(new CrfAssigned($crf));
+
             return redirect()->back()->with('message', 'CRF assigned to ITD PIC successfully!');
+
         } else {
 
             $user = User::find($request['vendor_admin_id']);
@@ -372,14 +380,15 @@ class CrfController extends Controller
                 'application_status_id' => 12, // Assigned to Vendor Admin (new status ID)
             ]);
 
-            $user->notify(new CrfAssignedToVendorAdminNotification($crf));
-
+            
             $crf->addTimelineEntry(
                 status: 'Assigned to Vendor Admin',
                 actionType: 'status_change',
                 remark: 'Assigned to ' . $user->name,
                 userId: Auth::id()
             );
+            
+            $user->notify(new CrfAssigned($crf));
             
             return redirect()->back()->with('message', 'CRF assigned to Vendor Admin successfully!');
         }
@@ -401,14 +410,15 @@ class CrfController extends Controller
             'application_status_id' => 5, // Assigned to Vendor
         ]);
 
-        $user->notify(new CrfAssignedToVendorPICNotification ($crf));
-
+        
         $crf->addTimelineEntry(
-                status: 'Assigned to Vendor PIC',
-                actionType: 'status_change',
-                remark: 'Assigned to ' . $user->name,
-                userId: Auth::id()
-            );
+            status: 'Assigned to Vendor PIC',
+            actionType: 'status_change',
+            remark: 'Assigned to ' . $user->name,
+            userId: Auth::id()
+        );
+        
+        $user->notify(new CrfAssignedToVendorPICNotification ($crf));
         
         return redirect()->back()->with('message', 'CRF assigned to Vendor PIC successfully!');
     }
@@ -530,6 +540,7 @@ class CrfController extends Controller
         // Get ITD and Vendor PICs for reassignment
         $itdPics = User::role('ITD PIC')->select('id', 'name')->get();
         $vendorPics = User::role('VENDOR PIC')->select('id', 'name')->get();
+        $vendorAdmins = User::role('VENDOR ADMIN')->select('id','name')->get();
 
         // Get all factors for dropdown
         $factors = Factor::all(['id', 'name']);
@@ -545,8 +556,10 @@ class CrfController extends Controller
             'can_assign_itd' => Gate::allows('Assign CRF To ITD'),
             'can_assign_vendor' =>Gate::allows('Assign CRF to Vendor'),
             'can_update' => Gate::allows('Update CRF (own CRF)') && $crf->assigned_to === Auth::id(),
+            'can_assign_by_it' => Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor'),
             'can_reassign_itd' => Gate::allows('Re Assign PIC ITD'),
             'can_reassign_vendor' => Gate::allows('Re Assign PIC Vendor'),
+            'vendor_admins' => $vendorAdmins,
             'itd_pics' => $itdPics,
             'vendor_pics' => $vendorPics,
             'factors' => $factors,
@@ -705,6 +718,12 @@ class CrfController extends Controller
         return User::role('ITD Admin')->get();
     }
 
+    private function getITAssign(){
+        
+        // get it assign user
+        return User::role('IT ASSIGN')->get();
+    }
+
     // app/Http/Controllers/CrfController.php
 
     public function approveByTP(Crf $crf)
@@ -735,10 +754,10 @@ class CrfController extends Controller
             userId: $user->id
         );
 
-        // Notify ITD Admin
+        // Notify ITD Admin and IT ASSIGN
         $itdAdmins = $this->getITDAdmins();
         foreach ($itdAdmins as $admin) {
-            $admin->notify(new CrfVerified($crf));
+            $admin->notify(new CrfApproved($crf));
         }
 
         return redirect()->route('dashboard')->with('success', 'CRF approved successfully! Notification sent to ITD Admin.');

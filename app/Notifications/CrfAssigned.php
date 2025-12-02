@@ -24,10 +24,12 @@ class CrfAssigned extends Notification
     {
         return [
             'crf_id' => $this->crf->id,
-            'title' => 'CRF Assigned to You',
-            'message' => 'CRF #' . $this->crf->id . ' has been assigned to you',
+            'title' => 'New CRF Assigned to You',
+            'message' => 'CRF #' . $this->crf->id . ' for '. $this->crf->fname . ' has been assigned to you',
+            'crf_id' => $this->crf->id,
             'action_url' => '/crfs/' . $this->crf->id,
             'type' => 'crf_assigned',
+            'created_at' => now()->toDateTimeString(),
         ];
     }
 }
