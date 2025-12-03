@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Department;
 
 class ProfileController extends Controller
 {
@@ -22,6 +23,7 @@ class ProfileController extends Controller
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'departments' => Department::all(),
         ]);
     }
 
@@ -38,6 +40,7 @@ class ProfileController extends Controller
             'phone' => ['nullable', 'string', 'max:20'],
             'designation' => ['nullable', 'string', 'max:255'],
             'extno' => ['nullable', 'string', 'max:20'],
+            'department_id' => ['required', 'exists:departments,id'],
         ]);
 
         // $request->user()->fill($request->validated());

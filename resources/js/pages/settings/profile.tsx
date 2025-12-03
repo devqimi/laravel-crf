@@ -22,6 +22,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+type Department = {
+    id: number;
+    dname: string;
+}
+
 type User = {
     id: number;
     name: string;
@@ -30,14 +35,17 @@ type User = {
     phone: string;
     designation?: string;
     extno?: string;
+    department_id?: number;
 };
 
 export default function Profile({
     mustVerifyEmail,
     status,
+    departments,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
+    departments: Department[];
 }) {
 
     // const { data, setData, put, processing, errors } = useForm({
@@ -172,6 +180,26 @@ export default function Profile({
                                         placeholder="Extension number"
                                     />
                                     <InputError className="mt-2" message={errors.extno} />
+                                </div>
+
+                                {/* Department */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="department_id">Department</Label>
+                                    <select
+                                        id="department_id"
+                                        name="department_id"
+                                        className="rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        defaultValue={auth.user.department_id || ''}
+                                        required
+                                    >
+                                        <option value="">Select department</option>
+                                        {departments.map((dept) => (
+                                            <option key={dept.id} value={dept.id}>
+                                                {dept.dname}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError className="mt-2" message={errors.department_id} />
                                 </div>
 
                                 {mustVerifyEmail &&

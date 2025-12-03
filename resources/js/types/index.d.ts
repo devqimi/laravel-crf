@@ -39,6 +39,7 @@ export interface User {
     phone: string;
     designation: string;
     extno: string;
+    department_id?: number;
     avatar?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
