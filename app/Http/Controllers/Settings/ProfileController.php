@@ -32,7 +32,8 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-
+        $user = $request->user();
+    
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'nric' => ['required', 'string', 'max:12'],
@@ -43,16 +44,24 @@ class ProfileController extends Controller
             'department_id' => ['required', 'exists:departments,id'],
         ]);
 
-        // $request->user()->fill($request->validated());
+        // check if the department changed or not
+        $departmentChanged = $user->department_id != $validated['department_id'];
+
+        // update department
         $request->user()->update($validated);
 
-        // if ($request->user()->isDirty('email')) {
-        //     $request->user()->email_verified_at = null;
-        // }
+        // if department is changed
+        if($departmentChanged) {
+            $newDepartment = Department::find($validated['department_id']);
 
-        // $request->user()->save();
+            // if changed department is not IT
+            if($newDepartment && $newDepartment->dname !== 'Unit Teknologi Maklumat'){
+                
+                //automatically assign USER role
+                $user->syncRoles(['USER']);
+            }
+        }
 
-        // return to_route('profile.edit');
         return back()->with('status', 'profile-updated');
     }
 
