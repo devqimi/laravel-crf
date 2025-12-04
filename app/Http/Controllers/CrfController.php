@@ -188,9 +188,9 @@ class CrfController extends Controller
 
         if ($isHardwareRelocation) {
 
-            // For Hardware Relocation: Set status to "Verified by HOU" (requires TP approval)
+            // For Hardware Relocation: Set status to "Approved by HOU" (requires TP approval)
             $crf->update([
-                'application_status_id' => 10, // Verified by HOU
+                'application_status_id' => 10, // Approved by HOU
                 'approved_by' => $user->id,
             ]);
 
@@ -214,13 +214,13 @@ class CrfController extends Controller
 
             // For other categories: Normal flow - Status "Approved" (go directly to ITD Admin/IT ASSIGN)
             $crf->update([
-                'application_status_id' => 2, // Verified
+                'application_status_id' => 2, // Approved
                 'approved_by' => $user->id,
             ]);
 
             // Add timeline entry
             $crf->addTimelineEntry(
-                status: 'Approved',
+                status: 'Approved by HOU',
                 actionType: 'status_change',
                 remark: 'Approved by HOU: ' . $user->name,
                 userId: $user->id
