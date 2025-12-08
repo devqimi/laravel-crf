@@ -26,6 +26,141 @@ use App\Notifications\CrfAssignedToVendorPICNotification;
 
 class CrfController extends Controller
 {
+
+    public function index() {
+
+        $user = Auth::user();
+        $departmentCrfs = null;
+
+        // if user can view all CRFs
+        if (Gate::allows('View ALL CRF')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            ->latest()
+            ->paginate(10);
+
+            $departmentCrfs = null;
+        }
+        
+        // ITD ADMIN can view both "assigned to ITD" and "assigned to Vendor" CRFs
+        elseif (Gate::allows('View ITD CRF') && Gate::allows('View Vendor CRF')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            ->where('application_status_id', '>=', 2)
+            ->latest()
+            ->paginate(10);
+
+            $departmentCrfs = null;
+        }
+
+        // TP approve
+        elseif (Gate::allows('approved by TP')) {
+            // TP can view CRFs that need their approval (status 10)
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                ->where('application_status_id', 10) // Verified by HOU, awaiting TP
+                ->latest()
+                ->paginate(10);
+            
+            $departmentCrfs = null;
+        }
+
+        // IT ASSIGN view approved crf by hou
+        elseif (Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                ->whereIn('application_status_id', [2, 11])
+                ->latest()
+                ->paginate(10);
+
+            $departmentCrfs = null;
+        }
+
+        // VENDOR ADMIN can view CRFs assigned to them
+        elseif (Gate::allows('Assign Vendor PIC')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                ->where('assigned_vendor_admin_id', $user->id)
+                ->whereIn('application_status_id', [12]) // 12 = Assigned to Vendor Admin
+                ->latest()
+                ->paginate(10);
+
+            $departmentCrfs = null;
+        }
+
+        // HOU can verify CRFs from their department
+        elseif (Gate::allows('verified CRF') && Gate::allows('View Department CRF')) {
+
+                $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver' , 'assigned_user'])
+                ->where('department_id', $user->department_id)
+                ->where('application_status_id', 1)
+                ->latest()
+                ->paginate(10);
+                
+                $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                ->where('department_id', $user->department_id)
+                ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+                ->latest()
+                ->get();
+        }
+        
+        // ITD PIC can only view ITD CRFs assigned
+        elseif (Gate::allows('View ITD CRF')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            ->where('assigned_to', $user->id) // Only CRFs assigned to this user
+            ->whereIn('application_status_id', [4, 6, 8, 9]) // Assigned to ITD, Reassigned to ITD, Work in progress, Closed
+            ->latest()
+            ->paginate(10);
+
+            $departmentCrfs = null;
+        }
+        
+        // if user can view Vendor CRFs
+        elseif (Gate::allows('View Vendor CRF')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            ->where('assigned_to', $user->id) // Only CRFs assigned to this user
+            ->whereIn('application_status_id', [5, 7, 8, 9]) // Assigned to Vendor, Reassigned to Vendor, Work in progress, Closed
+            ->latest()
+            ->paginate(10);
+
+            $departmentCrfs = null;
+        }
+        
+        // user can only view their own CRFs
+        elseif (Gate::allows('View Personal CRF')) {
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate(10);
+
+            $departmentCrfs = null;
+        }
+
+        // No permission at all
+        else {
+            abort(403, 'Unauthorized to view CRFs');
+        }
+        
+        $itdPics = User::role('ITD PIC')->select('id', 'name')->get();
+        $vendorPics = User::role('VENDOR PIC')->select('id', 'name')->get();
+        $vendorAdmins = User::role('VENDOR ADMIN')->select('id','name')->get();
+
+        return Inertia::render('crfs/index', [
+            'crfs' => $crfs,
+            'department_crfs' => $departmentCrfs,
+            'can_view' =>Gate::allows('View Personal CRF'),
+            'can_view_department' => Gate::allows('View Department CRF'),
+            'can_delete' =>Gate::allows('Close Assigned CRF'),
+            'can_create' => Gate::allows('Create CRF'),
+            'can_approve' => Gate::allows('verified CRF'),
+            'can_acknowledge' => Gate::allows('Acknowledge CRF by ITD'),
+            'can_assign_itd' => Gate::allows('Assign CRF To ITD') || Gate::allows('Re Assign PIC ITD'),
+            'can_assign_vendor' => Gate::allows('Assign CRF to Vendor') || Gate::allows('Re Assign PIC Vendor'),
+            'can_update_own_crf' => Gate::allows('Update CRF (own CRF)'),
+            'can_assign_by_it' => Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor'),
+            'can_assign_vendor_pic' => Gate::allows('Assign Vendor PIC'),
+            'categories' => Category::all(),
+            'itd_pics' => $itdPics,
+            'vendor_pics' => $vendorPics,
+            'vendor_admins' => $vendorAdmins,
+            'can_approve_tp' => Gate::allows('approved by TP'),
+        ]);
+    }
     
     public function create(Request $request)
     {
@@ -192,6 +327,7 @@ class CrfController extends Controller
             $crf->update([
                 'application_status_id' => 10, // Approved by HOU
                 'approved_by' => $user->id,
+                'approved_by_hou_at' => now(),
             ]);
 
             // Add timeline entry
@@ -216,6 +352,7 @@ class CrfController extends Controller
             $crf->update([
                 'application_status_id' => 2, // Approved
                 'approved_by' => $user->id,
+                'approved_by_hou_at' => now(),
             ]);
 
             // Add timeline entry
@@ -742,8 +879,9 @@ class CrfController extends Controller
 
         // Update to "Verified by TP"
         $crf->update([
-            'application_status_id' => 11, // Verified by TP
+            'application_status_id' => 11, // Approved by TP
             'tp_approved_by' => $user->id,
+            'approved_by_tp_at' => now(),
         ]);
 
         // Add timeline entry

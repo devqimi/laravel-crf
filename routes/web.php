@@ -73,7 +73,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->can('delete user');
 
     //crf routes
-    Route::get('crfs', [CrfController::class, 'index'])->name('crfs.index')->middleware('can:View Personal CRF');
+    Route::get('/crfs', [CrfController::class, 'index'])->name('crfs.index');
+    
     Route::post('crfs', [CrfController::class, 'store'])->name('crfs.store')->can('Create CRF');
     Route::get('crfs/create', [CrfController::class, 'create'])->name('crfs.create')->can('Create CRF');
     Route::delete('crfs/{crf}', [CrfController::class, 'destroy'])->name('crfs.destroy')->can('Close Assigned CRF');

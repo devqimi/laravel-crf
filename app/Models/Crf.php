@@ -35,6 +35,8 @@ class Crf extends Model
         'tp_approved_by',
         'assigned_to',
         'it_remark',
+        'approved_by_hou_at',
+        'approved_by_tp_at',
     ];
 
     public function user(){

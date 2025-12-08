@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { CircleCheck, LayoutGrid, Lock, LockKeyhole, Users } from 'lucide-react';
+import { CircleCheck, LayoutGrid, Lock, LockKeyhole, Users, ClipboardList} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +21,12 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+        permission: 'view dashboard',
+    },
+    {
+        title: 'CRF',
+        href: '/crfs',
+        icon: ClipboardList,
         permission: 'view dashboard',
     },
     {
