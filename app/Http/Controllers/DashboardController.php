@@ -21,6 +21,9 @@ class DashboardController extends Controller
         $stats = null;
         $chartData = null;
         $isAdminOrHOU = false;
+        $isPIC = false;
+        $recentActivities = null;
+        $latestCrf = null;
 
         // if user can view all CRFs
         if (Gate::allows('View ALL CRF')) {
@@ -116,6 +119,7 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(10);
 
+            $isPIC = true;
             $departmentCrfs = null;
 
             // PIC stats - their assigned CRFs
@@ -130,6 +134,9 @@ class DashboardController extends Controller
                 'my_this_month' => Crf::where('assigned_to', $user->id)
                     ->where('created_at', '>=', Carbon::now()->startOfMonth())->count(),
             ];
+
+            // Recent activities for PIC
+            $recentActivities = $this->getPICRecentActivities($user->id);
         }
         
         // if user can view Vendor CRFs
@@ -140,6 +147,7 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(10);
 
+            $isPIC = true;
             $departmentCrfs = null;
 
             // Vendor PIC stats - their assigned CRFs
@@ -154,6 +162,8 @@ class DashboardController extends Controller
                 'my_this_month' => Crf::where('assigned_to', $user->id)
                     ->where('created_at', '>=', Carbon::now()->startOfMonth())->count(),
             ];
+
+            $recentActivities = $this->getPICRecentActivities($user->id);
         }
         
         // user can only view their own CRFs
@@ -168,6 +178,15 @@ class DashboardController extends Controller
             // Calculate "My CRFs" stats
             $stats = $this->getMyStats($user->id);
 
+            // Get recent activities
+            $recentActivities = $this->getRecentActivities($user->id);
+
+            // Get latest CRF
+            $latestCrf = Crf::where('user_id', $user->id)
+                ->with(['application_status', 'assigned_user'])
+                ->latest()
+                ->first();
+
             $chartData = null; // Regular users don't see charts
         }
 
@@ -181,7 +200,7 @@ class DashboardController extends Controller
             $stats = [
                 'total' => Crf::count(),
                 'pending' => Crf::where('application_status_id', 1)->count(),
-                'in_progress' => Crf::whereIn('application_status_id', [4, 5, 6, 7, 8])->count(),
+                'in_progress' => Crf::whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
                 'completed' => Crf::where('application_status_id', 9)->count(),
             ];
 
@@ -200,7 +219,10 @@ class DashboardController extends Controller
             'stats' => $stats,
             'chartData' => $chartData,
             'isAdminOrHOU' => $isAdminOrHOU,
+            'isPIC' => $isPIC,
             'department_crfs' => $departmentCrfs,
+            'recent_activities' => $recentActivities,
+            'latest_crf' => $latestCrf,
             'can_view' =>Gate::allows('View Personal CRF'),
             'can_view_department' => Gate::allows('View Department CRF'),
             'can_delete' =>Gate::allows('Close Assigned CRF'),
@@ -218,6 +240,60 @@ class DashboardController extends Controller
             'vendor_admins' => $vendorAdmins,
             'can_approve_tp' => Gate::allows('approved by TP'),
         ]);
+    }
+
+    private function getRecentActivities($userId)
+    {
+        return Crf::where('user_id', $userId)
+            ->with('application_status')
+            ->latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(function ($crf) {
+                return [
+                    'id' => $crf->id,
+                    'crf_id' => $crf->id,
+                    'message' => "CRF #{$crf->id} - {$crf->application_status->status}",
+                    'type' => $this->getActivityType($crf->application_status_id),
+                    'created_at' => $crf->updated_at->toIso8601String(),
+                ];
+            });
+    }
+
+    private function getPICRecentActivities($userId)
+    {
+        return Crf::where('assigned_to', $userId)
+            ->with('application_status', 'user')
+            ->latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(function ($crf) {
+                return [
+                    'id' => $crf->id,
+                    'crf_id' => $crf->id,
+                    'message' => "CRF #{$crf->id} from {$crf->user->name} - {$crf->application_status->status}",
+                    'type' => $this->getActivityType($crf->application_status_id),
+                    'created_at' => $crf->updated_at->toIso8601String(),
+                ];
+            });
+    }
+
+    private function getActivityType($statusId)
+    {
+        switch ($statusId) {
+            case 1:
+                return 'pending';
+            case 2:
+            case 10:
+            case 11:
+                return 'approved';
+            case 8:
+                return 'in_progress';
+            case 9:
+                return 'completed';
+            default:
+                return 'pending';
+        }
     }
 
     private function getTrendData()
@@ -245,7 +321,7 @@ class DashboardController extends Controller
                 'pending' => Crf::whereBetween('created_at', [$startOfDay, $endOfDay])
                     ->where('application_status_id', 1)->count(),
                 'inProgress' => Crf::whereBetween('created_at', [$startOfDay, $endOfDay])
-                    ->whereIn('application_status_id', [4, 5, 6, 7, 8])->count(),
+                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
                 'completed' => Crf::whereBetween('created_at', [$startOfDay, $endOfDay])
                     ->where('application_status_id', 9)->count(),
             ];
@@ -269,7 +345,7 @@ class DashboardController extends Controller
                 'pending' => Crf::whereBetween('created_at', [$startOfWeek, $endOfWeek])
                     ->where('application_status_id', 1)->count(),
                 'inProgress' => Crf::whereBetween('created_at', [$startOfWeek, $endOfWeek])
-                    ->whereIn('application_status_id', [4, 5, 6, 7, 8])->count(),
+                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
                 'completed' => Crf::whereBetween('created_at', [$startOfWeek, $endOfWeek])
                     ->where('application_status_id', 9)->count(),
             ];
@@ -293,7 +369,7 @@ class DashboardController extends Controller
                 'pending' => Crf::whereBetween('created_at', [$startOfMonth, $endOfMonth])
                     ->where('application_status_id', 1)->count(),
                 'inProgress' => Crf::whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                    ->whereIn('application_status_id', [4, 5, 6, 7, 8])->count(),
+                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
                 'completed' => Crf::whereBetween('created_at', [$startOfMonth, $endOfMonth])
                     ->where('application_status_id', 9)->count(),
             ];
@@ -311,7 +387,7 @@ class DashboardController extends Controller
                     $query->where('application_status_id', 1);
                 },
                 'crfs as inProgress' => function ($query) {
-                    $query->whereIn('application_status_id', [4, 5, 6, 7, 8]);
+                    $query->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12]);
                 },
                 'crfs as completed' => function ($query) {
                     $query->where('application_status_id', 9);
@@ -333,7 +409,7 @@ class DashboardController extends Controller
             'my_pending' => Crf::where('user_id', $userId)
                 ->where('application_status_id', 1)->count(),
             'my_in_progress' => Crf::where('user_id', $userId)
-                ->whereIn('application_status_id', [4, 5, 6, 7, 8])->count(),
+                ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
             'my_completed' => Crf::where('user_id', $userId)
                 ->where('application_status_id', 9)->count(),
             'my_this_month' => Crf::where('user_id', $userId)
