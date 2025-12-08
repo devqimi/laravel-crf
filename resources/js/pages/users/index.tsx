@@ -70,10 +70,17 @@ export default function Users({ users }: { users: User }) {
                                         <TableCell>{index + 1}</TableCell>
                                         <TableCell>{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
-                                        <TableCell className='flex flex-wrap items-center gap-2'>
-                                            <Badge variant={'outline'} key={index}>
-                                                {user.roles}
-                                            </Badge>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {user.roles.map((role: string) => (
+                                                    <span 
+                                                        key={role}
+                                                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                                                    >
+                                                        {role}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </TableCell>
                                         <TableCell>{user.created_at}</TableCell>
                                         <TableCell>

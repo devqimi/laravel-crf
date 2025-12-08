@@ -43,7 +43,7 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
         designation: '',
         extno: '',
         department_id: '',
-        role: '',
+        roles: [] as string[],
     });
 
     // Check if selected department is "Unit Teknologi Maklumat"
@@ -67,24 +67,24 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
     }, [isITDepartment, roles]);
     
     // Auto-set role to USER when non-IT department is selected
-    const handleDepartmentChange = (departmentId: string) => {
-        const dept = departments.find((d) => d.id === parseInt(departmentId));
+    // const handleDepartmentChange = (departmentId: string) => {
+    //     const dept = departments.find((d) => d.id === parseInt(departmentId));
         
-        // Update both values at once
-        if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
-            setData({
-                ...data,
-                department_id: departmentId,
-                role: 'USER'
-            });
-        } else {
-            setData({
-                ...data,
-                department_id: departmentId,
-                role: ''
-            });
-        }
-    };
+    //     // Update both values at once
+    //     if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
+    //         setData({
+    //             ...data,
+    //             department_id: departmentId,
+    //             role: 'USER'
+    //         });
+    //     } else {
+    //         setData({
+    //             ...data,
+    //             department_id: departmentId,
+    //             role: ''
+    //         });
+    //     }
+    // };
 
     function submit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -149,7 +149,7 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
                                     id="department_id"
                                     className="rounded border px-2 py-1"
                                     value={data.department_id}
-                                    onChange={(e) => handleDepartmentChange(e.target.value)}
+                                    // onChange={(e) => handleDepartmentChange(e.target.value)}
                                     required
                                 >
                                     <option value="">Select department</option>
@@ -166,71 +166,73 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
                             </div>
 
                             <div className="grid gap-2 mb-4">
-                                <Label htmlFor="role">Role</Label>
+                                <Label>Roles</Label>
+                                
                                 {isITDepartment ? (
-                                    <select
-                                        id="role"
-                                        className="rounded border px-2 py-1"
-                                        value={data.role}
-                                        onChange={(e) => setData('role', e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Select role</option>
-                                        {availableRoles.map((r) => (
-                                            <option key={r.id} value={r.name}>
-                                                {r.name}
-                                            </option>
+                                    // IT Department can select any roles
+                                    <div className="space-y-3 border rounded-lg p-4">
+                                        {availableRoles.map((role) => (
+                                            <div key={role.id} className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id={`role-${role.id}`}
+                                                    checked={data.roles.includes(role.name)}
+                                                    onCheckedChange={(checked) => {
+                                                        if (checked) {
+                                                            setData('roles', [...data.roles, role.name]);
+                                                        } else {
+                                                            setData('roles', data.roles.filter((r) => r !== role.name));
+                                                        }
+                                                    }}
+                                                />
+                                                <Label 
+                                                    htmlFor={`role-${role.id}`}
+                                                    className="cursor-pointer font-normal"
+                                                >
+                                                    {role.name}
+                                                </Label>
+                                            </div>
                                         ))}
-                                    </select>
+                                    </div>
                                 ) : (
-                                    <div className="flex items-center gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="role"
-                                                value="USER"
-                                                checked={data.role === 'USER'}
-                                                onChange={(e) => setData('role', e.target.value)}
-                                                className="h-4 w-4"
-                                                required
-                                            />
-                                            <span>USER</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="role"
-                                                value="HOU"
-                                                checked={data.role === 'HOU'}
-                                                onChange={(e) => setData('role', e.target.value)}
-                                                className="h-4 w-4"
-                                                required
-                                            />
-                                            <span>HOU</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="role"
-                                                value="TIMBALAN PENGARAH"
-                                                checked={data.role === 'TIMBALAN PENGARAH'}
-                                                onChange={(e) => setData('role', e.target.value)}
-                                                className="h-4 w-4"
-                                                required
-                                            />
-                                            <span>Timbalan Pengarah</span>
-                                        </label>
+                                    // Non-IT departments can only select USER, HOU, or TP
+                                    <div className="space-y-3 border rounded-lg p-4">
+                                        {availableRoles.map((role) => (
+                                            <div key={role.id} className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id={`role-${role.id}`}
+                                                    checked={data.roles.includes(role.name)}
+                                                    onCheckedChange={(checked) => {
+                                                        if (checked) {
+                                                            setData('roles', [...data.roles, role.name]);
+                                                        } else {
+                                                            setData('roles', data.roles.filter((r) => r !== role.name));
+                                                        }
+                                                    }}
+                                                />
+                                                <Label 
+                                                    htmlFor={`role-${role.id}`}
+                                                    className="cursor-pointer font-normal"
+                                                >
+                                                    {role.name}
+                                                </Label>
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
-            
-                                <InputError message={errors.role} />
+
+                                <InputError message={errors.roles} />
+                                
                                 {!isITDepartment && (
                                     <p className="text-xs text-gray-500">
-                                        Non-IT departments can only be assigned USER or HOU roles
+                                        Non-IT departments can only be assigned USER, HOU, or TP roles
                                     </p>
                                 )}
-            
+                                
+                                <p className="text-xs text-gray-500">
+                                    Select one or more roles for this user
+                                </p>
                             </div>
+
                             {/* <Label>Select Roles</Label>
                             <div className='my-4'>
                                 <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5'>

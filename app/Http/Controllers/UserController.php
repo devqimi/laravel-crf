@@ -57,10 +57,10 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
             'designation' => 'required|string|max:255',
             'extno' => 'nullable|string|max:10',
-            'roles' => 'array',
+            // 'role' => 'required|string|exists:roles,name',
+            'roles' => 'required|array',
             'roles.*' => 'string|exists:roles,name',
-            'department_id' => 'required|exists:departments,id', // Add this
-            'role' => 'required|string|exists:roles,name', // Add this
+            'department_id' => 'required|exists:departments,id',
         ]);
 
         $user = User::create([
@@ -75,8 +75,8 @@ class UserController extends Controller
 
         ]);
 
-        if ($request->role) {
-            $user->assignRole($request->role);
+        if ($request->roles) {
+            $user->syncRoles($request->roles);
         }
 
         return to_route('users.index')->with('message', 'User created successfully!');
@@ -111,10 +111,10 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'nric' => 'required|string|max:20|unique:users,nric,'.$user->id,
-            'roles' => 'array',
+            // 'role' => 'required|string|exists:roles,name',
+            'roles' => 'required|array',
             'roles.*' => 'string|exists:roles,name',
             'department_id' => 'required|exists:departments,id',
-            'role' => 'required|string|exists:roles,name',
             'designation' => 'required',
             'extno' => 'nullable|string',
         ]);
@@ -129,8 +129,8 @@ class UserController extends Controller
             'extno' => $request->extno,
         ]);
 
-        if ($request->role) {
-            $user->syncRoles($request->role);
+        if ($request->roles) {
+            $user->syncRoles($request->roles);
         }
 
         return to_route('users.index')->with('message', 'User updated successfully!');

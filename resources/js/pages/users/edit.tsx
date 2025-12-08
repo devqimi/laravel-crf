@@ -7,6 +7,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import React, { useMemo } from 'react';
 import InputError from '@/components/input-error';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -46,7 +47,7 @@ type Props = {
 export default function EditUsers({ departments = [], roles = [], user }: Props) {
     
     // Get user's current role (first role)
-    const currentRole = user.roles && user.roles.length > 0 ? user.roles[0].name : '';
+    const currentRoles = user.roles?.map((r: any) => r.name) || [];
 
     const { data, setData, put, processing, errors } = useForm({
         name: user.name,
@@ -56,7 +57,7 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
         designation: user.designation || '',
         extno: user.extno || '',
         department_id: user.department_id?.toString() || '',
-        role: currentRole,
+        roles: currentRoles,
     });
 
     // Check if selected department is "Unit Teknologi Maklumat"
@@ -78,23 +79,23 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
     }, [isITDepartment, roles]);
     
     // Auto-set role when department changes
-    const handleDepartmentChange = (departmentId: string) => {
-        const dept = departments.find((d) => d.id === parseInt(departmentId));
+    // const handleDepartmentChange = (departmentId: string) => {
+    //     const dept = departments.find((d) => d.id === parseInt(departmentId));
         
-        if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
-            setData({
-                ...data,
-                department_id: departmentId,
-                role: 'USER'
-            });
-        } else {
-            setData({
-                ...data,
-                department_id: departmentId,
-                role: ''
-            });
-        }
-    };
+    //     if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
+    //         setData({
+    //             ...data,
+    //             department_id: departmentId,
+    //             role: 'USER'
+    //         });
+    //     } else {
+    //         setData({
+    //             ...data,
+    //             department_id: departmentId,
+    //             role: ''
+    //         });
+    //     }
+    // };
 
     function submit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -201,7 +202,7 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
                                     id="department_id"
                                     className="rounded border px-2 py-1"
                                     value={data.department_id}
-                                    onChange={(e) => handleDepartmentChange(e.target.value)}
+                                    // onChange={(e) => handleDepartmentChange(e.target.value)}
                                     required
                                 >
                                     <option value="">Select department</option>
@@ -217,67 +218,54 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
                             <div className="grid gap-2 mb-4">
                                 <Label htmlFor="role">Role</Label>
                                 {isITDepartment ? (
-                                    <select
-                                        id="role"
-                                        className="rounded border px-2 py-1"
-                                        value={data.role}
-                                        onChange={(e) => setData('role', e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Select role</option>
-                                        {availableRoles.map((r) => (
-                                            <option key={r.id} value={r.name}>
-                                                {r.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    // Show all roles for IT department
+                                    roles.map((role) => (
+                                        <div key={role.id} className="flex items-center gap-2">
+                                            <Checkbox
+                                                id={`role-${role.id}`}
+                                                checked={data.roles.includes(role.name)}
+                                                onCheckedChange={(checked) => {
+                                                    if (checked) {
+                                                        setData('roles', [...data.roles, role.name]);
+                                                    } else {
+                                                        setData('roles', data.roles.filter((r) => r !== role.name));
+                                                    }
+                                                }}
+                                            />
+                                            <Label 
+                                                htmlFor={`role-${role.id}`}
+                                                className="cursor-pointer font-normal"
+                                            >
+                                                {role.name}
+                                            </Label>
+                                        </div>
+                                    ))
                                 ) : (
-                                    <div className="flex items-center gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="role"
-                                                value="USER"
-                                                checked={data.role === 'USER'}
-                                                onChange={(e) => setData('role', e.target.value)}
-                                                className="h-4 w-4"
-                                                required
+                                    // Show limited roles for non-IT
+                                    availableRoles.map((role) => (
+                                        <div key={role.id} className="flex items-center gap-2">
+                                            <Checkbox
+                                                id={`role-${role.id}`}
+                                                checked={data.roles.includes(role.name)}
+                                                onCheckedChange={(checked) => {
+                                                    if (checked) {
+                                                        setData('roles', [...data.roles, role.name]);
+                                                    } else {
+                                                        setData('roles', data.roles.filter((r) => r !== role.name));
+                                                    }
+                                                }}
                                             />
-                                            <span>USER</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="role"
-                                                value="HOU"
-                                                checked={data.role === 'HOU'}
-                                                onChange={(e) => setData('role', e.target.value)}
-                                                className="h-4 w-4"
-                                                required
-                                            />
-                                            <span>HOU</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="role"
-                                                value="TIMBALAN PENGARAH"
-                                                checked={data.role === 'TIMBALAN PENGARAH'}
-                                                onChange={(e) => setData('role', e.target.value)}
-                                                className="h-4 w-4"
-                                                required
-                                            />
-                                            <span>Timbalan Pengarah</span>
-                                        </label>
-                                    </div>
+                                            <Label 
+                                                htmlFor={`role-${role.id}`}
+                                                className="cursor-pointer font-normal"
+                                            >
+                                                {role.name}
+                                            </Label>
+                                        </div>
+                                    ))
                                 )}
 
-                                <InputError message={errors.role} />
-                                {!isITDepartment && (
-                                    <p className="text-xs text-gray-500">
-                                        Non-IT departments can only be assigned USER, HOU, or TP roles
-                                    </p>
-                                )}
+                                <InputError message={errors.roles} />
                             </div>
 
                             <div className='flex justify-end'>
