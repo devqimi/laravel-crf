@@ -433,7 +433,7 @@ export default function ShowCrf({
                             {/* Approved by HOU Section */}
                             {crf.application_status_id >= 4 && crf.approved_by_hou_at && (
                                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                    <h3 className="font-semibold text-green-900 mb-3">HOU Approval</h3>
+                                    <h3 className="font-semibold mb-3">HOU Approval</h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <Label className="text-gray-600">Approved By</Label>
@@ -460,7 +460,7 @@ export default function ShowCrf({
                             {/* Approved by TP Section */}
                             {crf.application_status_id >= 4 && crf.approved_by_tp_at && (
                                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                    <h3 className="font-semibold text-green-900 mb-3">TP Approval</h3>
+                                    <h3 className="font-semibold mb-3">TP Approval</h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <Label className="text-gray-600">Approved By</Label>
