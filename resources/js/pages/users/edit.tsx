@@ -79,23 +79,23 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
     }, [isITDepartment, roles]);
     
     // Auto-set role when department changes
-    // const handleDepartmentChange = (departmentId: string) => {
-    //     const dept = departments.find((d) => d.id === parseInt(departmentId));
+    const handleDepartmentChange = (departmentId: string) => {
+        const dept = departments.find((d) => d.id === parseInt(departmentId));
         
-    //     if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
-    //         setData({
-    //             ...data,
-    //             department_id: departmentId,
-    //             role: 'USER'
-    //         });
-    //     } else {
-    //         setData({
-    //             ...data,
-    //             department_id: departmentId,
-    //             role: ''
-    //         });
-    //     }
-    // };
+        if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
+            setData({
+                ...data,
+                department_id: departmentId,
+                role: 'USER'
+            });
+        } else {
+            setData({
+                ...data,
+                department_id: departmentId,
+                role: ''
+            });
+        }
+    };
 
     function submit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -202,7 +202,7 @@ export default function EditUsers({ departments = [], roles = [], user }: Props)
                                     id="department_id"
                                     className="rounded border px-2 py-1"
                                     value={data.department_id}
-                                    // onChange={(e) => handleDepartmentChange(e.target.value)}
+                                    onChange={(e) => handleDepartmentChange(e.target.value)}
                                     required
                                 >
                                     <option value="">Select department</option>
