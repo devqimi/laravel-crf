@@ -103,7 +103,7 @@ type Props = {
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Customer Request Form', href: '/crfs' },
     { title: 'View CRF', href: '#' },
 ];
 
