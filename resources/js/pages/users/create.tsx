@@ -62,29 +62,29 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
             return roles;
         } else {
             // Other departments can only be USER or HOU
-            return roles.filter((r) => r.name === 'USER' || r.name === 'HOU');
+            return roles.filter((r) => r.name === 'USER' || r.name === 'HOU' || r.name === 'TIMBALAN PENGARAH');
         }
     }, [isITDepartment, roles]);
     
     // Auto-set role to USER when non-IT department is selected
-    // const handleDepartmentChange = (departmentId: string) => {
-    //     const dept = departments.find((d) => d.id === parseInt(departmentId));
+    const handleDepartmentChange = (departmentId: string) => {
+        const dept = departments.find((d) => d.id === parseInt(departmentId));
         
-    //     // Update both values at once
-    //     if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
-    //         setData({
-    //             ...data,
-    //             department_id: departmentId,
-    //             role: 'USER'
-    //         });
-    //     } else {
-    //         setData({
-    //             ...data,
-    //             department_id: departmentId,
-    //             role: ''
-    //         });
-    //     }
-    // };
+        // Update both values at once
+        if (dept && dept.dname !== 'Unit Teknologi Maklumat') {
+            setData({
+                ...data,
+                department_id: departmentId,
+                role: 'USER'
+            });
+        } else {
+            setData({
+                ...data,
+                department_id: departmentId,
+                role: ''
+            });
+        }
+    };
 
     function submit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -149,7 +149,7 @@ export default function CreateUsers({ departments = [], roles = [] }: RegisterPr
                                     id="department_id"
                                     className="rounded border px-2 py-1"
                                     value={data.department_id}
-                                    // onChange={(e) => handleDepartmentChange(e.target.value)}
+                                    onChange={(e) => handleDepartmentChange(e.target.value)}
                                     required
                                 >
                                     <option value="">Select department</option>
