@@ -454,58 +454,54 @@ export default function ShowCrf({
                             </div>
                             
                             {/* Approved by HOU Section */}
-                            {crf.application_status_id >= 4 && crf.approved_by_hou_at && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                    <h3 className="font-semibold mb-3">HOU Approval</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <Label className="text-gray-600">Approved By</Label>
-                                            <p className="text-gray-900 font-medium">
-                                                {crf.approver?.name || 'N/A'}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <Label className="text-gray-600">Approved At</Label>
-                                            <p className="text-gray-900">
-                                                {new Date(crf.approved_by_hou_at + 'Z').toLocaleString('en-MY', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                })}
-                                            </p>
-                                        </div>
+                            <div className="border p-4 rounded-md bg-gray-50">
+                                <h3 className="font-semibold mb-3">HOU Approval</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label className="text-gray-600">Approved By</Label>
+                                        <p className="text-gray-900 font-medium">
+                                            {crf.approver?.name || 'N/A'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-gray-600">Approved At</Label>
+                                        <p className="text-gray-900">
+                                            {new Date(crf.approved_by_hou_at + 'Z').toLocaleString('en-MY', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                        </p>
                                     </div>
                                 </div>
-                            )}
+                            </div>
 
                             {/* Approved by TP Section */}
-                            {crf.application_status_id >= 4 && crf.approved_by_tp_at && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                    <h3 className="font-semibold mb-3">TP Approval</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <Label className="text-gray-600">Approved By</Label>
-                                            <p className="text-gray-900 font-medium">
-                                                {crf.tp_approver?.name || 'N/A'}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <Label className="text-gray-600">Approved At</Label>
-                                            <p className="text-gray-900">
-                                                {new Date(crf.approved_by_tp_at + 'Z').toLocaleString('en-MY', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                })}
-                                            </p>
-                                        </div>
+                            <div className="border p-4 rounded-md bg-gray-50">
+                                <h3 className="font-semibold mb-3">TP Approval</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label className="text-gray-600">Approved By</Label>
+                                        <p className="text-gray-900 font-medium">
+                                            {crf.tp_approver?.name || 'N/A'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-gray-600">Approved At</Label>
+                                        <p className="text-gray-900">
+                                            {new Date(crf.approved_by_tp_at + 'Z').toLocaleString('en-MY', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                        </p>
                                     </div>
                                 </div>
-                            )}
+                            </div>
                             <div>
                                 <Label className="text-gray-600">Assigned To</Label>
                                 <p className="font-medium">{crf.assigned_user?.name || '-'}</p>
