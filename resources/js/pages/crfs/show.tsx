@@ -32,6 +32,7 @@ import { UserCog, FileIcon, Download, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
 import ITAssignModal from '@/components/ITAssignModal';
+import VendorAdminAssignModal from '@/components/VendorAdminAssignModal';
 
 type User = {
     id: number;
@@ -94,6 +95,7 @@ type Props = {
     can_assign_vendor: boolean,
     can_update: boolean;
     can_assign_by_it: boolean;
+    can_assign_vendor_pic: boolean;
     can_reassign_itd?: boolean;
     can_reassign_vendor?: boolean;
     vendor_admins?: User[];
@@ -116,6 +118,7 @@ export default function ShowCrf({
     can_assign_vendor,
     can_update,
     can_assign_by_it,
+    can_assign_vendor_pic,
     can_reassign_itd = false,
     can_reassign_vendor = false,
     vendor_admins = [],
@@ -131,6 +134,7 @@ export default function ShowCrf({
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
     const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
+    const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
 
     const { data, setData, put, processing, errors } = useForm({
         it_remark: crf.it_remark || '',
@@ -165,6 +169,12 @@ export default function ShowCrf({
     const handleOpenITAssignModal = (crfId: number) => {
         setSelectedCrfId(crfId);
         setItAssignModalOpen(true);
+    };
+
+    // Handler for Vendor Admin modal
+    const handleOpenVendorAdminModal = (crfId: number) => {
+        setSelectedCrfId(crfId);
+        setVendorAdminModalOpen(true);
     };
 
     const handleOpenAssignModal = (crfId: number) => {
@@ -305,7 +315,20 @@ export default function ShowCrf({
                                 </Button>
                             )}
 
-                            {/* FOR ADMIN TO ACKNOWLEDGE */}
+                            {/* Vendor Admin button - for CRFs assigned to vendor admin (status 12) */}
+                            {can_assign_vendor_pic && crf.application_status_id === 12 && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => handleOpenVendorAdminModal(crf.id)}
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                    title="Assign to Vendor PIC"
+                                >
+                                    <UserPlus className="h-4 w-4" />
+                                </Button>
+                            )}
+
+                            {/* FOR ITD ADMIN TO ACKNOWLEDGE */}
                             {can_acknowledge && (
                                 <>
                                     {(crf.application_status.status === 'Approved' || crf.application_status.status === 'Approved by HOU' || crf.application_status.status === 'Approved by TP'  ) && (
@@ -851,6 +874,16 @@ export default function ShowCrf({
                         onClose={() => setItAssignModalOpen(false)}
                         itdPics={itd_pics}
                         vendorAdmins={vendor_admins}
+                    />
+                )}
+
+                {/* Vendor Admin Assign Modal */}
+                {selectedCrfId && (
+                    <VendorAdminAssignModal
+                        crfId={selectedCrfId}
+                        isOpen={vendorAdminModalOpen}
+                        onClose={() => setVendorAdminModalOpen(false)}
+                        vendorPics={vendor_pics}
                     />
                 )}
 

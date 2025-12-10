@@ -1,7 +1,4 @@
 import TablePagination from '@/components/table-pagination';
-import MyCRFStats from '@/components/my-crf-stats';
-import CRFStats from '@/components/crf-stats';
-import CRFCharts from '@/components/crf-charts';
 import CRFReportGenerator from '@/components/crf-report-generator';
 import { Button } from '@/components/ui/button';
 import ITAssignModal from '@/components/ITAssignModal';
@@ -9,7 +6,6 @@ import VendorAdminAssignModal from '@/components/VendorAdminAssignModal';
 import {Card, CardAction, CardContent, CardHeader, CardTitle,} from '@/components/ui/card';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Category, Crf } from '@/types/crf';
 import { Head, Link, router } from '@inertiajs/react';
@@ -333,8 +329,8 @@ export default function Dashboard({
                                                 <TableCell>
                                                     <div className="flex gap-2">
 
-                                                        {/* to update for PIC */}
-                                                        {(can_view || (can_update_own_crf && crf.assigned_to)) && (
+                                                        {/* for pic to update crf progress*/}
+                                                        {can_view && can_update_own_crf && crf.assigned_to && (
                                                             <Link href={`/crfs/${crf.id}`}>
                                                                 <Button
                                                                     variant="outline"

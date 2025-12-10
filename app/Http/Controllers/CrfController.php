@@ -549,7 +549,7 @@ class CrfController extends Controller
 
         
         $crf->addTimelineEntry(
-            status: 'Assigned to Vendor PIC',
+            status: 'Assigned to Vendor',
             actionType: 'status_change',
             remark: 'Assigned to ' . $user->name,
             userId: Auth::id()
@@ -694,6 +694,7 @@ class CrfController extends Controller
             'can_assign_vendor' =>Gate::allows('Assign CRF to Vendor'),
             'can_update' => Gate::allows('Update CRF (own CRF)') && $crf->assigned_to === Auth::id(),
             'can_assign_by_it' => Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor'),
+            'can_assign_vendor_pic' => Gate::allows('Assign Vendor PIC'),
             'can_reassign_itd' => Gate::allows('Re Assign PIC ITD'),
             'can_reassign_vendor' => Gate::allows('Re Assign PIC Vendor'),
             'vendor_admins' => $vendorAdmins,
