@@ -444,7 +444,7 @@ export default function ShowCrf({
                                         <div>
                                             <Label className="text-gray-600">Approved At</Label>
                                             <p className="text-gray-900">
-                                                {new Date(crf.approved_by_hou_at).toLocaleString('en-MY', {
+                                                {new Date(crf.approved_by_hou_at + 'Z').toLocaleString('en-MY', {
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
@@ -471,7 +471,7 @@ export default function ShowCrf({
                                         <div>
                                             <Label className="text-gray-600">Approved At</Label>
                                             <p className="text-gray-900">
-                                                {new Date(crf.approved_by_tp_at).toLocaleString('en-MY', {
+                                                {new Date(crf.approved_by_tp_at + 'Z').toLocaleString('en-MY', {
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
