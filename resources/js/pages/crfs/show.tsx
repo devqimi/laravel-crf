@@ -448,7 +448,7 @@ export default function ShowCrf({
                                 <Label className="text-gray-600">Reason</Label>
                                 <p className="font-medium">{crf.reason || '-'}</p>
                             </div>
-                            <div>
+                            <div className="col-span-2">
                                 <Label className="text-gray-600">Status</Label>
                                 <p className="font-medium">{crf.application_status.status}</p>
                             </div>

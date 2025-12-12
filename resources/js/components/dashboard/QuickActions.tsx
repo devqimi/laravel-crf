@@ -25,7 +25,7 @@ export default function QuickActions() {
                         </Button>
                     </Link>
                     
-                    <Link href="/crfs?status=in_progress">
+                    <Link href="/crfs/check-status">
                         <Button variant="outline" className="w-full h-24 flex flex-col gap-2 hover:bg-gray-50">
                             <Clock className="h-6 w-6" />
                             <span className="text-sm">Track Status</span>

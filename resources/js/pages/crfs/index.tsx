@@ -330,7 +330,7 @@ export default function Dashboard({
                                                     <div className="flex gap-2">
 
                                                         {/* for pic to update crf progress*/}
-                                                        {can_view && can_update_own_crf && crf.assigned_to && (
+                                                        {can_view && (
                                                             <Link href={`/crfs/${crf.id}`}>
                                                                 <Button
                                                                     variant="outline"
@@ -343,7 +343,7 @@ export default function Dashboard({
                                                         )}
 
                                                         {/* FOR ADMIN TO REASSIGN PIC */}
-                                                        {(can_assign_itd || can_assign_vendor) && (
+                                                        {(can_assign_itd && can_assign_vendor) && (
                                                             <Link href={`/crfs/${crf.id}`}>
                                                                 <Button
                                                                     variant="outline"
@@ -453,19 +453,6 @@ export default function Dashboard({
                                                                 <UserPlus className="h-4 w-4" />
                                                             </Button>
                                                         )}
-
-                                                        {/* to DELETE
-                                                        {can_delete && (
-                                                            <Button
-                                                                variant="destructive"
-                                                                size="sm"
-                                                                onClick={() => handleDelete(crf.id)}
-                                                                disabled={deletingId === crf.id}
-                                                                title="Delete"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        )} */}
                                                         
                                                     </div>
                                                 </TableCell>
