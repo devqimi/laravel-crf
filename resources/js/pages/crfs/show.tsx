@@ -312,6 +312,7 @@ export default function ShowCrf({
                                     title="Assign CRF"
                                 >
                                     <UserPlus className="h-4 w-4" />
+                                    Assign CRF
                                 </Button>
                             )}
 
@@ -325,11 +326,12 @@ export default function ShowCrf({
                                     title="Assign to Vendor PIC"
                                 >
                                     <UserPlus className="h-4 w-4" />
+                                    Assign to PIC
                                 </Button>
                             )}
 
                             {/* FOR ITD ADMIN TO ACKNOWLEDGE */}
-                            {can_acknowledge && (
+                            {/* {can_acknowledge && (
                                 <>
                                     {(crf.application_status.status === 'Approved' || crf.application_status.status === 'Approved by HOU' || crf.application_status.status === 'Approved by TP'  ) && (
                                         <Button onClick={handleAcknowledge}
@@ -338,7 +340,7 @@ export default function ShowCrf({
                                         </Button>
                                     )}
                                 </>
-                            )}
+                            )} */}
 
                             {/* FOR ADMIN TO ASSIGN PIC */}
                             {(can_assign_itd || can_assign_vendor) && (
@@ -601,7 +603,7 @@ export default function ShowCrf({
                                                                 timeline.status === 'First Created'
                                                                     ? 'bg-amber-100 text-amber-800'
 
-                                                                    : timeline.status === 'Approved'
+                                                                    : timeline.status === 'Approved by HOU IT'
                                                                     ? 'bg-green-100 text-green-800'
 
                                                                     : timeline.status === 'ITD Acknowledged'

@@ -105,22 +105,6 @@ export default function Dashboard({
     const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
     const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
 
-    // const handleDelete = (crfId: number) => {
-    //     if (confirm('Are you sure you want to delete this CRF?')) {
-    //         setDeletingId(crfId);
-    //         router.delete(`/crfs/${crfId}`, {
-    //             preserveScroll: true,
-    //             onSuccess: () => {
-    //                 setDeletingId(null);
-    //             },
-    //             onError: () => {
-    //                 setDeletingId(null);
-    //                 alert('Failed to delete CRF');
-    //             },
-    //         });
-    //     }
-    // };
-
     const handleApprove = (crfId: number) => {
         if (confirm('Are you sure you want to approve this CRF?')) {
             setApprovingId(crfId);
@@ -184,7 +168,7 @@ export default function Dashboard({
 
         const statusColors: Record<string, string> = {
             'First Created': 'bg-amber-100 text-amber-800',
-            'Approved': 'bg-green-100 text-green-800',
+            'Approved by HOU IT': 'bg-green-100 text-green-800',
             'ITD Acknowledged': 'bg-indigo-100 text-indigo-800',
             'Assigned to ITD': 'bg-blue-100 text-blue-800',
             'Assigned to Vendor': 'bg-cyan-100 text-cyan-800',
@@ -384,7 +368,7 @@ export default function Dashboard({
                                                                 </>    
                                                         )}
 
-                                                        {/* FOR TP TO APPROVE AFTER HOU (Hardwarw Relocation) */}
+                                                        {/* FOR TP TO APPROVE AFTER HOU (Hardware Relocation) */}
                                                         {can_approve_tp && crf.application_status_id === 10 && (
                                                             <Button
                                                                 variant="default"
@@ -401,8 +385,22 @@ export default function Dashboard({
                                                             </Button>
                                                         )}
 
+                                                        {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
+                                                        {can_approve && (crf.application_status_id === 10 || crf.application_status_id === 11) && (
+                                                            <Button
+                                                                variant="default"
+                                                                size="sm"
+                                                                onClick={() => handleApprove(crf.id)}
+                                                                disabled={approvingId === crf.id}
+                                                                className="bg-green-600 hover:bg-green-700"
+                                                                title="Approve as IT HOU"
+                                                            >
+                                                                <CheckCircle className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+
                                                         {/* For IT ASSIGN to assign */}
-                                                        {(can_assign_by_it && (crf.application_status_id === 2 || crf.application_status_id === 11)) && (
+                                                        {(can_assign_by_it && crf.application_status_id === 2) && (
                                                             <Button
                                                                 variant="default"
                                                                 size="sm"
@@ -428,7 +426,7 @@ export default function Dashboard({
                                                         )}
 
                                                         {/* for itd admin to acknowledge */}
-                                                        {(can_acknowledge && (crf.application_status_id === 2 || crf.application_status_id === 10 || crf.application_status_id === 11)) && (
+                                                        {/* {(can_acknowledge && (crf.application_status_id === 2 || crf.application_status_id === 10 || crf.application_status_id === 11)) && (
                                                             <Button
                                                                 variant="default"
                                                                 size="sm"
@@ -439,7 +437,7 @@ export default function Dashboard({
                                                             >
                                                                 <ClipboardCheck className="h-4 w-4" />
                                                             </Button>
-                                                        )}
+                                                        )} */}
                                                         
                                                         {/* to assign PIC */}
                                                         {(can_assign_itd || can_assign_vendor) && crf.application_status_id === 3 && (

@@ -11,7 +11,7 @@ class ApplicationStatusSeeder extends Seeder
     {
         $statuses = [
             ['id' => 1, 'status' => 'First Created'],
-            ['id' => 2, 'status' => 'Approved'],
+            ['id' => 2, 'status' => 'Approved by HOU IT'],
             ['id' => 3, 'status' => 'ITD Acknowledged'],
             ['id' => 4, 'status' => 'Assigned to ITD'],
             ['id' => 5, 'status' => 'Assigned to Vendor'],
@@ -29,8 +29,6 @@ class ApplicationStatusSeeder extends Seeder
                 ['id' => $status['id']],
                 [
                     'status' => $status['status'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ]
             );
         }
