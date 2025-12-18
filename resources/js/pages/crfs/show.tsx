@@ -28,7 +28,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Textarea } from '@headlessui/react';
 import { Head, router, useForm } from '@inertiajs/react';
-import { UserCog, FileIcon, Download, UserPlus } from 'lucide-react';
+import { UserCog, FileIcon, Download, UserPlus, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
 import ITAssignModal from '@/components/ITAssignModal';
@@ -75,8 +75,11 @@ type CrfData = {
     application_status: { status: string };
     application_status_id: number;
     approved_by_hou_at?: string;
+    it_hou_approved_at?: string;
+    it_hou_approved_by?: string;
     approved_by_tp_at?: string;
     approver: { name: string } | null;
+    it_hou_approver: { name: string } | null;
     tp_approver: { name: string } | null;
     assigned_user: { name: string } | null;
     assigned_to: number | null;
@@ -135,6 +138,7 @@ export default function ShowCrf({
     const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
     const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
     const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
+    const [approvingId, setApprovingId] = useState<number | null>(null);
 
     const { data, setData, put, processing, errors } = useForm({
         it_remark: crf.it_remark || '',
@@ -204,20 +208,14 @@ export default function ShowCrf({
     };
 
     const handleOpenReassignModal = () => {
-        // Auto-select type based on current assignment
-        if (crf.application_status_id === 4 || crf.application_status_id === 6) {
-            // Currently assigned to ITD
-            setReassignType('itd');
-        } else if (crf.application_status_id === 5 || crf.application_status_id === 7) {
-            // Currently assigned to Vendor
-            setReassignType('vendor');
-        }
+        setReassignType('');
+        setSelectedUser('');
         setReassignModalOpen(true);
     };
 
     const handleReassign = () => {
         if (!reassignType || !selectedUser) {
-            alert('Please select user to reassign');
+            alert('Please select assignment type and user');
             return;
         }
 
@@ -250,8 +248,8 @@ export default function ShowCrf({
 
     // Determine if reassign button should show
     const canReassign = (
-        (can_reassign_itd && (crf.application_status_id === 4 || crf.application_status_id === 6 || crf.application_status_id === 8)) || // Assigned/Reassigned to ITD
-        (can_reassign_vendor && (crf.application_status_id === 5 || crf.application_status_id === 7 || crf.application_status_id === 8)) // Assigned/Reassigned to Vendor
+        (can_reassign_itd && (crf.application_status_id === 4 || crf.application_status_id === 6 || crf.application_status_id === 8 || crf.application_status_id === 12)) || // Assigned/Reassigned to ITD
+        (can_reassign_vendor && (crf.application_status_id === 5 || crf.application_status_id === 7 || crf.application_status_id === 8 || crf.application_status_id === 12)) // Assigned/Reassigned to Vendor
     );
 
     return (
@@ -302,6 +300,21 @@ export default function ShowCrf({
                                 </Button>
                             )}
 
+                            {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
+                            {can_approve && (crf.application_status_id === 10 || crf.application_status_id === 11) && (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={handleApprove}
+                                    disabled={approvingId === crf.id}
+                                    className="bg-green-600 hover:bg-green-700"
+                                    title="Approve as IT HOU"
+                                >
+                                    Approve
+                                    <CheckCircle className="h-4 w-4" />
+                                </Button>
+                            )}
+
                             {/* For IT ASSIGN to assign */}
                             {(can_assign_by_it && (crf.application_status_id === 2 || crf.application_status_id === 11)) && (
                                 <Button
@@ -329,18 +342,6 @@ export default function ShowCrf({
                                     Assign to PIC
                                 </Button>
                             )}
-
-                            {/* FOR ITD ADMIN TO ACKNOWLEDGE */}
-                            {/* {can_acknowledge && (
-                                <>
-                                    {(crf.application_status.status === 'Approved' || crf.application_status.status === 'Approved by HOU' || crf.application_status.status === 'Approved by TP'  ) && (
-                                        <Button onClick={handleAcknowledge}
-                                            className="bg-blue-600 hover:bg-blue-700">
-                                            Acknowledge
-                                        </Button>
-                                    )}
-                                </>
-                            )} */}
 
                             {/* FOR ADMIN TO ASSIGN PIC */}
                             {(can_assign_itd || can_assign_vendor) && (
@@ -501,6 +502,32 @@ export default function ShowCrf({
                                                 minute: '2-digit',
                                             })}
                                         </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-span-2">
+                                {/* Approved by HOU IT */}
+                                <div className="border p-4 rounded-md bg-gray-50">
+                                    <h3 className="font-semibold mb-3">HOU IT Approval</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label className="text-gray-600">Approved By</Label>
+                                            <p className="text-gray-900 font-medium">
+                                                {crf.it_hou_approver?.name || 'N/A'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-gray-600">Approved At</Label>
+                                            <p className="text-gray-900">
+                                                {new Date(crf.it_hou_approved_at + 'Z').toLocaleString('en-MY', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -715,7 +742,7 @@ export default function ShowCrf({
                         <DialogHeader>
                             <DialogTitle>Reassign CRF</DialogTitle>
                             <DialogDescription>
-                                Select a new PIC to reassign this CRF to
+                                Select assignment type and choose a PIC to reassign this CRF
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
@@ -729,37 +756,6 @@ export default function ShowCrf({
                             {(can_reassign_itd && can_reassign_vendor) && (
                                 <div className="grid gap-2">
                                     <Label>Reassign To</Label>
-
-                                    {/* <div className="flex gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="reassignType"
-                                                value="itd"
-                                                checked={reassignType === 'itd'}
-                                                onChange={() => {
-                                                    setReassignType('itd');
-                                                    setSelectedUser('');
-                                                }}
-                                                className="h-4 w-4"
-                                            />
-                                            <span>ITD PIC</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="reassignType"
-                                                value="vendor"
-                                                checked={reassignType === 'vendor'}
-                                                onChange={() => {
-                                                    setReassignType('vendor');
-                                                    setSelectedUser('');
-                                                }}
-                                                className="h-4 w-4"
-                                            />
-                                            <span>Vendor PIC</span>
-                                        </label>
-                                    </div> */}
 
                                     <div className="space-y-2">
                                         <div className="flex gap-4">
@@ -775,7 +771,7 @@ export default function ShowCrf({
                                                     }}
                                                     className="h-4 w-4"
                                                 />
-                                                <span>Reassign to ITD</span>
+                                                <span>ITD PIC</span>
                                             </label>
                                             <label className="flex items-center gap-2 cursor-pointer">
                                                 <input
@@ -789,7 +785,7 @@ export default function ShowCrf({
                                                     }}
                                                     className="h-4 w-4"
                                                 />
-                                                <span>Reassign to Vendor</span>
+                                                <span>Vendor PIC</span>
                                             </label>
                                         </div>
                                     </div>
@@ -807,7 +803,7 @@ export default function ShowCrf({
                                         onValueChange={setSelectedUser}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Choose a person" />
+                                            <SelectValue placeholder="Choose a PIC" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {availableUsers.length === 0 ? (
@@ -835,7 +831,11 @@ export default function ShowCrf({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setReassignModalOpen(false)}
+                                onClick={() => {
+                                    setReassignModalOpen(false);
+                                    setReassignType('');
+                                    setSelectedUser('');
+                                }}
                                 disabled={isReassigning}
                             >
                                 Cancel

@@ -106,7 +106,7 @@ export default function Dashboard({
     const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
 
     const handleApprove = (crfId: number) => {
-        if (confirm('Are you sure you want to approve this CRF?')) {
+        if (confirm('Approve this CRF?')) {
             setApprovingId(crfId);
             router.post(
                 `/crfs/${crfId}/approve`,
@@ -424,20 +424,6 @@ export default function Dashboard({
                                                                 <UserPlus className="h-4 w-4" />
                                                             </Button>
                                                         )}
-
-                                                        {/* for itd admin to acknowledge */}
-                                                        {/* {(can_acknowledge && (crf.application_status_id === 2 || crf.application_status_id === 10 || crf.application_status_id === 11)) && (
-                                                            <Button
-                                                                variant="default"
-                                                                size="sm"
-                                                                onClick={() => handleAcknowledge(crf.id)}
-                                                                disabled={acknowledgingId === crf.id}
-                                                                className="bg-blue-600 hover:bg-blue-700"
-                                                                title="Acknowledge"
-                                                            >
-                                                                <ClipboardCheck className="h-4 w-4" />
-                                                            </Button>
-                                                        )} */}
                                                         
                                                         {/* to assign PIC */}
                                                         {(can_assign_itd || can_assign_vendor) && crf.application_status_id === 3 && (

@@ -28,7 +28,6 @@ class Crf extends Model
         'factor_id',
         'issue',
         'reason',
-        // 'supporting_file',
         'user_id',
         'application_status_id',
         'approved_by',
@@ -37,6 +36,8 @@ class Crf extends Model
         'it_remark',
         'approved_by_hou_at',
         'approved_by_tp_at',
+        'it_hou_approved_at',
+        'it_hou_approved_by'
     ];
 
     public function user(){
@@ -50,6 +51,11 @@ class Crf extends Model
     public function tp_approver()
     {
         return $this->belongsTo(User::class, 'tp_approved_by');
+    }
+
+    public function it_hou_approver()
+    {
+        return $this->belongsTo(User::class, 'it_hou_approved_by');
     }
 
     public function department(){

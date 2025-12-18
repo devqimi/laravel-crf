@@ -50,7 +50,6 @@ class CrfController extends Controller
         // ITD ADMIN
         elseif (in_array('ITD ADMIN', $userRoles)) {
             $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
-            ->where('application_status_id', '>=', 2)
             ->latest()
             ->paginate(10);
 
@@ -684,6 +683,7 @@ class CrfController extends Controller
             'application_status',
             'approver',
             'tp_approver',
+            'it_hou_approver',
             'assigned_user',
             'statusTimeline.user',
             'attachments',
