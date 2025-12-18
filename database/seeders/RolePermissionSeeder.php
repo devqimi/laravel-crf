@@ -126,7 +126,6 @@ class RolePermissionSeeder extends Seeder
         $vendorAdmin = Role::firstOrCreate(['name' => 'VENDOR ADMIN']);
         $vendorAdmin->syncPermissions([
             'Closed other Assigned CRF Vendor',
-            'Re Assign PIC Vendor',
             'Vendor Follow Up / Assign Allocate PIC',
             'View ALL CRF',
             'view dashboard',
@@ -156,6 +155,9 @@ class RolePermissionSeeder extends Seeder
             'View Vendor CRF',
             'Assign CRF To ITD',
             'Assign CRF to Vendor',
+            'Re Assign CRF To Vendor',
+            'Re Assign PIC ITD',
+            'Re Assign PIC Vendor',
         ]);
 
         // 8. TIMBALAN PENGARAH Role (if not exists)
