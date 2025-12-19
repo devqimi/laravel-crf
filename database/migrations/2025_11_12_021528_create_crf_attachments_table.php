@@ -9,7 +9,8 @@ class CreateCrfAttachmentsTable extends Migration
     {
         Schema::create('crf_attachments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('crf_id')->constrained()->onDelete('cascade');
+            $table->Integer('crf_id')->nullable();
+            $table->foreign('crf_id')->references(['id'])->on('crforms')->onDelete('cascade');
             $table->string('filename'); // original filename
             $table->string('path'); // storage path relative to disk root
             $table->string('mime')->nullable();
