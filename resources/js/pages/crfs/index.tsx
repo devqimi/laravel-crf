@@ -614,20 +614,6 @@ export default function Dashboard({
                                                                         </Button>
                                                                     </>    
                                                             )}
-
-                                                            {/* to acknowledge */}
-                                                            {can_acknowledge && crf.application_status_id === 2 && (
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    onClick={() => handleAcknowledge(crf.id)}
-                                                                    disabled={acknowledgingId === crf.id}
-                                                                    className="bg-blue-600 hover:bg-blue-700"
-                                                                    title="Acknowledge"
-                                                                >
-                                                                    <ClipboardCheck className="h-4 w-4" />
-                                                                </Button>
-                                                            )}
                                                             
                                                             {/* to assign PIC */}
                                                             {(can_assign_itd || can_assign_vendor) && crf.application_status_id === 3 && (
@@ -641,19 +627,6 @@ export default function Dashboard({
                                                                     <UserPlus className="h-4 w-4" />
                                                                 </Button>
                                                             )}
-
-                                                            {/* to DELETE
-                                                            {can_delete && (
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    onClick={() => handleDelete(crf.id)}
-                                                                    disabled={deletingId === crf.id}
-                                                                    title="Delete"
-                                                                >
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            )} */}
                                                             
                                                         </div>
                                                     </TableCell>
