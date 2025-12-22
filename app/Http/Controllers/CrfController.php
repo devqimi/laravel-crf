@@ -38,6 +38,8 @@ class CrfController extends Controller
         $itDepartmentId = Department::where('dname', 'LIKE', '%Unit Teknologi Maklumat%')
             ->first()?->id;
 
+        $crfQuery = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user']);
+
         // if user can view all CRFs
         if (Gate::allows('View ALL CRF')) {
             $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
@@ -46,7 +48,86 @@ class CrfController extends Controller
 
             $departmentCrfs = null;
         }
+
+        elseif (count(array_intersect($userRoles, ['ITD ADMIN', 'HOU', 'IT ASSIGN', 'TIMBALAN PENGARAH', 'VENDOR ADMIN'])) > 1) {
         
+            $statusIds = [];
+            $conditions = [];
+            
+            // ITD ADMIN Role - can see everything from status 2 onwards
+            if (in_array('ITD ADMIN', $userRoles)) {
+                $crfs = $crfQuery->latest()->paginate(10);
+                // ITD ADMIN overrides all other roles - they see everything
+                // Skip other role checks
+                goto skip_merge;
+            }
+
+            // HOU Role
+            if (in_array('HOU', $userRoles)) {
+                if ($user->department_id == $itDepartmentId) {
+                    // IT HOU - show status 10, 11
+                    $statusIds = array_merge($statusIds, [10, 11]);
+                    
+                    // Also prepare department CRFs view
+                    $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                        ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+                        ->latest()
+                        ->get();
+                } else {
+                    // Department HOU - show status 1 from their department
+                    $conditions[] = function($query) use ($user) {
+                        $query->where('department_id', $user->department_id)
+                            ->where('application_status_id', 1);
+                    };
+                    
+                    // Prepare department CRFs view
+                    $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                        ->where('department_id', $user->department_id)
+                        ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+                        ->latest()
+                        ->get();
+                }
+            }
+            
+            // IT ASSIGN Role
+            if (in_array('IT ASSIGN', $userRoles)) {
+                $statusIds = array_merge($statusIds, [2]); // Status 2 = Approved by HOU IT
+            }
+            
+            // TIMBALAN PENGARAH Role
+            if (in_array('TIMBALAN PENGARAH', $userRoles)) {
+                $statusIds = array_merge($statusIds, [10]); // Status 10 = Approved by HOU, Awaiting TP approval
+            }
+            
+            // VENDOR ADMIN Role
+            if (in_array('VENDOR ADMIN', $userRoles)) {
+                $conditions[] = function($query) use ($user) {
+                    $query->where('assigned_vendor_admin_id', $user->id)
+                        ->where('application_status_id', 12);
+                };
+            }
+            
+            // Remove duplicates
+            $statusIds = array_unique($statusIds);
+            
+            // Build the final query
+            $crfs = $crfQuery->where(function($query) use ($statusIds, $conditions) {
+                // Add status-based conditions
+                if (!empty($statusIds)) {
+                    $query->whereIn('application_status_id', $statusIds);
+                }
+                
+                // Add custom conditions (like department-specific or vendor admin)
+                foreach ($conditions as $condition) {
+                    $query->orWhere($condition);
+                }
+            })
+            ->latest()
+            ->paginate(10);
+
+            skip_merge:
+        }
+
         // ITD ADMIN
         elseif (in_array('ITD ADMIN', $userRoles)) {
             $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
