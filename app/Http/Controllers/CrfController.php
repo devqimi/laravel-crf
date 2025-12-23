@@ -151,7 +151,7 @@ class CrfController extends Controller
         // IT ASSIGN view approved crf by hou
         elseif (in_array('IT ASSIGN', $userRoles)) {
             $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
-                ->where('application_status_id', 2) // IT ASSIGN assigns after approved by HOU IT
+                ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) // IT ASSIGN assigns after approved by HOU IT
                 ->latest()
                 ->paginate(10);
 
@@ -246,7 +246,7 @@ class CrfController extends Controller
         return Inertia::render('crfs/index', [
             'crfs' => $crfs,
             'department_crfs' => $departmentCrfs,
-            'can_view' =>Gate::allows('View Personal CRF'),
+            'can_view' =>Gate::allows('View CRF Detail'),
             'can_view_department' => Gate::allows('View Department CRF'),
             'can_delete' =>Gate::allows('Close Assigned CRF'),
             'can_create' => Gate::allows('Create CRF'),

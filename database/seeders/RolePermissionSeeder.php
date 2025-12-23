@@ -54,6 +54,7 @@ class RolePermissionSeeder extends Seeder
             'Close Assigned CRF',
             'Closed other Assigned CRF Vendor',
             'Close other Assigned CRF ITD',
+            'View CRF Detail'
         ];
 
         foreach ($permissions as $permission) {
@@ -68,6 +69,7 @@ class RolePermissionSeeder extends Seeder
             'verified CRF',
             'view dashboard',
             'View Department CRF',
+            'View CRF Detail'
         ]);
 
         // 2. ITD ADMIN Role - ID: 1
@@ -99,6 +101,7 @@ class RolePermissionSeeder extends Seeder
             'view role',
             'view user',
             'View Vendor CRF',
+            'View CRF Detail'
         ]);
 
         // 3. ITD PIC Role - ID: 5
@@ -112,6 +115,7 @@ class RolePermissionSeeder extends Seeder
             'View Department CRF',
             'View ITD CRF',
             'View Personal CRF',
+            'View CRF Detail'
         ]);
 
         // 4. USER Role - ID: 7
@@ -120,6 +124,7 @@ class RolePermissionSeeder extends Seeder
             'Create CRF',
             'view dashboard',
             'View Personal CRF',
+            'View CRF Detail'
         ]);
 
         // 5. VENDOR ADMIN Role - ID: 8
@@ -133,6 +138,7 @@ class RolePermissionSeeder extends Seeder
             'View Personal CRF',
             'View Vendor CRF',
             'Assign Vendor PIC',
+            'View CRF Detail'
         ]);
 
         // 6. VENDOR PIC Role - ID: 6
@@ -145,6 +151,7 @@ class RolePermissionSeeder extends Seeder
             'View Department CRF',
             'View Personal CRF',
             'View Vendor CRF',
+            'View CRF Detail'
         ]);
 
         // 7. IT ASSIGN Role - NEW
@@ -158,6 +165,7 @@ class RolePermissionSeeder extends Seeder
             'Re Assign CRF To Vendor',
             'Re Assign PIC ITD',
             'Re Assign PIC Vendor',
+            'View CRF Detail'
         ]);
 
         // 8. TIMBALAN PENGARAH Role (if not exists)
@@ -166,6 +174,7 @@ class RolePermissionSeeder extends Seeder
             'approved by TP',
             'view dashboard',
             'View Personal CRF',
+            'View CRF Detail'
         ]);
 
         $this->command->info('Roles and Permissions created successfully!');

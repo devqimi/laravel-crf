@@ -326,32 +326,6 @@ export default function Dashboard({
                                                             </Link>
                                                         )}
 
-                                                        {/* FOR ADMIN TO REASSIGN PIC */}
-                                                        {(can_assign_itd && can_assign_vendor) && (
-                                                            <Link href={`/crfs/${crf.id}`}>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    title="View CRF"
-                                                                >
-                                                                    <Eye className="h-4 w-4" />
-                                                                </Button>
-                                                            </Link>
-                                                        )}
-
-                                                        {/* FOR HOU VIEW FULL DETAIL*/}
-                                                        {can_approve && crf.application_status_id === 1 && (
-                                                            <Link href={`/crfs/${crf.id}`}>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    title="View CRF"
-                                                                >
-                                                                    <Eye className="h-4 w-4" />
-                                                                </Button>
-                                                            </Link>
-                                                        )}
-
                                                         {/* to approve for HOU*/}
                                                         {can_approve && crf.application_status_id === 1 && (
                                                                 <>
@@ -560,34 +534,8 @@ export default function Dashboard({
                                                     <TableCell>
                                                         <div className="flex gap-2">
 
-                                                            {/* to update for PIC */}
-                                                            {(can_view || (can_update_own_crf && crf.assigned_to)) && (
-                                                                <Link href={`/crfs/${crf.id}`}>
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="sm"
-                                                                        title="View CRF"
-                                                                    >
-                                                                        <Eye className="h-4 w-4" />
-                                                                    </Button>
-                                                                </Link>
-                                                            )}
-
-                                                            {/* FOR ADMIN TO REASSIGN PIC */}
-                                                            {(can_assign_itd || can_assign_vendor) && (
-                                                                <Link href={`/crfs/${crf.id}`}>
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="sm"
-                                                                        title="View CRF"
-                                                                    >
-                                                                        <Eye className="h-4 w-4" />
-                                                                    </Button>
-                                                                </Link>
-                                                            )}
-
-                                                            {/* FOR HOU VIEW FULL DETAIL*/}
-                                                            {can_approve && (
+                                                            {/* view crf details */}
+                                                            {can_view && (
                                                                 <Link href={`/crfs/${crf.id}`}>
                                                                     <Button
                                                                         variant="outline"
