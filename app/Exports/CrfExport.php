@@ -3,28 +3,34 @@
 namespace App\Exports;
 
 use App\Models\Crf;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill; // Add this line
 
 class CrfExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
     protected $startDate;
     protected $endDate;
-    protected $actionBy;
+    protected $actionByITD;
+    protected $actionByVendor;
     protected $categories;
+    protected $factors;
     protected $reportType;
 
-    public function __construct($startDate, $endDate, $actionBy = null, $categories = [], $reportType = 'all')
+    public function __construct($startDate, $endDate, $actionByITD = null, $actionByVendor = null, $categories = [], $factors = [], $reportType = 'all')
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->actionBy = $actionBy;
+        $this->actionByITD = $actionByITD;
+        $this->actionByVendor = $actionByVendor;
         $this->categories = $categories;
+        $this->factors = $factors;
         $this->reportType = $reportType;
     }
 
@@ -39,31 +45,89 @@ class CrfExport implements FromQuery, WithHeadings, WithMapping, WithStyles, Sho
             'assigned_user'
         ])
         ->whereBetween('created_at', [$this->startDate, $this->endDate]);
+    
+        $hasVendorFilter = $this->actionByVendor && $this->actionByVendor !== 'all';
+        $hasITDFilter = $this->actionByITD && $this->actionByITD !== 'all';
 
-        // Filter by action_by (vendor)
-        if ($this->actionBy) {
-            $query->where('assigned_to', $this->actionBy);
+        if ($hasVendorFilter || $hasITDFilter) {
+            $query->where(function($q) use ($hasVendorFilter, $hasITDFilter) {
+                
+                // Vendor filtering
+                if ($hasVendorFilter) {
+                    if ($this->actionByVendor === 'none') {
+                        // Exclude vendors
+                        $vendorIds = User::role('VENDOR PIC')->pluck('id')->toArray();
+                        if (!empty($vendorIds)) {
+                            $q->where(function($subQ) use ($vendorIds) {
+                                $subQ->whereNotIn('assigned_to', $vendorIds)
+                                    ->orWhereNull('assigned_to');
+                            });
+                        }
+                    } else {
+                        // Specific vendor - use OR if ITD also selected
+                        if ($hasITDFilter && $this->actionByITD !== 'none') {
+                            $q->orWhere('assigned_to', $this->actionByVendor);
+                        } else {
+                            $q->where('assigned_to', $this->actionByVendor);
+                        }
+                    }
+                }
+                
+                // ITD filtering
+                if ($hasITDFilter) {
+                    if ($this->actionByITD === 'none') {
+                        // Exclude ITDs
+                        $itdIds = User::role('ITD PIC')->pluck('id')->toArray();
+                        if (!empty($itdIds)) {
+                            $q->where(function($subQ) use ($itdIds) {
+                                $subQ->whereNotIn('assigned_to', $itdIds)
+                                    ->orWhereNull('assigned_to');
+                            });
+                        }
+                    } else {
+                        // Specific ITD - always use OR
+                        $q->orWhere('assigned_to', $this->actionByITD);
+                    }
+                }
+            });
         }
-
+        
         // Filter by categories
         if (!empty($this->categories)) {
-            $query->whereIn('category_id', $this->categories);
+            $query->where(function($q) {
+                $q->whereIn('category_id', $this->categories)
+                  ->orWhereNull('category_id'); // Include CRFs with no category yet
+            });
+        }
+
+        // Filter by factors
+        if (!empty($this->factors)) {
+            $query->where(function($q) {
+                $q->whereIn('factor_id', $this->factors)
+                  ->orWhereNull('factor_id'); // Include CRFs without factors
+            });
         }
 
         // Filter by report type
         if ($this->reportType !== 'all') {
             switch ($this->reportType) {
                 case 'pending':
-                    $query->where('application_status_id', 1);
+                    $query->whereIn('application_status_id', [1, 10, 11]);
                     break;
                 case 'in_progress':
-                    $query->whereIn('application_status_id', [4, 5, 6, 7, 8]);
+                    $query->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12]);
                     break;
                 case 'completed':
                     $query->where('application_status_id', 9);
                     break;
             }
         }
+
+        Log::info('Export Query:', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+            'count' => $query->count()
+        ]);
 
         return $query->orderBy('created_at', 'desc');
     }
@@ -72,6 +136,7 @@ class CrfExport implements FromQuery, WithHeadings, WithMapping, WithStyles, Sho
     {
         return [
             'ID',
+            'Crf Number',
             'Name',
             'NRIC',
             'Department',
@@ -93,6 +158,7 @@ class CrfExport implements FromQuery, WithHeadings, WithMapping, WithStyles, Sho
     {
         return [
             $crf->id,
+            $crf->crf_number,
             $crf->fname,
             $crf->nric,
             $crf->department->dname ?? 'N/A',

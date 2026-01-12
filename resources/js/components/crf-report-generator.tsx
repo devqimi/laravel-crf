@@ -19,12 +19,16 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileDown, Loader2 } from 'lucide-react';
-import { router } from '@inertiajs/react';
 
 interface Category {
     id: number;
     cname: string;
 }
+
+interface Factor {
+    id: number;
+    name: string;
+};
 
 interface User {
     id: number;
@@ -33,19 +37,23 @@ interface User {
 
 interface ReportGeneratorProps {
     categories: Category[];
+    factors: Factor[];
     vendors: User[];
+    itds: User[];
 }
 
-export default function CRFReportGenerator({ categories, vendors }: ReportGeneratorProps) {
+export default function CRFReportGenerator({ categories, factors, vendors, itds }: ReportGeneratorProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     
     const [filters, setFilters] = useState({
         startDate: '',
         endDate: '',
-        actionBy: '',
+        actionByITD: 'all',
+        actionByVendor: 'all',
         selectedCategories: [] as number[],
-        reportType: 'all', // 'all', 'pending', 'completed', 'in_progress'
+        selectedFactors: [] as number[],
+        reportType: 'all',
     });
 
     const handleCategoryToggle = (categoryId: number) => {
@@ -68,34 +76,59 @@ export default function CRFReportGenerator({ categories, vendors }: ReportGenera
         }
     };
 
+    const handleFactorToggle = (factorId: number) => {
+        setFilters(prev => ({
+            ...prev,
+            selectedFactors: prev.selectedFactors.includes(factorId)
+                ? prev.selectedFactors.filter(id => id !== factorId)
+                : [...prev.selectedFactors, factorId]
+        }));
+    };
+
+    const handleSelectAllFactors = () => {
+        if (filters.selectedFactors.length === factors.length) {
+            setFilters(prev => ({ ...prev, selectedFactors: [] }));
+        } else {
+            setFilters(prev => ({ 
+                ...prev, 
+                selectedFactors: factors.map(f => f.id) 
+            }));
+        }
+    };
+
     const handleGenerateReport = () => {
         setIsGenerating(true);
         
-        // Build query parameters
         const params = new URLSearchParams();
         if (filters.startDate) params.append('start_date', filters.startDate);
         if (filters.endDate) params.append('end_date', filters.endDate);
-        if (filters.actionBy) params.append('action_by', filters.actionBy);
+
+        if (filters.actionByITD && filters.actionByITD !== 'all' && filters.actionByITD !== 'none') {
+            params.append('action_by_itd', filters.actionByITD);
+        } else if (filters.actionByITD === 'none') {
+            params.append('action_by_itd', 'none');
+        }
+
+        if (filters.actionByVendor && filters.actionByVendor !== 'all' && filters.actionByVendor !== 'none') {
+            params.append('action_by_vendor', filters.actionByVendor);
+        } else if (filters.actionByVendor === 'none') {
+            params.append('action_by_vendor', 'none');
+        }
+
         if (filters.selectedCategories.length > 0) {
             params.append('categories', filters.selectedCategories.join(','));
         }
+        if (filters.selectedFactors.length > 0) {
+            params.append('factors', filters.selectedFactors.join(','));
+        }
         if (filters.reportType !== 'all') params.append('report_type', filters.reportType);
 
-        // Create a temporary link to download the file
-        const downloadUrl = `/reports/crf/export?${params.toString()}`;
-        
-        // Create a hidden link and click it to trigger download
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = ''; // Let the server set the filename
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        window.location.href = `/reports/crf/export?${params.toString()}`;
         
         setTimeout(() => {
             setIsGenerating(false);
             setIsOpen(false);
-        }, 1000);
+        }, 1500);
     };
 
     const isFormValid = filters.startDate && filters.endDate;
@@ -116,7 +149,7 @@ export default function CRFReportGenerator({ categories, vendors }: ReportGenera
                     <DialogHeader>
                         <DialogTitle>Generate CRF Report</DialogTitle>
                         <DialogDescription>
-                            Select filters to generate a customized Excel report of CRFs
+                            Select filters to generate the CRF report in Excel format.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -166,7 +199,7 @@ export default function CRFReportGenerator({ categories, vendors }: ReportGenera
                                     <SelectValue placeholder="Select report type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All CRFs</SelectItem>
+                                    <SelectItem value="all">All CRF</SelectItem>
                                     <SelectItem value="pending">Pending Only</SelectItem>
                                     <SelectItem value="in_progress">In Progress Only</SelectItem>
                                     <SelectItem value="completed">Completed Only</SelectItem>
@@ -178,20 +211,46 @@ export default function CRFReportGenerator({ categories, vendors }: ReportGenera
                         <div className="space-y-2">
                             <Label htmlFor="actionBy">Action By (Vendor)</Label>
                             <Select
-                                value={filters.actionBy || "all"}
+                                value={filters.actionByVendor}
                                 onValueChange={(value) => setFilters(prev => ({ 
                                     ...prev, 
-                                    actionBy: value === "all" ? "" : value 
+                                    actionByVendor: value
                                 }))}
                             >
-                                <SelectTrigger id="actionBy">
+                                <SelectTrigger id="actionByVendor">
                                     <SelectValue placeholder="Select vendor (optional)" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Vendors</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {vendors.map((vendor) => (
                                         <SelectItem key={vendor.id} value={vendor.id.toString()}>
                                             {vendor.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Action By (ITD) */}
+                        <div className="space-y-2">
+                            <Label htmlFor="actionByITD">Action By (ITD)</Label>
+                            <Select
+                                value={filters.actionByITD}
+                                onValueChange={(value) => setFilters(prev => ({
+                                    ...prev,
+                                    actionByITD: value
+                                }))}
+                            >
+                                <SelectTrigger id="actionByITD">
+                                    <SelectValue placeholder="Select ITD (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All ITDs</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
+                                    {itds.map((itd) => (
+                                        <SelectItem key={itd.id} value={itd.id.toString()}>
+                                            {itd.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -233,6 +292,44 @@ export default function CRFReportGenerator({ categories, vendors }: ReportGenera
                             </div>
                             <p className="text-xs text-gray-500">
                                 {filters.selectedCategories.length} of {categories.length} categories selected
+                            </p>
+                        </div>
+
+                        {/* Factors */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <Label>Factors</Label>
+                                <Button
+                                    type="button"
+                                    variant="link"
+                                    size="sm"
+                                    onClick={handleSelectAllFactors}
+                                    className="h-auto p-0 text-xs"
+                                >
+                                    {filters.selectedFactors.length === factors.length 
+                                        ? 'Deselect All'
+                                        : 'Select All'}
+                                </Button>
+                            </div>
+                            <div className="border rounded-lg p-4 max-h-60 overflow-y-auto space-y-3">
+                                {factors.map((factor) => (
+                                    <div key={factor.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`factor-${factor.id}`}
+                                            checked={filters.selectedFactors.includes(factor.id)}
+                                            onCheckedChange={() => handleFactorToggle(factor.id)}
+                                        />
+                                        <label
+                                            htmlFor={`factor-${factor.id}`}
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                        >
+                                            {factor.name}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                                {filters.selectedFactors.length} of {factors.length} factors selected
                             </p>
                         </div>
                     </div>
