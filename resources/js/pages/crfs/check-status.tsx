@@ -23,6 +23,7 @@ import { useState } from 'react';
 
 type CrfResult = {
     id: number;
+    crf_number: string;
     fname: string;
     nric: string;
     department: { dname: string };
@@ -81,15 +82,18 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
 
     const getStatusColor = (status: string) => {
         const colors: Record<string, string> = {
-            'First Created': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            'Verified': 'bg-green-100 text-green-800 border-green-300',
-            'ITD Acknowledged': 'bg-blue-100 text-blue-800 border-blue-300',
-            'Assigned to ITD': 'bg-purple-100 text-purple-800 border-purple-300',
-            'Assigned to Vendor': 'bg-orange-100 text-orange-800 border-orange-300',
-            'Reassigned to ITD': 'bg-purple-200 text-purple-900 border-purple-400',
-            'Reassigned to Vendor': 'bg-orange-200 text-orange-900 border-orange-400',
-            'Work in progress': 'bg-indigo-100 text-indigo-800 border-indigo-300',
-            'Closed': 'bg-gray-200 text-gray-900 border-gray-400',
+            'First Created': 'bg-amber-100 text-amber-800',
+            'Approved by HOU IT': 'bg-green-100 text-green-800',
+            'ITD Acknowledged': 'bg-indigo-100 text-indigo-800',
+            'Assigned to ITD': 'bg-blue-100 text-blue-800',
+            'Assigned to Vendor': 'bg-cyan-100 text-cyan-800',
+            'Reassigned to ITD': 'bg-blue-200 text-blue-900',
+            'Reassigned to Vendor': 'bg-cyan-200 text-cyan-900',
+            'Work in progress': 'bg-sky-100 text-sky-800',
+            'Closed': 'bg-gray-200 text-gray-800',
+            'Approved by HOU': 'bg-green-200 text-green-800',
+            'Approved by TP': 'bg-green-200 text-green-800',
+            'Assigned to Vendor Admin': 'bg-purple-100 text-purple-800',
         };
 
         return colors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
@@ -180,7 +184,7 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
                                                 <div className="flex-1 space-y-2">
                                                     <div className="flex items-center gap-3">
                                                         <h3 className="font-semibold text-lg">
-                                                            CRF #{crf.id}
+                                                            CRF ID : {crf.crf_number}
                                                         </h3>
                                                         <span
                                                             className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(crf.application_status.status)}`}
@@ -191,6 +195,12 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
                                                     </div>
 
                                                     <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                                                        <div>
+                                                            <span className="text-gray-500">Name:</span>{' '}
+                                                            <span className="font-medium">
+                                                                {crf.fname}
+                                                            </span>
+                                                        </div>
                                                         <div>
                                                             <span className="text-gray-500">Category:</span>{' '}
                                                             <span className="font-medium">

@@ -18,6 +18,7 @@ class Crf extends Model
 
     // (Optional) List columns that can be mass assigned
     protected $fillable = [
+        'crf_number',
         'user_id',
         'fname',
         'nric',
@@ -33,6 +34,7 @@ class Crf extends Model
         'approved_by',
         'tp_approved_by',
         'assigned_to',
+        'assigned_vendor_admin_id',
         'it_remark',
         'approved_by_hou_at',
         'approved_by_tp_at',
@@ -109,5 +111,11 @@ class Crf extends Model
     public function attachments()
     {
         return $this->hasMany(CrfAttachment::class, 'crf_id');
+    }
+
+    // Add accessor for display
+    public function getCrfNumberAttribute($value)
+    {
+        return $value ?? 'Pending';
     }
 }

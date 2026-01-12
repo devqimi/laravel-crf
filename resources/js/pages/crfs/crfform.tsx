@@ -448,7 +448,7 @@ export default function CrfForm({ user, departments, categories }: Props) {
                         type="submit"
                         disabled={processing}
                     >
-                        {processing ? 'Submitting...' : 'Submit and Print'}
+                        {processing ? 'Submitting...' : 'Submit'}
                     </button>
                     <button
                         className="rounded bg-blue-500 px-4 py-2 text-white"

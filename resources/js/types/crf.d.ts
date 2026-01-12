@@ -29,6 +29,7 @@ type User = {
 
 export interface SingleCrf {
     id: number;
+    crf_number: string;
     fname: string;
     email: string;
     nric: string;
@@ -49,6 +50,8 @@ export interface SingleCrf {
     approved_by: number | null;
     approver?: User;
     assigned_to: number | null;
+    assigned_user: User;
+    assigned_vendor_admin_id: number | null;
     it_remark?: string | null;
     created_at: string;
     updated_at: string;

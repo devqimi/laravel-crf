@@ -62,6 +62,7 @@ type Attachment = {
 
 type CrfData = {
     id: number;
+    crf_number: string;
     fname: string;
     nric: string;
     department: { dname: string };
@@ -105,6 +106,7 @@ type Props = {
     itd_pics?: User[];
     vendor_pics?: User[];
     factors: Factor[];
+    is_it_hou: boolean;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -128,6 +130,7 @@ export default function ShowCrf({
     itd_pics = [],
     vendor_pics = [],
     factors = [],
+    is_it_hou = false,
 }: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [reassignModalOpen, setReassignModalOpen] = useState(false);
@@ -258,7 +261,7 @@ export default function ShowCrf({
             <div className="flex h-full flex-1 flex-col gap-4 p-4 rounded-xl">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>CRF Details - #{crf.id}</CardTitle>
+                        <CardTitle>CRF NO : {crf.crf_number}</CardTitle>
                         <div className="flex gap-2">
                             
                             {/* FOR ITD ADMIN TO REASSIGN */}
@@ -279,7 +282,8 @@ export default function ShowCrf({
                                     {crf.application_status.status === 'First Created' && (
                                         <Button onClick={handleApprove}
                                             className="bg-green-600 hover:bg-green-700">
-                                            Approve
+                                            HOU Approve
+                                            <CheckCircle className="h-4 w-4" />
                                         </Button>
                                     )}
                                 </>
@@ -291,32 +295,36 @@ export default function ShowCrf({
                                     variant="default"
                                     size="sm"
                                     onClick={() => {
-                                        if (confirm('Approve this Hardware Relocation CRF?')) {
+                                        if (confirm('Approve this Hardware Request/Relocation CRF?')) {
                                             router.post(`/crfs/${crf.id}/approve-by-tp`);
                                         }
                                     }}
                                     className="bg-green-600 hover:bg-green-700">
                                     TP Approve
-                                </Button>
-                            )}
-
-                            {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
-                            {can_approve && (crf.application_status_id === 10 || crf.application_status_id === 11) && (
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={handleApprove}
-                                    disabled={approvingId === crf.id}
-                                    className="bg-green-600 hover:bg-green-700"
-                                    title="Approve as IT HOU"
-                                >
-                                    Approve
                                     <CheckCircle className="h-4 w-4" />
                                 </Button>
                             )}
 
+                            {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
+                            {can_approve && is_it_hou && (
+                                ((crf.application_status_id === 10 && crf.category?.cname !== 'Hardware Request/Relocation') ||
+                                (crf.application_status_id === 11 && crf.category?.cname === 'Hardware Request/Relocation')) && (
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={handleApprove}
+                                        disabled={approvingId === crf.id}
+                                        className="bg-green-600 hover:bg-green-700"
+                                        title="Approve as IT HOU"
+                                    >
+                                        Approve HOU IT
+                                        <CheckCircle className="h-4 w-4" />
+                                    </Button>
+                                )
+                            )}
+
                             {/* For IT ASSIGN to assign */}
-                            {(can_assign_by_it && (crf.application_status_id === 2 || crf.application_status_id === 11)) && (
+                            {(can_assign_by_it && crf.application_status_id === 2) && (
                                 <Button
                                     variant="default"
                                     size="sm"
@@ -403,7 +411,7 @@ export default function ShowCrf({
                             </div>
 
                             {/* FACTOR DROPDOWN */}
-                            <div>
+                            <div className="col-span-2">
                                 <Label className="text-gray-600">Factor</Label>
                                 {can_update ? (
                                     <select
@@ -443,17 +451,25 @@ export default function ShowCrf({
                                 )}
                             </div>
 
-                            <div className="col-span-2">
+                            <div className="">
                                 <Label className="text-gray-600">Issue</Label>
-                                <p className="font-medium">{crf.issue}</p>
+                                <p className="font-medium whitespace-pre-wrap">{crf.issue}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="">
                                 <Label className="text-gray-600">Reason</Label>
-                                <p className="font-medium">{crf.reason || '-'}</p>
+                                <p className="font-medium whitespace-pre-wrap">{crf.reason || '-'}</p>
                             </div>
                             <div className="col-span-2">
                                 <Label className="text-gray-600">Status</Label>
                                 <p className="font-medium">{crf.application_status.status}</p>
+                            </div>
+                            <div>
+                                <Label className="text-gray-600">Assigned To</Label>
+                                <p className="font-medium">{crf.assigned_user?.name || '-'}</p>
+                            </div>
+                            <div>
+                                <Label className="text-gray-600">Created At</Label>
+                                <p className="font-medium">{new Date(crf.created_at).toLocaleString()}</p>
                             </div>
                             
                             {/* Approved by HOU Section */}
@@ -505,6 +521,7 @@ export default function ShowCrf({
                                     </div>
                                 </div>
                             </div>
+
                             <div className="col-span-2">
                                 {/* Approved by HOU IT */}
                                 <div className="border p-4 rounded-md bg-gray-50">
@@ -531,14 +548,7 @@ export default function ShowCrf({
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <Label className="text-gray-600">Assigned To</Label>
-                                <p className="font-medium">{crf.assigned_user?.name || '-'}</p>
-                            </div>
-                            <div>
-                                <Label className="text-gray-600">Created At</Label>
-                                <p className="font-medium">{new Date(crf.created_at).toLocaleString()}</p>
-                            </div>
+                            
                         </div>
 
                         <hr />
@@ -698,7 +708,7 @@ export default function ShowCrf({
 
                         <hr />
 
-                        {/* Inside your component render */}
+                        {/* File Attachments */}
                         {crf.attachments && crf.attachments.length > 0 && (
                             <div className="space-y-2">
                                 <Label className="text-gray-600">Attachments</Label>
@@ -749,7 +759,7 @@ export default function ShowCrf({
                             {/* Show current assignment */}
                             <div className="bg-gray-50 p-3 rounded border">
                                 <p className="text-sm text-gray-600">Currently assigned to:</p>
-                                <p className="font-medium dark:text-black">{crf.assigned_user?.name || 'Unknown'}</p>
+                                <p className="font-medium dark:text-black">{crf.assigned_user?.name || 'No PIC assigned yet'}</p>
                             </div>
 
                             {/* Assignment Type (if both permissions) */}

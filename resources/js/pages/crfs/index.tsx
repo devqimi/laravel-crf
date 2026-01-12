@@ -2,6 +2,7 @@ import TablePagination from '@/components/table-pagination';
 import CRFReportGenerator from '@/components/crf-report-generator';
 import { Button } from '@/components/ui/button';
 import ITAssignModal from '@/components/ITAssignModal';
+import CRFSearchFilter from '@/components/crf-search-filter';
 import VendorAdminAssignModal from '@/components/VendorAdminAssignModal';
 import {Card, CardAction, CardContent, CardHeader, CardTitle,} from '@/components/ui/card';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
@@ -33,6 +34,7 @@ type Factor = {
 
 type CrfData = {
     id: number;
+    crf_number: string;
     fname: string;
     nric: string;
     designation: string;
@@ -54,6 +56,7 @@ type CrfData = {
 type Props = {
     crfs: Crf;
     department_crfs: CrfData[] | null;
+    departments: { id: number; dname: string }[];
     can_view?: boolean;
     can_view_department?: boolean;
     can_delete?: boolean;
@@ -71,11 +74,14 @@ type Props = {
     vendor_pics?: User[];
     factors: Factor[];
     categories: Category[];
+    is_it_hou: boolean;
+    is_admin_hou_pic?: boolean;
 };
 
 export default function Dashboard({
     crfs,
     department_crfs = null,
+    departments,
     can_view = false,
     can_view_department = false,
     can_delete = false,
@@ -92,14 +98,15 @@ export default function Dashboard({
     itd_pics = [],
     vendor_pics = [],
     categories = [],
-    // factors = [],
+    factors = [],
+    is_it_hou = false,
+    is_admin_hou_pic = false,
 }: Props) {
 
 
     // const { can } = usePermission();
     // const [deletingId, setDeletingId] = useState<number | null>(null);
     const [approvingId, setApprovingId] = useState<number | null>(null);
-    const [acknowledgingId, setAcknowledgingId] = useState<number | null>(null);
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
     const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
@@ -122,22 +129,6 @@ export default function Dashboard({
                     },
                 },
             );
-        }
-    };
-
-    const handleAcknowledge = (crfId: number) => {
-        if (confirm('Are you sure you want to acknowledge this CRF?')) {
-            setAcknowledgingId(crfId);
-            router.post(`/crfs/${crfId}/acknowledge`, {}, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setAcknowledgingId(null);
-                },
-                onError: () => {
-                    setAcknowledgingId(null);
-                    alert('Failed to acknowledge CRF');
-                },
-            });
         }
     };
 
@@ -196,7 +187,7 @@ export default function Dashboard({
                 <Card>
                     <CardHeader className="flex items-center justify-between">
                         {can_approve ? (
-                            <CardTitle>CRF Pending Approval</CardTitle>
+                            <CardTitle>CRF Pending</CardTitle>
                         ) : (
                             <CardTitle>CRF</CardTitle>
                         )}
@@ -205,7 +196,9 @@ export default function Dashboard({
                             {!can_create && (
                                 <CRFReportGenerator 
                                     categories={categories}
+                                    factors={factors}
                                     vendors={vendor_pics}
+                                    itds={itd_pics}
                                 />
                             )}
 
@@ -223,12 +216,25 @@ export default function Dashboard({
                     </CardHeader>
                     <hr />
                     <CardContent>
+
+                        {is_admin_hou_pic && (
+                            
+                            <CRFSearchFilter 
+                                departments={departments}
+                                categories={categories}
+                                factors={factors}
+                            />
+                        )}
+
                         <div className="rounded-md border overflow-hidden">
                             <Table>
                                 <TableHeader className="bg-blue-900">
                                     <TableRow>
                                         <TableHead className="font-bold text-white">
                                             No.
+                                        </TableHead>
+                                        <TableHead className="font-bold text-white">
+                                            CRF No.
                                         </TableHead>
                                         <TableHead className="font-bold text-white">
                                             Name
@@ -243,7 +249,7 @@ export default function Dashboard({
                                             Designation
                                         </TableHead>
                                         <TableHead className="font-bold text-white">
-                                            Ext & HP No
+                                            Ext No
                                         </TableHead>
                                         <TableHead className="font-bold text-white">
                                             Category
@@ -261,7 +267,10 @@ export default function Dashboard({
                                             Status
                                         </TableHead>
                                         <TableHead className="font-bold text-white">
-                                            Approved By
+                                            Approved HOU
+                                        </TableHead>
+                                        <TableHead className="font-bold text-white">
+                                            Assigned PIC
                                         </TableHead>
                                         <TableHead className="font-bold text-white">
                                             Created At
@@ -282,6 +291,7 @@ export default function Dashboard({
                                     {crfs.data.map((crf, index) => (
                                         <TableRow key={crf.id} className="bg-white dark:bg-gray-800">
                                             <TableCell>{index + 1}</TableCell>
+                                            <TableCell>{crf.crf_number}</TableCell>
                                             <TableCell>{crf.fname}</TableCell>
                                             <TableCell>{crf.nric}</TableCell>
                                             <TableCell>{crf.department?.dname || 'N/A'}</TableCell>
@@ -304,9 +314,23 @@ export default function Dashboard({
                                                     </Tooltip>
                                                 </TooltipProvider>
                                             </TableCell>
-                                            <TableCell>{crf.reason || '-'}</TableCell>
+                                            <TableCell className="max-w-xs">
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <p className="truncate cursor-help">
+                                                                {crf.reason || '-'}
+                                                            </p>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent className="max-w-sm">
+                                                            <p className="text-sm whitespace-pre-wrap">{crf.reason || '-'}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            </TableCell>
                                             <TableCell>{getStatusBadge(crf.application_status?.status)}</TableCell>
                                             <TableCell>{crf.approver?.name || '-'}</TableCell>
+                                            <TableCell>{crf.assigned_user?.name || '-'}</TableCell>
                                             <TableCell>{new Date(crf.created_at,).toLocaleString()}</TableCell>
                                             <TableCell>{new Date(crf.updated_at,).toLocaleString()}</TableCell>
                                             {(can_view || can_delete || can_approve || can_acknowledge || can_assign_itd || can_assign_vendor || can_update_own_crf || can_approve_tp) && (
@@ -348,7 +372,7 @@ export default function Dashboard({
                                                                 variant="default"
                                                                 size="sm"
                                                                 onClick={() => {
-                                                                    if (confirm('Approve this Hardware Relocation CRF?')) {
+                                                                    if (confirm('Approve this Hardware Request/Relocation CRF?')) {
                                                                         router.post(`/crfs/${crf.id}/approve-by-tp`);
                                                                     }
                                                                 }}
@@ -360,17 +384,20 @@ export default function Dashboard({
                                                         )}
 
                                                         {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
-                                                        {can_approve && (crf.application_status_id === 10 || crf.application_status_id === 11) && (
-                                                            <Button
-                                                                variant="default"
-                                                                size="sm"
-                                                                onClick={() => handleApprove(crf.id)}
-                                                                disabled={approvingId === crf.id}
-                                                                className="bg-green-600 hover:bg-green-700"
-                                                                title="Approve as IT HOU"
-                                                            >
-                                                                <CheckCircle className="h-4 w-4" />
-                                                            </Button>
+                                                        {can_approve && is_it_hou && (
+                                                            ((crf.application_status_id === 10 && crf.category?.cname !== 'Hardware Request/Relocation') ||
+                                                            (crf.application_status_id === 11 && crf.category?.cname === 'Hardware Request/Relocation')) && (
+                                                                <Button
+                                                                    variant="default"
+                                                                    size="sm"
+                                                                    onClick={() => handleApprove(crf.id)}
+                                                                    disabled={approvingId === crf.id}
+                                                                    className="bg-green-600 hover:bg-green-700"
+                                                                    title="Approve as IT HOU"
+                                                                >
+                                                                    <CheckCircle className="h-4 w-4" />
+                                                                </Button>
+                                                            )
                                                         )}
 
                                                         {/* For IT ASSIGN to assign */}
@@ -452,6 +479,9 @@ export default function Dashboard({
                                                 No.
                                             </TableHead>
                                             <TableHead className="font-bold text-white">
+                                                CRF No.
+                                            </TableHead>
+                                            <TableHead className="font-bold text-white">
                                                 Name
                                             </TableHead>
                                             <TableHead className="font-bold text-white">
@@ -503,6 +533,7 @@ export default function Dashboard({
                                         {department_crfs.map((crf, index) => (
                                             <TableRow key={crf.id} className="bg-white dark:bg-gray-800">
                                                 <TableCell>{index + 1}</TableCell>
+                                                <TableCell>{crf.crf_number}</TableCell>
                                                 <TableCell>{crf.fname}</TableCell>
                                                 <TableCell>{crf.nric}</TableCell>
                                                 <TableCell>{crf.department?.dname || 'N/A'}</TableCell>
@@ -525,7 +556,20 @@ export default function Dashboard({
                                                         </Tooltip>
                                                     </TooltipProvider>
                                                 </TableCell>
-                                                <TableCell>{crf.reason || '-'}</TableCell>
+                                                <TableCell className="max-w-xs">
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <p className="truncate cursor-help">
+                                                                    {crf.reason || '-'}
+                                                                </p>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent className="max-w-sm">
+                                                                <p className="text-sm whitespace-pre-wrap">{crf.reason || '-'}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </TableCell>
                                                 <TableCell>{getStatusBadge(crf.application_status?.status)}</TableCell>
                                                 <TableCell>{crf.approver?.name || '-'}</TableCell>
                                                 <TableCell>{new Date(crf.created_at,).toLocaleString()}</TableCell>

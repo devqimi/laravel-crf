@@ -7,6 +7,7 @@ use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Factor;
 use App\Notifications;
+use App\Services\CrfNumberService;
 use App\Models\Category;
 use App\Models\Department;
 use Illuminate\Http\Request;
@@ -20,36 +21,69 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\CrfApprovedByHOU;
-use App\Notifications\CrfAssignedToITDNotification;
-use App\Notifications\CrfAssignedToVendorAdminNotification;
 use App\Notifications\CrfAssignedToVendorPICNotification;
 
 class CrfController extends Controller
 {
 
-    public function index() {
+    public function index(Request $request) {
+
+        Log::info('CRF Index Request:', [
+            'search' => $request->input('search'),
+            'department_id' => $request->input('department_id'),
+            'category_id' => $request->input('category_id'),
+            'factor_id' => $request->input('factor_id'),
+            'all_params' => $request->all()
+        ]);
 
         $user = Auth::user();
         $departmentCrfs = null;
+        $isAdmin_HOU_PIC = null;
 
-        $userRoles = $user->roles->pluck('name')->toArray();
+        $userRoles = $user->roles ? $user->roles->pluck('name')->toArray() : [];
+        Log::info('User Roles:', ['roles' => $userRoles, 'type' => gettype($userRoles)]);
+
+        // Get search and filter parameters
+        $search = $request->input('search');
+        $departmentFilter = $request->input('department_id');
+        $categoryFilter = $request->input('category_id');
+        $factorFilter = $request->input('factor_id');
 
         // Get IT Department ID (used multiple times)
         $itDepartmentId = Department::where('dname', 'LIKE', '%Unit Teknologi Maklumat%')
             ->first()?->id;
 
+        $hardwareRelocationCategoryId = Category::where('cname', 'Hardware Request/Relocation')->first()?->id;
+
         $crfQuery = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user']);
+
+        $crfQuery->when($search, function ($query, $search) {
+            $query->where('crf_number', 'LIKE', "%{$search}%");
+        })
+        ->when($departmentFilter, function ($query, $departmentFilter) {
+            $query->where('department_id', $departmentFilter);
+        })
+        ->when($categoryFilter, function ($query, $categoryFilter) {
+            $query->where('category_id', $categoryFilter);
+        })
+        ->when($factorFilter, function ($query, $factorFilter) {
+            $query->where('factor_id', $factorFilter);
+        });
+
+        $multiRoleCheck = ['ITD ADMIN', 'HOU', 'IT ASSIGN', 'TIMBALAN PENGARAH', 'VENDOR ADMIN'];
+        $matchingRoles = array_intersect($userRoles, $multiRoleCheck);
 
         // if user can view all CRFs
         if (Gate::allows('View ALL CRF')) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            $crfs = $crfQuery
             ->latest()
             ->paginate(10);
 
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
         }
 
-        elseif (count(array_intersect($userRoles, ['ITD ADMIN', 'HOU', 'IT ASSIGN', 'TIMBALAN PENGARAH', 'VENDOR ADMIN'])) > 1) {
+        elseif (count($matchingRoles) > 1) {
         
             $statusIds = [];
             $conditions = [];
@@ -57,6 +91,7 @@ class CrfController extends Controller
             // ITD ADMIN Role - can see everything from status 2 onwards
             if (in_array('ITD ADMIN', $userRoles)) {
                 $crfs = $crfQuery->latest()->paginate(10);
+                $isAdmin_HOU_PIC = true;
                 // ITD ADMIN overrides all other roles - they see everything
                 // Skip other role checks
                 goto skip_merge;
@@ -67,7 +102,8 @@ class CrfController extends Controller
                 if ($user->department_id == $itDepartmentId) {
                     // IT HOU - show status 10, 11
                     $statusIds = array_merge($statusIds, [10, 11]);
-                    
+                    $isAdmin_HOU_PIC = true;
+
                     // Also prepare department CRFs view
                     $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
                         ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
@@ -79,7 +115,8 @@ class CrfController extends Controller
                         $query->where('department_id', $user->department_id)
                             ->where('application_status_id', 1);
                     };
-                    
+                    $isAdmin_HOU_PIC = true;
+
                     // Prepare department CRFs view
                     $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
                         ->where('department_id', $user->department_id)
@@ -92,11 +129,13 @@ class CrfController extends Controller
             // IT ASSIGN Role
             if (in_array('IT ASSIGN', $userRoles)) {
                 $statusIds = array_merge($statusIds, [2]); // Status 2 = Approved by HOU IT
+                $isAdmin_HOU_PIC = true;
             }
             
             // TIMBALAN PENGARAH Role
             if (in_array('TIMBALAN PENGARAH', $userRoles)) {
                 $statusIds = array_merge($statusIds, [10]); // Status 10 = Approved by HOU, Awaiting TP approval
+                $isAdmin_HOU_PIC = true;
             }
             
             // VENDOR ADMIN Role
@@ -105,6 +144,7 @@ class CrfController extends Controller
                     $query->where('assigned_vendor_admin_id', $user->id)
                         ->where('application_status_id', 12);
                 };
+                $isAdmin_HOU_PIC = true;
             }
             
             // Remove duplicates
@@ -130,43 +170,51 @@ class CrfController extends Controller
 
         // ITD ADMIN
         elseif (in_array('ITD ADMIN', $userRoles)) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            $crfs = clone $crfQuery
             ->latest()
             ->paginate(10);
 
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
         }
 
         // TP approve - for hardware relocation
         elseif (in_array('TIMBALAN PENGARAH', $userRoles)) {
             // TP can view CRFs that need their approval (status 10)
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            $crfs = clone $crfQuery;
+            $crfs = $crfs
+                ->where('category_id', $hardwareRelocationCategoryId)
                 ->where('application_status_id', 10) // Approved by HOU, awaiting TP approval
                 ->latest()
                 ->paginate(10);
             
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
         }
 
         // IT ASSIGN view approved crf by hou
         elseif (in_array('IT ASSIGN', $userRoles)) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            $crfs = clone $crfQuery;
+            $crfs = $crfs
                 ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) // IT ASSIGN assigns after approved by HOU IT
                 ->latest()
                 ->paginate(10);
 
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
         }
 
         // VENDOR ADMIN can view CRFs assigned to them
         elseif (in_array('VENDOR ADMIN', $userRoles)) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            $crfs = clone $crfQuery;
+            $crfs = $crfs
                 ->where('assigned_vendor_admin_id', $user->id)
-                ->whereIn('application_status_id', 12) // 12 = Assigned to Vendor Admin
+                ->whereIn('application_status_id', [5, 7, 8, 9, 12]) // 12 = Assigned to Vendor Admin
                 ->latest()
                 ->paginate(10);
 
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
         }
 
         // HOU can approve CRFs from their department
@@ -174,7 +222,8 @@ class CrfController extends Controller
 
             // If HOU is from IT Department, show CRFs waiting for IT HOU approval (status 12 or 11)
             if ($user->department_id == $itDepartmentId) {
-                $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                $crfs = clone $crfQuery;
+                $crfs = $crfs
                     ->whereIn('application_status_id', [10, 11]) // Approved by HOU (10) or Approved by TP (11)
                     ->latest()
                     ->paginate(10);
@@ -184,10 +233,13 @@ class CrfController extends Controller
                     ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
                     ->latest()
                     ->get();
+
+                $isAdmin_HOU_PIC = true;
             }
             // If HOU is from other departments, show CRFs from their department (status 1)
             else {
-                $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                $crfs = clone $crfQuery;
+                $crfs = $crfs
                     ->where('department_id', $user->department_id)
                     ->where('application_status_id', 1) // First Created
                     ->latest()
@@ -199,39 +251,47 @@ class CrfController extends Controller
                     ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
                     ->latest()
                     ->get();
+
+                $isAdmin_HOU_PIC = true;
             }
         }
         
         // ITD PIC can only view ITD CRFs assigned
         elseif (in_array('ITD PIC', $userRoles)) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
-            ->where('assigned_to', $user->id)
-            ->whereIn('application_status_id', [4, 6, 8, 9]) // Assigned to ITD, Reassigned to ITD, Work in progress, Closed
-            ->latest()
-            ->paginate(10);
+            $crfs = clone $crfQuery;
+            $crfs = $crfs
+                ->where('assigned_to', $user->id)
+                ->whereIn('application_status_id', [4, 6, 8, 9]) // Assigned to ITD, Reassigned to ITD, Work in progress, Closed
+                ->latest()
+                ->paginate(10);
 
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
         }
         
         // Vendor PIC can only view Vendor CRFs assigned
         elseif (in_array('VENDOR PIC', $userRoles)) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
-            ->where('assigned_to', $user->id)
-            ->whereIn('application_status_id', [5, 7, 8, 9]) // Assigned to Vendor, Reassigned to Vendor, Work in progress, Closed
-            ->latest()
-            ->paginate(10);
+            $crfs = clone $crfQuery;
+            $crfs = $crfs
+                ->where('assigned_to', $user->id)
+                ->whereIn('application_status_id', [5, 7, 8, 9]) // Assigned to Vendor, Reassigned to Vendor, Work in progress, Closed
+                ->latest()
+                ->paginate(10);
 
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
         }
         
         // regular user can only view their own CRFs
         elseif (in_array('USER', $userRoles)) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
-            ->where('user_id', $user->id)
-            ->latest()
-            ->paginate(10);
+            $crfs = clone $crfQuery;
+            $crfs = $crfs
+                ->where('user_id', $user->id)
+                ->latest()
+                ->paginate(10);
 
             $departmentCrfs = null;
+            $isAdmin_HOU_PIC = false;
         }
 
         // No permission at all
@@ -246,6 +306,7 @@ class CrfController extends Controller
         return Inertia::render('crfs/index', [
             'crfs' => $crfs,
             'department_crfs' => $departmentCrfs,
+            'departments' => Department::select('id', 'dname')->orderBy('dname')->get(),
             'can_view' =>Gate::allows('View CRF Detail'),
             'can_view_department' => Gate::allows('View Department CRF'),
             'can_delete' =>Gate::allows('Close Assigned CRF'),
@@ -258,11 +319,13 @@ class CrfController extends Controller
             'can_assign_by_it' => Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor'),
             'can_assign_vendor_pic' => Gate::allows('Assign Vendor PIC'),
             'categories' => Category::all(),
+            'factors' => Factor::all(),
             'itd_pics' => $itdPics,
             'vendor_pics' => $vendorPics,
             'vendor_admins' => $vendorAdmins,
             'can_approve_tp' => Gate::allows('approved by TP'),
             'is_it_hou' => $user->department_id == $itDepartmentId && Gate::allows('verified CRF'),
+            'is_admin_hou_pic' => $isAdmin_HOU_PIC,
         ]);
     }
     
@@ -319,7 +382,7 @@ class CrfController extends Controller
                 'category_id' => 'required|exists:categories,id',
                 'factor_id' => 'nullable|exists:factors,id',
                 'issue' => 'required|string|max:255',
-                'reason' => 'nullable|string',
+                'reason' => 'nullable|string|max:255',
                 'supporting_file' => 'nullable|array',
                 'supporting_file.*' => 'file|mimes:jpg,jpeg,gif,pdf,doc,docx,xls,xlsx|max:5120',
             ]);
@@ -329,7 +392,6 @@ class CrfController extends Controller
             // Debug: Check if files are present
             Log::info('Has files: ' . ($request->hasFile('supporting_file') ? 'YES' : 'NO'));
             
-            
             $validated['application_status_id'] = 1;
             
             // Map 'name' to 'fname' for the database
@@ -338,6 +400,8 @@ class CrfController extends Controller
             
             // Add the current logged-in user ID
             $validated['user_id'] = Auth::id();
+
+            $validated['crf_number'] = CrfNumberService::ensureUniqueCrfNumber();
             
             $crf = Crf::create($validated);
             
@@ -384,6 +448,8 @@ class CrfController extends Controller
             }
     
             Log::info('=== CRF Store Method Completed Successfully ===');
+            Log::info('CRF created successfully with number: ' . $crf->crf_number);
+
             return redirect()->route('dashboard')->with('success', 'CRF submitted successfully!');
 
         } catch (\Exception $e) {
@@ -417,7 +483,7 @@ class CrfController extends Controller
             ->first()?->id;
 
         // Check if this is Hardware Relocation category
-        $isHardwareRelocation = $crf->category->cname === 'Hardware Relocation';
+        $isHardwareRelocation = $crf->category->cname === 'Hardware Request/Relocation';
 
         // CASE 1: IT HOU approving CRFs (status 10 or 11 → 2)
         if ($user->department_id == $itDepartmentId && in_array($crf->application_status_id, [10, 11])) {
@@ -441,7 +507,7 @@ class CrfController extends Controller
                 $itAssign->notify(new CrfApproved($crf));
             }
 
-            return redirect()->route('dashboard')->with('success', 'CRF approved by IT HOU. Ready for assignment.');
+            return redirect()->back()->with('success', 'CRF approved by IT HOU. Ready for assignment.');
         }
 
          // CASE 2: Department HOU approving their department's CRF (status 1 → 10)
@@ -450,7 +516,7 @@ class CrfController extends Controller
         }
 
         if ($crf->application_status_id != 1) {
-            return redirect()->route('dashboard')->with('error', 'CRF has already been processed');
+            return redirect()->back()->with('error', 'CRF has already been processed');
         }
 
         // Both types go to status 10 (Approved by HOU)
@@ -475,7 +541,7 @@ class CrfController extends Controller
                 $tp->notify(new CrfApprovedByHOU($crf));
             }
 
-            return redirect()->route('dashboard')->with('success', 'CRF approved. Notification sent to Timbalan Pengarah for approval.');
+            return redirect()->back()->with('success', 'CRF approved. Notification sent to Timbalan Pengarah for approval.');
         
         } else {
 
@@ -492,7 +558,7 @@ class CrfController extends Controller
                 $itHOU->notify(new CrfApprovedByHOU($crf));
             }
 
-            return redirect()->route('dashboard')->with('success', 'CRF approved. Notification sent to IT HOU for approval.');
+            return redirect()->back()->with('success', 'CRF approved. Notification sent to IT HOU for approval.');
         }
     }
 
@@ -723,7 +789,7 @@ class CrfController extends Controller
         ]);
 
         // Check if CRF is currently assigned to Vendor (status 5 or 7 or 8)
-        if (!in_array($crf->application_status_id, [5, 7, 8])) {
+        if (!in_array($crf->application_status_id, [5, 7, 8, 12])) {
             return redirect()->back()->with('error', 'Can only reassign Vendor CRFs');
         }
 
@@ -757,6 +823,12 @@ class CrfController extends Controller
 
     public function show(Crf $crf)
     {
+
+        $user = Auth::user();
+
+        $itDepartmentId = Department::where('dname', 'LIKE', '%Unit Teknologi Maklumat%')
+            ->first()?->id;
+
         $crf->load([
             'department',
             'category',
@@ -819,6 +891,7 @@ class CrfController extends Controller
             'itd_pics' => $itdPics,
             'vendor_pics' => $vendorPics,
             'factors' => $factors,
+            'is_it_hou' => $user->department_id == $itDepartmentId && Gate::allows('verified CRF'),
         ]);
     }
 
@@ -937,10 +1010,12 @@ class CrfController extends Controller
                     // Remove # if present for ID search
                     $cleanId = str_starts_with($searchValue, '#') ? substr($searchValue, 1) : $searchValue;
                     
-                    // Search by ID
-                    if (is_numeric($cleanId)) {
-                        $query->orWhere('id', $cleanId);
-                    }
+                    // Search by CRF ID
+                    // if (is_numeric($cleanId)) {
+                    //     $query->orWhere('id', $cleanId);
+                    // }
+
+                    $query->orWhere('crf_number', $cleanId);
                     
                     // Search by name (case insensitive)
                     $query->orWhere('fname', 'LIKE', '%' . $searchValue . '%');
