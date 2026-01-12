@@ -129,96 +129,6 @@ export default function Dashboard({
     // latest_crf = null,
 }: Props) {
 
-    // const [approvingId, setApprovingId] = useState<number | null>(null);
-    // const [acknowledgingId, setAcknowledgingId] = useState<number | null>(null);
-    // const [assignModalOpen, setAssignModalOpen] = useState(false);
-    // const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
-    // const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
-    // const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
-
-    // const handleApprove = (crfId: number) => {
-    //     if (confirm('Are you sure you want to approve this CRF?')) {
-    //         setApprovingId(crfId);
-    //         router.post(
-    //             `/crfs/${crfId}/approve`,
-    //             {},
-    //             {
-    //                 preserveScroll: true,
-    //                 onSuccess: () => {
-    //                     setApprovingId(null);
-    //                 },
-    //                 onError: () => {
-    //                     setApprovingId(null);
-    //                     alert('Failed to approve CRF');
-    //                 },
-    //             },
-    //         );
-    //     }
-    // };
-
-    // const handleAcknowledge = (crfId: number) => {
-    //     if (confirm('Are you sure you want to acknowledge this CRF?')) {
-    //         setAcknowledgingId(crfId);
-    //         router.post(`/crfs/${crfId}/acknowledge`, {}, {
-    //             preserveScroll: true,
-    //             onSuccess: () => {
-    //                 setAcknowledgingId(null);
-    //             },
-    //             onError: () => {
-    //                 setAcknowledgingId(null);
-    //                 alert('Failed to acknowledge CRF');
-    //             },
-    //         });
-    //     }
-    // };
-
-    // const handleOpenAssignModal = (crfId: number) => {
-    //     setSelectedCrfId(crfId);
-    //     setAssignModalOpen(true);
-    // };
-
-    // const handleCloseAssignModal = () => {
-    //     setAssignModalOpen(false);
-    //     setSelectedCrfId(null);
-    // };
-
-    // // Handler for IT ASSIGN modal
-    // const handleOpenITAssignModal = (crfId: number) => {
-    //     setSelectedCrfId(crfId);
-    //     setItAssignModalOpen(true);
-    // };
-
-    // // Handler for Vendor Admin modal
-    // const handleOpenVendorAdminModal = (crfId: number) => {
-    //     setSelectedCrfId(crfId);
-    //     setVendorAdminModalOpen(true);
-    // };
-
-    // const getStatusBadge = (status: string | undefined) => {
-    //     if (!status) return null;
-
-    //     const statusColors: Record<string, string> = {
-    //         'First Created': 'bg-amber-100 text-amber-800',
-    //         'Approved': 'bg-green-100 text-green-800',
-    //         'ITD Acknowledged': 'bg-indigo-100 text-indigo-800',
-    //         'Assigned to ITD': 'bg-blue-100 text-blue-800',
-    //         'Assigned to Vendor': 'bg-cyan-100 text-cyan-800',
-    //         'Reassigned to ITD': 'bg-blue-200 text-blue-900',
-    //         'Reassigned to Vendor': 'bg-cyan-200 text-cyan-900',
-    //         'Work in progress': 'bg-sky-100 text-sky-800',
-    //         'Closed': 'bg-gray-200 text-gray-800',
-    //         'Approved by HOU': 'bg-green-200 text-green-800',
-    //         'Approved by TP': 'bg-green-200 text-green-800',
-    //         'Assigned to Vendor Admin': 'bg-purple-100 text-purple-800',
-    //     };
-
-    //     return (
-    //         <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
-    //             {status}
-    //         </span>
-    //     );
-    // };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="CRF" />
@@ -233,6 +143,7 @@ export default function Dashboard({
                                 inProgress={stats.in_progress || 0}
                                 completed={stats.completed || 0}
                                 pending={stats.pending || 0}
+                                departmentData={chartData?.departmentData || []}
                             />
                         </Card>
 

@@ -77,13 +77,13 @@ class DashboardController extends Controller
 
         // VENDOR ADMIN can view CRFs assigned to them
         elseif (Gate::allows('Assign Vendor PIC')) {
-            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user', 'assignedVendorAdmin'])
                 ->where('assigned_vendor_admin_id', $user->id)
                 ->whereIn('application_status_id', [12]) // 12 = Assigned to Vendor Admin
                 ->latest()
                 ->paginate(10);
 
-            $isAdminOrHOU = false;
+            $isAdminOrHOU = true;
             $stats = [
                 'my_total' => Crf::where('assigned_vendor_admin_id', $user->id)->count(),
                 'my_pending' => Crf::where('assigned_vendor_admin_id', $user->id)->where('application_status_id', 12)->count(),
@@ -199,8 +199,8 @@ class DashboardController extends Controller
         if ($isAdminOrHOU) {
             $stats = [
                 'total' => Crf::count(),
-                'pending' => Crf::where('application_status_id', 1)->count(),
-                'in_progress' => Crf::whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
+                'pending' => Crf::whereIn('application_status_id', [1, 10, 11])->count(),
+                'in_progress' => Crf::whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12])->count(),
                 'completed' => Crf::where('application_status_id', 9)->count(),
             ];
 
@@ -319,9 +319,9 @@ class DashboardController extends Controller
                 'date' => $date->format('M d'),
                 'total' => Crf::whereBetween('created_at', [$startOfDay, $endOfDay])->count(),
                 'pending' => Crf::whereBetween('created_at', [$startOfDay, $endOfDay])
-                    ->where('application_status_id', 1)->count(),
+                    ->whereIn('application_status_id', [1, 10, 11])->count(),
                 'inProgress' => Crf::whereBetween('created_at', [$startOfDay, $endOfDay])
-                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
+                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12])->count(),
                 'completed' => Crf::whereBetween('created_at', [$startOfDay, $endOfDay])
                     ->where('application_status_id', 9)->count(),
             ];
@@ -343,9 +343,9 @@ class DashboardController extends Controller
                 'date' => 'Week ' . $startOfWeek->format('M d'),
                 'total' => Crf::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
                 'pending' => Crf::whereBetween('created_at', [$startOfWeek, $endOfWeek])
-                    ->where('application_status_id', 1)->count(),
+                    ->whereIn('application_status_id', [1, 10, 11])->count(),
                 'inProgress' => Crf::whereBetween('created_at', [$startOfWeek, $endOfWeek])
-                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
+                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12])->count(),
                 'completed' => Crf::whereBetween('created_at', [$startOfWeek, $endOfWeek])
                     ->where('application_status_id', 9)->count(),
             ];
@@ -367,9 +367,9 @@ class DashboardController extends Controller
                 'date' => $startOfMonth->format('M Y'),
                 'total' => Crf::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
                 'pending' => Crf::whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                    ->where('application_status_id', 1)->count(),
+                    ->whereIn('application_status_id', [1, 10, 11])->count(),
                 'inProgress' => Crf::whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
+                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12])->count(),
                 'completed' => Crf::whereBetween('created_at', [$startOfMonth, $endOfMonth])
                     ->where('application_status_id', 9)->count(),
             ];
@@ -380,24 +380,67 @@ class DashboardController extends Controller
 
     private function getDepartmentData()
     {
-        return \App\Models\Department::select('dname as department')
+
+        $user = Auth::user();
+        $userRoles = $user->roles->pluck('name')->toArray();
+
+        $query = \App\Models\Department::select('dname as department')
             ->withCount([
                 'crfs as total',
                 'crfs as pending' => function ($query) {
-                    $query->where('application_status_id', 1);
+                    // pending status -> until approved by hou it
+                    $query->whereIn('application_status_id', [1, 10, 11]);
                 },
                 'crfs as inProgress' => function ($query) {
-                    $query->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12]);
+                    $query->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12]);
                 },
                 'crfs as completed' => function ($query) {
                     $query->where('application_status_id', 9);
                 },
-            ])
+            ]);
+
+        // ITD - see all crf count
+        if (in_array('ITD ADMIN', $userRoles) || in_array('IT ASSIGN', $userRoles)) {
+            return $query
             ->having('total', '>', 0)
             ->orderBy('total', 'desc')
             ->limit(10)
             ->get()
             ->toArray();
+        }
+
+        // HOU - See ONLY their department
+        elseif (in_array('HOU', $userRoles) || in_array('TIMBALAN PENGARAH', $userRoles)) {
+            return $query
+                ->where('id', $user->department_id) // Filter by user's department
+                ->having('total', '>', 0)
+                ->get()
+                ->toArray();
+        }
+
+        // VENDOR ADMIN or VENDOR PIC - See only CRFs assigned to them (by department breakdown)
+        elseif (in_array('VENDOR ADMIN', $userRoles) || in_array('VENDOR PIC', $userRoles)) {
+
+            // Show department breakdown for only assigned CRFs
+            return \App\Models\Department::select('dname as department')
+                ->withCount([
+                    'crfs as total',
+                    'crfs as pending' => function ($query) {
+                        $query->whereIn('application_status_id', [1, 10, 11]);
+                    },
+                    'crfs as inProgress' => function ($query) {
+                        $query->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12]);
+                    },
+                    'crfs as completed' => function ($query) {
+                        $query->where('application_status_id', 9);
+                    },
+                ])
+                ->having('total', '>', 0)
+                ->orderBy('total', 'desc')
+                ->limit(10)
+                ->get()
+                ->toArray();
+        }
     }
 
     private function getMyStats($userId)
@@ -407,9 +450,9 @@ class DashboardController extends Controller
         return [
             'my_total' => Crf::where('user_id', $userId)->count(),
             'my_pending' => Crf::where('user_id', $userId)
-                ->where('application_status_id', 1)->count(),
+                ->whereIn('application_status_id', [1, 10, 11])->count(),
             'my_in_progress' => Crf::where('user_id', $userId)
-                ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 10, 11, 12])->count(),
+                ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12])->count(),
             'my_completed' => Crf::where('user_id', $userId)
                 ->where('application_status_id', 9)->count(),
             'my_this_month' => Crf::where('user_id', $userId)
