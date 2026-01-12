@@ -8,6 +8,7 @@ export interface SingleUser {
     email: string;
     phone: string;
     roles: string[];
+    department_id: int;
     created_at: string;
 }
 

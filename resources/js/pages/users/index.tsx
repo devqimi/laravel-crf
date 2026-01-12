@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
@@ -8,9 +9,8 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import TablePagination from '@/components/table-pagination';
 import { router } from '@inertiajs/core';
-import { Badge } from '@/components/ui/badge';
-import { User } from '@/types/users';
 import { usePermission } from '@/hooks/user-permissions';
+import { Search, X } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,10 +19,30 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Users({ users }: { users: User }) {
+type Department = {
+    id: number;
+    dname: string;
+};
+
+type User = {
+    id: number;
+    name: string;
+    nric: string;
+    email: string;
+    department_id: number | null;
+    department_name?: string;
+};
+
+type Props = {
+    users: User;
+    departments: Department[];
+};
+
+export default function Users({ users, departments }: Props) {
 
     const {flash} = usePage<{flash: {message?: string}} >().props;
     const {can} = usePermission();
+    const [search, setSearch] = useState<string>('');
 
     useEffect (() => {
         if (flash.message) {
@@ -30,10 +50,25 @@ export default function Users({ users }: { users: User }) {
         }
     }, [flash.message]);
     
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (search) {
+                router.get('/users', { search: search }, { preserveState: true, preserveScroll: true, replace: true });
+            } else {
+                router.get('/users', {}, { preserveState: true, preserveScroll: true, replace: true });
+            }
+        }, 300);
+            return () => clearTimeout(delayDebounceFn);
+    }, [search]);        
+
     function deleteUser(id: number){
         if (confirm("Are you sure you want to delete this user?")) {
             router.delete(`users/${id}`);
         }
+    }
+
+    function clearSearch() {
+        setSearch('');
     }
 
     return (
@@ -53,6 +88,29 @@ export default function Users({ users }: { users: User }) {
                     </CardHeader>
                     <hr />
                     <CardContent>
+
+                        {/* Search Bar */}
+                        <div className="mb-4 flex items-center gap-2">
+                            <div className="relative flex-1 max-w-sm">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search by name..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-10 pr-10"
+                                />
+                                {search && (
+                                    <button
+                                        onClick={clearSearch}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         <Table>
                             <TableHeader className="bg-slate-500 dark:bg-slate-700">
                                 <TableRow>
@@ -60,6 +118,7 @@ export default function Users({ users }: { users: User }) {
                                     <TableHead className='font-bold text-white'>Name</TableHead>
                                     <TableHead className='font-bold text-white'>Email</TableHead>
                                     <TableHead className='font-bold text-white'>Roles</TableHead>
+                                    <TableHead className='font-bold text-white'>Department</TableHead>
                                     <TableHead className='font-bold text-white'>Created At</TableHead>
                                     <TableHead className='font-bold text-white'>Actions</TableHead>
                                 </TableRow>
@@ -82,6 +141,7 @@ export default function Users({ users }: { users: User }) {
                                                 ))}
                                             </div>
                                         </TableCell>
+                                        <TableCell>{user.department_id ? user.department_id.dname : '-'}</TableCell>
                                         <TableCell>{user.created_at}</TableCell>
                                         <TableCell>
                                             {can('update users') && (
