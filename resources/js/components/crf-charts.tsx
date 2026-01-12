@@ -133,7 +133,7 @@ export default function CRFCharts({ trendData, departmentData }: CRFChartsProps)
             {/* Bar Chart - CRFs by Department */}
             <Card>
                 <CardHeader>
-                    <CardTitle>CRFs by Department</CardTitle>
+                    <CardTitle>CRF Department</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
