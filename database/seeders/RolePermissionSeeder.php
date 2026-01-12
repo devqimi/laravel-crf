@@ -75,9 +75,9 @@ class RolePermissionSeeder extends Seeder
         // 2. ITD ADMIN Role - ID: 1
         $itdAdmin = Role::firstOrCreate(['name' => 'ITD ADMIN']);
         $itdAdmin->syncPermissions([
-            'Acknowledge CRF by ITD',
-            'Assign CRF To ITD',
-            'Assign CRF to Vendor',
+            // 'Acknowledge CRF by ITD',
+            // 'Assign CRF To ITD',
+            // 'Assign CRF to Vendor',
             'Close Assigned CRF',
             'Close other Assigned CRF ITD',
             'create permissions',
@@ -86,9 +86,9 @@ class RolePermissionSeeder extends Seeder
             'delete permission',
             'delete role',
             'delete user',
-            'Re Assign CRF To Vendor',
-            'Re Assign PIC ITD',
-            'Re Assign PIC Vendor',
+            // 'Re Assign CRF To Vendor',
+            // 'Re Assign PIC ITD',
+            // 'Re Assign PIC Vendor',
             'update permission',
             'update roles',
             'update users',
@@ -132,7 +132,6 @@ class RolePermissionSeeder extends Seeder
         $vendorAdmin->syncPermissions([
             'Closed other Assigned CRF Vendor',
             'Vendor Follow Up / Assign Allocate PIC',
-            'View ALL CRF',
             'view dashboard',
             'View Department CRF',
             'View Personal CRF',
