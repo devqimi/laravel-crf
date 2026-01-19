@@ -28,10 +28,11 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Textarea } from '@headlessui/react';
 import { Head, router, useForm } from '@inertiajs/react';
-import { UserCog, FileIcon, Download, UserPlus, CheckCircle } from 'lucide-react';
+import { UserCog, FileIcon, Download, UserPlus, CheckCircle, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
 import ITAssignModal from '@/components/ITAssignModal';
+import RejectCrfModal from '@/components/RejectCrfModal';
 import VendorAdminAssignModal from '@/components/VendorAdminAssignModal';
 
 type User = {
@@ -142,6 +143,8 @@ export default function ShowCrf({
     const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
     const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
     const [approvingId, setApprovingId] = useState<number | null>(null);
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [selectedRejectCrfId, setSelectedRejectCrfId] = useState<number | null>(null);
 
     const { data, setData, put, processing, errors } = useForm({
         it_remark: crf.it_remark || '',
@@ -164,6 +167,11 @@ export default function ShowCrf({
             });
         }
     };
+
+    const handleOpenRejectModal = (crfId: number) => {
+        setSelectedRejectCrfId(crfId);
+        setRejectModalOpen(true);
+    }
 
     const handleAcknowledge = () => {
         if (confirm('Acknowledge this CRF?')) {
@@ -277,49 +285,67 @@ export default function ShowCrf({
                             )}
 
                             {/* FOR HOU TO APPROVE */}
-                            {can_approve && (
+                            {can_approve && crf.application_status.status === 'First Created' && (
                                 <>
-                                    {crf.application_status.status === 'First Created' && (
-                                        <Button onClick={handleApprove}
-                                            className="bg-green-600 hover:bg-green-700">
-                                            HOU Approve
-                                            <CheckCircle className="h-4 w-4" />
-                                        </Button>
-                                    )}
+                                    <Button onClick={handleApprove}
+                                        className="bg-green-600 hover:bg-green-700">
+                                        HOU Approve
+                                        <CheckCircle className="h-4 w-4" />
+                                    </Button>
+                                    <Button onClick={() => handleOpenRejectModal(crf.id)}
+                                        className="bg-red-600 hover:bg-red-700">
+                                        HOU Reject
+                                        <XCircle className="h-4 w-4" />
+                                    </Button>
                                 </>
                             )}
 
                             {/* FOR TP TO APPROVE */}
                             {can_approve_tp && crf.application_status_id == 10 && (
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => {
-                                        if (confirm('Approve this Hardware Request/Relocation CRF?')) {
-                                            router.post(`/crfs/${crf.id}/approve-by-tp`);
-                                        }
-                                    }}
-                                    className="bg-green-600 hover:bg-green-700">
-                                    TP Approve
-                                    <CheckCircle className="h-4 w-4" />
-                                </Button>
+                                <>
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={() => {
+                                            if (confirm('Approve this Hardware Request/Relocation CRF?')) {
+                                                router.post(`/crfs/${crf.id}/approve-by-tp`);
+                                            }
+                                        }}
+                                        className="bg-green-600 hover:bg-green-700">
+                                        TP Approve
+                                        <CheckCircle className="h-4 w-4" />
+                                    </Button>
+                                    <Button onClick={() => handleOpenRejectModal(crf.id)}
+                                        className="bg-red-600 hover:bg-red-700">
+                                        TP Reject
+                                        <XCircle className="h-4 w-4" />
+                                    </Button>
+                                </>
                             )}
 
                             {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
                             {can_approve && is_it_hou && (
                                 ((crf.application_status_id === 10 && crf.category?.cname !== 'Hardware Request/Relocation') ||
                                 (crf.application_status_id === 11 && crf.category?.cname === 'Hardware Request/Relocation')) && (
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        onClick={handleApprove}
-                                        disabled={approvingId === crf.id}
-                                        className="bg-green-600 hover:bg-green-700"
-                                        title="Approve as IT HOU"
-                                    >
-                                        Approve HOU IT
-                                        <CheckCircle className="h-4 w-4" />
-                                    </Button>
+                                    <>
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            onClick={handleApprove}
+                                            disabled={approvingId === crf.id}
+                                            className="bg-green-600 hover:bg-green-700"
+                                            title="Approve as IT HOU"
+                                        >
+                                            Approve HOU IT
+                                            <CheckCircle className="h-4 w-4" />
+                                        </Button>
+                                        <Button onClick={() => handleOpenRejectModal(crf.id)}
+                                            className="bg-red-600 hover:bg-red-700">
+                                            Reject HOU IT
+                                            <XCircle className="h-4 w-4" />
+                                        </Button>
+                                    </>
+                                    
                                 )
                             )}
 
@@ -669,6 +695,10 @@ export default function ShowCrf({
                                                                     
                                                                     : timeline.status === 'Assigned to Vendor Admin' 
                                                                     ? 'bg-purple-100 text-purple-800'
+
+                                                                    : timeline.status === 'Rejected by HOU' || timeline.status === 'Rejected by TP' || timeline.status === 'Rejected by HOU IT'
+                                                                    ? 'bg-red-100 text-red-800'
+
                                                                     : 'bg-gray-100 text-gray-800'
                                                             }`}>
                                                                 {timeline.status}
@@ -871,6 +901,17 @@ export default function ShowCrf({
                         vendorPics={vendor_pics}
                         canAssignItd={can_assign_itd}
                         canAssignVendor={can_assign_vendor}
+                    />
+                )}
+
+                {selectedRejectCrfId && (
+                    <RejectCrfModal
+                        crfId={selectedRejectCrfId}
+                        isOpen={rejectModalOpen}
+                        onClose={() => {
+                            setRejectModalOpen(false);
+                            setSelectedRejectCrfId(null);
+                        }}
                     />
                 )}
 

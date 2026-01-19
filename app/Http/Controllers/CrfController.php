@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\CrfApprovedByHOU;
+use App\Notifications\CrfRejected;
 use App\Notifications\CrfAssignedToVendorPICNotification;
 
 class CrfController extends Controller
@@ -560,6 +561,74 @@ class CrfController extends Controller
 
             return redirect()->back()->with('success', 'CRF approved. Notification sent to IT HOU for approval.');
         }
+    }
+
+    public function reject(Request $request, $id){
+        
+        $request->validate([
+            'rejection_reason' => 'required|string|max:500',
+        ]);
+
+        $crf = Crf::findOrFail($id);
+        $user = Auth::user();
+        $userRoles = $user->roles->pluck('name')->toArray();
+
+        $rejectionStatus = null;
+        $canReject = false;
+        $rejectorTitle = '';
+
+        if(in_array('HOU', $userRoles) && $crf->application_status_id === 1){
+            $rejectionStatus = 13;
+            $canReject = true;
+            $rejectorTitle = 'Head Of Unit';
+
+        } elseif (in_array('TIMBALAN PENGARAH', $userRoles) && $crf->application_status_id === 10 && $crf->category_id === 5){
+            $rejectionStatus = 14;
+            $canReject = true;
+            $rejectorTitle = 'Timbalan Pengarah';
+
+        } elseif (in_array('HOU', $userRoles) && 
+
+                // for HOU IT TO REJECT
+                $user->department_id == Department::where('dname', 'LIKE', '%Unit Teknologi Maklumat%')->first()?->id &&
+                in_array($crf->application_status_id, [10, 11])) {
+
+            $rejectionStatus = 15;
+            $canReject = true;
+            $rejectorTitle = 'Head Of Unit IT';
+        }
+        
+        if (!$canReject || !$rejectionStatus) {
+            return back()->withErrors(['error' => 'You are not authorized to reject this CRF at its current stage.']);
+        }
+
+        // update crf
+        $crf->update([
+            'application_status_id' => $rejectionStatus,
+            'rejection_reason' => $request->rejection_reason,
+            'rejected_by' => $user->id,
+            'rejected_at' => now(),
+        ]);
+
+        $crf->addTimelineEntry(
+                status: 'Rejected',
+                actionType: 'status_change',
+                remark: 'Rejected by: ' . $user->name,
+                userId: $user->id
+        );
+
+        $requester = User::find($crf->user_id);
+
+        if ($requester) {
+            $requester->notify(new CrfRejected(
+                $crf,
+                $request->rejection_reason,
+                $user->name . ' (' . $rejectorTitle . ')'
+        ));
+    }
+
+        return redirect()->back()->with('success', 'CRF has been rejected successfully.');
+
     }
 
     public function acknowledge(Crf $crf)

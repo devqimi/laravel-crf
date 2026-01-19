@@ -36,6 +36,9 @@ class Crf extends Model
         'assigned_to',
         'assigned_vendor_admin_id',
         'it_remark',
+        'rejection_reason',
+        'rejected_by',
+        'rejected_at',
         'approved_by_hou_at',
         'approved_by_tp_at',
         'it_hou_approved_at',
@@ -92,6 +95,11 @@ class Crf extends Model
 
     public function remarks(){
         return $this->hasMany(CrfRemark::class, 'crf_id');
+    }
+
+    public function rejector()
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 
     public function statusTimeline(){

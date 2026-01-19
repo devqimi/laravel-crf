@@ -10,8 +10,9 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Category, Crf } from '@/types/crf';
 import { Head, Link, router } from '@inertiajs/react';
-import { CheckCircle, ClipboardCheck, UserPlus, Eye } from 'lucide-react';
+import { CheckCircle, ClipboardCheck, UserPlus, Eye, XCircle } from 'lucide-react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
+import RejectCrfModal from '@/components/RejectCrfModal';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -111,6 +112,8 @@ export default function Dashboard({
     const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
     const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
     const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [selectedRejectCrfId, setSelectedRejectCrfId] = useState<number | null>(null);
 
     const handleApprove = (crfId: number) => {
         if (confirm('Approve this CRF?')) {
@@ -131,6 +134,11 @@ export default function Dashboard({
             );
         }
     };
+
+    const handleOpenRejectModal = (crfId: number) => {
+        setSelectedRejectCrfId(crfId);
+        setRejectModalOpen(true);
+    }
 
     const handleOpenAssignModal = (crfId: number) => {
         setSelectedCrfId(crfId);
@@ -170,6 +178,9 @@ export default function Dashboard({
             'Approved by HOU': 'bg-green-200 text-green-800',
             'Approved by TP': 'bg-green-200 text-green-800',
             'Assigned to Vendor Admin': 'bg-purple-100 text-purple-800',
+            'Rejected by HOU': 'bg-red-100 text-red-800',
+            'Rejected by TP': 'bg-red-100 text-red-800',
+            'Rejected by HOU IT': 'bg-red-100 text-red-800',
         };
 
         return (
@@ -350,7 +361,7 @@ export default function Dashboard({
                                                             </Link>
                                                         )}
 
-                                                        {/* to approve for HOU*/}
+                                                        {/* to approve/reject for HOU*/}
                                                         {can_approve && crf.application_status_id === 1 && (
                                                                 <>
                                                                     <Button
@@ -363,40 +374,71 @@ export default function Dashboard({
                                                                     >
                                                                         <CheckCircle className="h-4 w-4" />
                                                                     </Button>
+                                                                    <Button
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        onClick={() => handleOpenRejectModal(crf.id)}
+                                                                        className="bg-red-600 hover:bg-red-700"
+                                                                        title="Reject"
+                                                                    >
+                                                                        <XCircle className="h-4 w-4" />
+                                                                    </Button>
                                                                 </>    
                                                         )}
 
-                                                        {/* FOR TP TO APPROVE AFTER HOU (Hardware Relocation) */}
+                                                        {/* FOR TP TO APPROVE/REJECT AFTER HOU (Hardware Relocation) */}
                                                         {can_approve_tp && crf.application_status_id === 10 && (
-                                                            <Button
-                                                                variant="default"
-                                                                size="sm"
-                                                                onClick={() => {
-                                                                    if (confirm('Approve this Hardware Request/Relocation CRF?')) {
-                                                                        router.post(`/crfs/${crf.id}/approve-by-tp`);
-                                                                    }
-                                                                }}
-                                                                className="bg-green-600 hover:bg-green-700"
-                                                                title="TP Approve"
-                                                            >
-                                                                <CheckCircle className="h-4 w-4" />
-                                                            </Button>
+                                                            <>
+                                                                <Button
+                                                                    variant="default"
+                                                                    size="sm"
+                                                                    onClick={() => {
+                                                                        if (confirm('Approve this Hardware Request/Relocation CRF?')) {
+                                                                            router.post(`/crfs/${crf.id}/approve-by-tp`);
+                                                                        }
+                                                                    }}
+                                                                    className="bg-green-600 hover:bg-green-700"
+                                                                    title="TP Approve"
+                                                                >
+                                                                    <CheckCircle className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button
+                                                                    variant="destructive"
+                                                                    size="sm"
+                                                                    onClick={() => handleOpenRejectModal(crf.id)}
+                                                                    className="bg-red-600 hover:bg-red-700"
+                                                                    title="Reject"
+                                                                >
+                                                                    <XCircle className="h-4 w-4" />
+                                                                </Button>
+                                                            </>
                                                         )}
 
                                                         {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
                                                         {can_approve && is_it_hou && (
                                                             ((crf.application_status_id === 10 && crf.category?.cname !== 'Hardware Request/Relocation') ||
                                                             (crf.application_status_id === 11 && crf.category?.cname === 'Hardware Request/Relocation')) && (
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    onClick={() => handleApprove(crf.id)}
-                                                                    disabled={approvingId === crf.id}
-                                                                    className="bg-green-600 hover:bg-green-700"
-                                                                    title="Approve as IT HOU"
-                                                                >
-                                                                    <CheckCircle className="h-4 w-4" />
-                                                                </Button>
+                                                                <>
+                                                                    <Button
+                                                                        variant="default"
+                                                                        size="sm"
+                                                                        onClick={() => handleApprove(crf.id)}
+                                                                        disabled={approvingId === crf.id}
+                                                                        className="bg-green-600 hover:bg-green-700"
+                                                                        title="Approve as IT HOU"
+                                                                    >
+                                                                        <CheckCircle className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        onClick={() => handleOpenRejectModal(crf.id)}
+                                                                        className="bg-red-600 hover:bg-red-700"
+                                                                        title="Reject"
+                                                                    >
+                                                                        <XCircle className="h-4 w-4" />
+                                                                    </Button>
+                                                                </>
                                                             )
                                                         )}
 
@@ -656,6 +698,17 @@ export default function Dashboard({
                         vendorPics={vendor_pics}
                         canAssignItd={can_assign_itd}
                         canAssignVendor={can_assign_vendor}
+                    />
+                )}
+
+                {selectedRejectCrfId && (
+                    <RejectCrfModal
+                        crfId={selectedRejectCrfId}
+                        isOpen={rejectModalOpen}
+                        onClose={() => {
+                            setRejectModalOpen(false);
+                            setSelectedRejectCrfId(null);
+                        }}
                     />
                 )}
 
