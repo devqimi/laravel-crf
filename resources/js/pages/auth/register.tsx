@@ -275,7 +275,7 @@ export default function Register({ departments, roles }: RegisterProps) {
                 <Button
                     type="submit"
                     disabled={processing}
-                    className="mt-2 w-full"
+                    className="mt-2 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
                 >
                     {processing && (
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
