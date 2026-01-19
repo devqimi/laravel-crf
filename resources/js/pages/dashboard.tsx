@@ -7,10 +7,12 @@ import CRFCharts from '@/components/crf-charts';
 import { Card } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import { type BreadcrumbItem } from '@/types';
+import { SharedData, type BreadcrumbItem } from '@/types';
 import { Category, Crf } from '@/types/crf';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
+import Auth from '@/actions/App/Http/Controllers/Auth';
+import { usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -129,15 +131,21 @@ export default function Dashboard({
     // latest_crf = null,
 }: Props) {
 
+    const { auth } = usePage<SharedData>().props;
+    
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="CRF" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <div className="mt-1 ml-1">
+                    <h1 className="text-3xl font-bold text-slate-900 mb-2">Dashboard</h1>
+                    <p className="text-slate-600">Welcome back, {auth.user?.name}!</p>
+                </div>
 
                 {isAdminOrHOU ? (
                     <>
                         {/* Admin/HOU View */}
-                        <Card>
+                        <Card className="bg-gradient-to-br from-blue-600 to-blue-700">
                             <CRFStats 
                                 totalCRF={stats.total || 0}
                                 inProgress={stats.in_progress || 0}
@@ -158,7 +166,7 @@ export default function Dashboard({
                 ) : isPIC ? (
                     <>
                         {/* PIC View */}
-                        <Card>
+                        <Card className="bg-gradient-to-br from-blue-600 to-blue-700">
                             <MyCRFStats 
                                 myTotal={stats?.my_total || 0}
                                 myPending={stats?.my_pending || 0}
@@ -177,7 +185,7 @@ export default function Dashboard({
                 ) : (
                     <>
                         {/* Regular User View */}
-                        <Card>
+                        <Card className="bg-gradient-to-br from-blue-600 to-blue-700">
                             <MyCRFStats 
                                 myTotal={stats.my_total || 0}
                                 myPending={stats.my_pending || 0}
