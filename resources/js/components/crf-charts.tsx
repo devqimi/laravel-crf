@@ -19,6 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { BarChart3, Users } from 'lucide-react';
 
 interface TrendData {
     date: string;
@@ -55,7 +56,10 @@ export default function CRFCharts({ trendData, departmentData }: CRFChartsProps)
             {/* Line Chart - CRF Trends Over Time */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>CRF Trends Over Time</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-slate-900">
+                        <BarChart3 className="h-5 w-5 text-blue-600" />
+                        CRF Trends Over Time
+                    </CardTitle>
                     <Select
                         value={timeRange}
                         onValueChange={(value: 'daily' | 'weekly' | 'monthly') => setTimeRange(value)}
@@ -133,7 +137,10 @@ export default function CRFCharts({ trendData, departmentData }: CRFChartsProps)
             {/* Bar Chart - CRFs by Department */}
             <Card>
                 <CardHeader>
-                    <CardTitle>CRF Department</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-slate-900">
+                        <Users className="h-5 w-5 text-purple-600" />
+                        CRF Department
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <ResponsiveContainer width="100%" height={300}>

@@ -12,7 +12,7 @@ interface MyStatCardProps {
 
 function MyStatCard({ title, value, icon, bgColor, iconColor, textColor, description }: MyStatCardProps) {
     return (
-        <div className={`${bgColor} border border-opacity-20 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow`}>
+        <div className={`${bgColor} rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow`}>
             <div className="flex items-start justify-between">
                 <div className="flex-1">
                     <p className={`text-sm font-medium ${textColor} opacity-90 mb-1`}>{title}</p>
@@ -47,10 +47,10 @@ export default function MyCRFStats({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-2 px-3">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">My CRF Progress</h2>
+                <h2 className="text-xl font-semibold text-white dark:text-white">My Customer Request Form (CRF) Progress</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-2">
                 
                 <MyStatCard
                     title="Pending Approval"
