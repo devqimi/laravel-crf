@@ -90,7 +90,7 @@ export default function Permissions({ permissions }: { permissions: Permission }
                     <hr />
                     <CardContent>
                         <Table>
-                            <TableHeader className="bg-slate-500 dark:bg-slate-700">
+                            <TableHeader className="bg-blue-900">
                                 <TableRow>
                                     <TableHead className='font-bold text-white'>ID</TableHead>
                                     <TableHead className='font-bold text-white'>Name</TableHead>

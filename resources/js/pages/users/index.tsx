@@ -112,7 +112,7 @@ export default function Users({ users, departments }: Props) {
                         </div>
 
                         <Table>
-                            <TableHeader className="bg-slate-500 dark:bg-slate-700">
+                            <TableHeader className="bg-blue-900">
                                 <TableRow>
                                     <TableHead className='font-bold text-white'>ID</TableHead>
                                     <TableHead className='font-bold text-white'>Name</TableHead>
