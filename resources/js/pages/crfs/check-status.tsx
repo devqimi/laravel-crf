@@ -97,6 +97,7 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
             'Rejected by HOU': 'bg-red-100 text-red-800',
             'Rejected by TP': 'bg-red-100 text-red-800',
             'Rejected by HOU IT': 'bg-red-100 text-red-800',
+            'Redirect to ITD': 'bg-yellow-100 text-yellow-800',
         };
 
         return colors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
