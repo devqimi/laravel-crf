@@ -28,11 +28,12 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Textarea } from '@headlessui/react';
 import { Head, router, useForm } from '@inertiajs/react';
-import { UserCog, FileIcon, Download, UserPlus, CheckCircle, XCircle } from 'lucide-react';
+import { UserCog, FileIcon, Download, UserPlus, CheckCircle, XCircle, ArrowLeftRight } from 'lucide-react';
 import { useState } from 'react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
 import ITAssignModal from '@/components/ITAssignModal';
 import RejectCrfModal from '@/components/RejectCrfModal';
+import RedirectToITDModal from '@/components/RedirectToITDModal';
 import VendorAdminAssignModal from '@/components/VendorAdminAssignModal';
 
 type User = {
@@ -89,6 +90,8 @@ type CrfData = {
     it_remark: string | null;
     status_timeline?: StatusTimeline[];
     attachments: Attachment[];
+    rejection_reason?: string;
+    redirect_reason?: string;
 };
 
 type Props = {
@@ -145,6 +148,8 @@ export default function ShowCrf({
     const [approvingId, setApprovingId] = useState<number | null>(null);
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [selectedRejectCrfId, setSelectedRejectCrfId] = useState<number | null>(null);
+    const [redirectModalOpen, setRedirectModalOpen] = useState(false);
+    const [selectedRedirectCrfId, setSelectedRedirectCrfId] = useState<number | null>(null);
 
     const { data, setData, put, processing, errors } = useForm({
         it_remark: crf.it_remark || '',
@@ -172,6 +177,11 @@ export default function ShowCrf({
         setSelectedRejectCrfId(crfId);
         setRejectModalOpen(true);
     }
+
+    const handleOpenRedirectModal = (crfId: number) => {
+        setSelectedRedirectCrfId(crfId);
+        setRedirectModalOpen(true);
+    };
 
     const handleAcknowledge = () => {
         if (confirm('Acknowledge this CRF?')) {
@@ -326,6 +336,7 @@ export default function ShowCrf({
                             {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
                             {can_approve && is_it_hou && (
                                 ((crf.application_status_id === 10 && crf.category?.cname !== 'Hardware Request/Relocation') ||
+                                (crf.application_status_id === 16 && crf.category?.cname !== 'Hardware Request/Relocation') ||
                                 (crf.application_status_id === 11 && crf.category?.cname === 'Hardware Request/Relocation')) && (
                                     <>
                                         <Button
@@ -365,16 +376,28 @@ export default function ShowCrf({
 
                             {/* Vendor Admin button - for CRFs assigned to vendor admin (status 12) */}
                             {can_assign_vendor_pic && crf.application_status_id === 12 && (
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => handleOpenVendorAdminModal(crf.id)}
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                    title="Assign to Vendor PIC"
-                                >
-                                    <UserPlus className="h-4 w-4" />
-                                    Assign to PIC
-                                </Button>
+                                <>
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={() => handleOpenVendorAdminModal(crf.id)}
+                                        className="bg-blue-600 hover:bg-blue-700"
+                                        title="Assign to Vendor PIC"
+                                    >
+                                        <UserPlus className="h-4 w-4" />
+                                        Assign to PIC
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleOpenRedirectModal(crf.id)}
+                                        className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                                        title="Redirect to ITD"
+                                    >
+                                        <ArrowLeftRight className="h-4 w-4" />
+                                        Redirect to ITD
+                                    </Button>
+                                </>
                             )}
 
                             {/* FOR ADMIN TO ASSIGN PIC */}
@@ -488,7 +511,29 @@ export default function ShowCrf({
                             <div className="col-span-2">
                                 <Label className="text-gray-600">Status</Label>
                                 <p className="font-medium">{crf.application_status.status}</p>
+
                             </div>
+                            
+                            {/* Additional info for Rejection */}
+                            {crf.application_status.status.includes('Rejected') && (
+                                <>
+                                    <div className="col-span-2 border p-4 rounded-md bg-red-100">
+                                        <Label className="text-red-600">Rejection Reason :</Label>
+                                        <p className="text-sm text-red-600 mt-1">{crf.rejection_reason}</p>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Redirect to ITD Section */}
+                            {crf.application_status.status.includes('Redirect') && (
+                                <>
+                                    <div className="col-span-2 border p-4 rounded-md bg-yellow-100">
+                                        <Label className="text-yellow-600">Redirect Reason :</Label>
+                                        <p className="text-sm text-yellow-600 mt-1">{crf.redirect_reason}</p>
+                                    </div>
+                                </>
+                            )}
+
                             <div>
                                 <Label className="text-gray-600">Assigned To</Label>
                                 <p className="font-medium">{crf.assigned_user?.name || '-'}</p>
@@ -497,6 +542,7 @@ export default function ShowCrf({
                                 <Label className="text-gray-600">Created At</Label>
                                 <p className="font-medium">{new Date(crf.created_at).toLocaleString()}</p>
                             </div>
+
                             
                             {/* Approved by HOU Section */}
                             <div className="border p-4 rounded-md bg-gray-50">
@@ -698,6 +744,9 @@ export default function ShowCrf({
 
                                                                     : timeline.status === 'Rejected by HOU' || timeline.status === 'Rejected by TP' || timeline.status === 'Rejected by HOU IT'
                                                                     ? 'bg-red-100 text-red-800'
+
+                                                                    : timeline.status === 'Redirect to ITD'
+                                                                    ? 'bg-yellow-100 text-yellow-800'
 
                                                                     : 'bg-gray-100 text-gray-800'
                                                             }`}>
@@ -911,6 +960,17 @@ export default function ShowCrf({
                         onClose={() => {
                             setRejectModalOpen(false);
                             setSelectedRejectCrfId(null);
+                        }}
+                    />
+                )}
+
+                {selectedRedirectCrfId && (
+                    <RedirectToITDModal
+                        crfId={selectedRedirectCrfId}
+                        isOpen={redirectModalOpen}
+                        onClose={() => {
+                            setRedirectModalOpen(false);
+                            setSelectedRedirectCrfId(null);
                         }}
                     />
                 )}

@@ -10,9 +10,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Category, Crf } from '@/types/crf';
 import { Head, Link, router } from '@inertiajs/react';
-import { CheckCircle, ClipboardCheck, UserPlus, Eye, XCircle } from 'lucide-react';
+import { CheckCircle, ClipboardCheck, UserPlus, Eye, XCircle, ArrowLeftRight } from 'lucide-react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
 import RejectCrfModal from '@/components/RejectCrfModal';
+import RedirectToITDModal from '@/components/RedirectToITDModal';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -114,7 +115,9 @@ export default function Dashboard({
     const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [selectedRejectCrfId, setSelectedRejectCrfId] = useState<number | null>(null);
-
+    const [redirectModalOpen, setRedirectModalOpen] = useState(false);
+    const [selectedRedirectCrfId, setSelectedRedirectCrfId] = useState<number | null>(null);
+    
     const handleApprove = (crfId: number) => {
         if (confirm('Approve this CRF?')) {
             setApprovingId(crfId);
@@ -139,6 +142,11 @@ export default function Dashboard({
         setSelectedRejectCrfId(crfId);
         setRejectModalOpen(true);
     }
+
+    const handleOpenRedirectModal = (crfId: number) => {
+        setSelectedRedirectCrfId(crfId);
+        setRedirectModalOpen(true);
+    };
 
     const handleOpenAssignModal = (crfId: number) => {
         setSelectedCrfId(crfId);
@@ -181,6 +189,7 @@ export default function Dashboard({
             'Rejected by HOU': 'bg-red-100 text-red-800',
             'Rejected by TP': 'bg-red-100 text-red-800',
             'Rejected by HOU IT': 'bg-red-100 text-red-800',
+            'Redirect to ITD': 'bg-yellow-100 text-yellow-800',
         };
 
         return (
@@ -417,6 +426,7 @@ export default function Dashboard({
                                                         {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
                                                         {can_approve && is_it_hou && (
                                                             ((crf.application_status_id === 10 && crf.category?.cname !== 'Hardware Request/Relocation') ||
+                                                            (crf.application_status_id === 16 && crf.category?.cname !== 'Hardware Request/Relocation') ||
                                                             (crf.application_status_id === 11 && crf.category?.cname === 'Hardware Request/Relocation')) && (
                                                                 <>
                                                                     <Button
@@ -457,15 +467,26 @@ export default function Dashboard({
 
                                                         {/* Vendor Admin button - for CRFs assigned to vendor admin (status 12) */}
                                                         {can_assign_vendor_pic && crf.application_status_id === 12 && (
-                                                            <Button
-                                                                variant="default"
-                                                                size="sm"
-                                                                onClick={() => handleOpenVendorAdminModal(crf.id)}
-                                                                className="bg-blue-600 hover:bg-blue-700"
-                                                                title="Assign to Vendor PIC"
-                                                            >
-                                                                <UserPlus className="h-4 w-4" />
-                                                            </Button>
+                                                            <>
+                                                                <Button
+                                                                    variant="default"
+                                                                    size="sm"
+                                                                    onClick={() => handleOpenVendorAdminModal(crf.id)}
+                                                                    className="bg-blue-600 hover:bg-blue-700"
+                                                                    title="Assign to Vendor PIC"
+                                                                >
+                                                                    <UserPlus className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => handleOpenRedirectModal(crf.id)}
+                                                                    className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                                                                    title="Redirect to ITD"
+                                                                >
+                                                                    <ArrowLeftRight className="h-4 w-4" />
+                                                                </Button>
+                                                            </>
                                                         )}
                                                         
                                                         {/* to assign PIC */}
@@ -708,6 +729,17 @@ export default function Dashboard({
                         onClose={() => {
                             setRejectModalOpen(false);
                             setSelectedRejectCrfId(null);
+                        }}
+                    />
+                )}
+
+                {selectedRedirectCrfId && (
+                    <RedirectToITDModal
+                        crfId={selectedRedirectCrfId}
+                        isOpen={redirectModalOpen}
+                        onClose={() => {
+                            setRedirectModalOpen(false);
+                            setSelectedRedirectCrfId(null);
                         }}
                     />
                 )}

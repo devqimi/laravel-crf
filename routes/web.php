@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('crfs/{crf}', [CrfController::class, 'destroy'])->name('crfs.destroy')->can('Close Assigned CRF');
     Route::post('crfs/{crf}/approve', [CrfController::class, 'approve'])->name('crfs.approve')->can('verified CRF');
     Route::post('/crfs/{id}/reject', [CrfController::class, 'reject'])->middleware(['auth'])->name('crfs.reject');
+    Route::post('/crfs/{id}/redirect-to-itd', [CrfController::class, 'redirectToITD'])->middleware(['auth'])->name('crfs.redirectToITD');
     Route::post('crfs/{crf}/acknowledge', [CrfController::class, 'acknowledge'])->name('crfs.acknowledge')->can('Acknowledge CRF by ITD');
     Route::post('crfs/{crf}/assign-to-itd', [CrfController::class, 'assignToItd'])->name('crfs.assignToItd')->can('Assign CRF To ITD');
     Route::post('crfs/{crf}/assign-to-vendor', [CrfController::class, 'assignToVendor'])->name('crfs.assignToVendor')->can('Assign CRF to Vendor');
