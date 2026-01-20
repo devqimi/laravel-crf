@@ -25,6 +25,7 @@ class ApplicationStatusSeeder extends Seeder
             ['id' => 13, 'status' => 'Rejected by HOU'],
             ['id' => 14, 'status' => 'Rejected by TP'],
             ['id' => 15, 'status' => 'Rejected by HOU IT'],
+            ['id' => 16, 'status' => 'Redirect to ITD'],
         ];
 
         foreach ($statuses as $status) {

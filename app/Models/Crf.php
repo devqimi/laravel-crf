@@ -39,6 +39,9 @@ class Crf extends Model
         'rejection_reason',
         'rejected_by',
         'rejected_at',
+        'redirect_reason',
+        'redirected_by',
+        'redirected_at',
         'approved_by_hou_at',
         'approved_by_tp_at',
         'it_hou_approved_at',
@@ -100,6 +103,11 @@ class Crf extends Model
     public function rejector()
     {
         return $this->belongsTo(User::class, 'rejected_by');
+    }
+    
+    public function redirector()
+    {
+        return $this->belongsTo(User::class, 'redirected_by');
     }
 
     public function statusTimeline(){

@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Notifications\CrfApprovedByHOU;
 use App\Notifications\CrfRejected;
 use App\Notifications\CrfAssignedToVendorPICNotification;
+use App\Notifications\CrfRedirectedNotification;
 
 class CrfController extends Controller
 {
@@ -101,8 +102,8 @@ class CrfController extends Controller
             // HOU Role
             if (in_array('HOU', $userRoles)) {
                 if ($user->department_id == $itDepartmentId) {
-                    // IT HOU - show status 10, 11
-                    $statusIds = array_merge($statusIds, [10, 11]);
+                    // IT HOU - show status 10, 11, 16
+                    $statusIds = array_merge($statusIds, [10, 11, 16]);
                     $isAdmin_HOU_PIC = true;
 
                     // Also prepare department CRFs view
@@ -486,8 +487,8 @@ class CrfController extends Controller
         // Check if this is Hardware Relocation category
         $isHardwareRelocation = $crf->category->cname === 'Hardware Request/Relocation';
 
-        // CASE 1: IT HOU approving CRFs (status 10 or 11 → 2)
-        if ($user->department_id == $itDepartmentId && in_array($crf->application_status_id, [10, 11])) {
+        // CASE 1: IT HOU approving CRFs (status 10 or 11 or 16 → 2)
+        if ($user->department_id == $itDepartmentId && in_array($crf->application_status_id, [10, 11, 16])) {
             
             $crf->update([
                 'application_status_id' => 2, // Approved by HOU IT
@@ -577,15 +578,29 @@ class CrfController extends Controller
         $canReject = false;
         $rejectorTitle = '';
 
-        if(in_array('HOU', $userRoles) && $crf->application_status_id === 1){
+        if(in_array('HOU', $userRoles) && ($crf->application_status_id === 1 || $crf->application_status_id === 16)){
             $rejectionStatus = 13;
             $canReject = true;
             $rejectorTitle = 'Head Of Unit';
+
+            $crf->addTimelineEntry(
+                status: 'Rejected by HOU',
+                actionType: 'status_change',
+                remark: 'Rejected by: ' . $user->name,
+                userId: $user->id
+            );
 
         } elseif (in_array('TIMBALAN PENGARAH', $userRoles) && $crf->application_status_id === 10 && $crf->category_id === 5){
             $rejectionStatus = 14;
             $canReject = true;
             $rejectorTitle = 'Timbalan Pengarah';
+
+            $crf->addTimelineEntry(
+                status: 'Rejected by TP',
+                actionType: 'status_change',
+                remark: 'Rejected by: ' . $user->name,
+                userId: $user->id
+            );
 
         } elseif (in_array('HOU', $userRoles) && 
 
@@ -596,6 +611,13 @@ class CrfController extends Controller
             $rejectionStatus = 15;
             $canReject = true;
             $rejectorTitle = 'Head Of Unit IT';
+
+            $crf->addTimelineEntry(
+                status: 'Rejected by HOU IT',
+                actionType: 'status_change',
+                remark: 'Rejected by: ' . $user->name,
+                userId: $user->id
+            );
         }
         
         if (!$canReject || !$rejectionStatus) {
@@ -610,13 +632,6 @@ class CrfController extends Controller
             'rejected_at' => now(),
         ]);
 
-        $crf->addTimelineEntry(
-                status: 'Rejected',
-                actionType: 'status_change',
-                remark: 'Rejected by: ' . $user->name,
-                userId: $user->id
-        );
-
         $requester = User::find($crf->user_id);
 
         if ($requester) {
@@ -629,6 +644,58 @@ class CrfController extends Controller
 
         return redirect()->back()->with('success', 'CRF has been rejected successfully.');
 
+    }
+
+    public function redirectToITD(Request $request, $id)
+    {
+        $request->validate([
+            'redirect_reason' => 'required|string|max:500',
+        ]);
+
+        $crf = Crf::findOrFail($id);
+        $user = Auth::user();
+        $userRoles = $user->roles->pluck('name')->toArray();
+
+        // Only Vendor Admin can redirect from status 12 (Assigned to Vendor Admin)
+        if (!in_array('VENDOR ADMIN', $userRoles) || $crf->application_status_id !== 12) {
+            return back()->withErrors(['error' => 'You cannot redirect this CRF at its current stage.']);
+        }
+
+        // Update CRF - redirect back to IT HOU for reassessment
+        $crf->update([
+            'application_status_id' => 16, // Redirect to ITD
+            'redirect_reason' => $request->redirect_reason,
+            'redirected_by' => $user->id,
+            'redirected_at' => now(),
+            'assigned_vendor_admin_id' => null, // Clear vendor admin assignment
+        ]);
+
+        $crf->addTimelineEntry(
+                status: 'Redirect to ITD',
+                actionType: 'status_change',
+                remark: 'Redirected by: ' . $user->name,
+                userId: $user->id
+            );
+
+        // Get IT HOU users to notify them
+        $itDepartment = Department::where('dname', 'LIKE', '%Unit Teknologi Maklumat%')->first();
+        
+        if ($itDepartment) {
+            $itHOUs = User::role('HOU')
+                ->where('department_id', $itDepartment->id)
+                ->get();
+
+            // Notify all IT HOUs
+            foreach ($itHOUs as $itHOU) {
+                $itHOU->notify(new CrfRedirectedNotification(
+                    $crf,
+                    $request->redirect_reason,
+                    $user->name . ' (Vendor Admin)'
+                ));
+            }
+        }
+
+        return back()->with('success', 'CRF has been redirected to IT Department for reassessment.');
     }
 
     public function acknowledge(Crf $crf)
