@@ -115,10 +115,10 @@ class CrfExport implements FromQuery, WithHeadings, WithMapping, WithStyles, Sho
                     $query->whereIn('application_status_id', [1, 10, 11]);
                     break;
                 case 'in_progress':
-                    $query->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12]);
+                    $query->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 12, 16]);
                     break;
                 case 'completed':
-                    $query->where('application_status_id', 9);
+                    $query->whereIn('application_status_id', [9, 13, 14, 15]);
                     break;
             }
         }
