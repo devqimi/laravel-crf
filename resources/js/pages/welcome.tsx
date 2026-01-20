@@ -18,7 +18,7 @@ export default function Welcome() {
             </Head>
 
             {/* Full Page Container */}
-            <div className="min-h-screen bg-gradient-to-br from-blue-200 via-blue-300 to-indigo-600">
+            <div className="flex flex-col h-screen bg-gradient-to-br from-blue-200 via-blue-300 to-indigo-600">
 
                 {/* Fixed Top Navigation Bar */}
                 <header className="bg-white border-b border-slate-200 shadow-sm">
@@ -69,6 +69,7 @@ export default function Welcome() {
 
                 <section className="max-w-7xl mx-auto px-6 py-16">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
+
                         {/* Left Content */}
                         <div>
                             <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -150,7 +151,7 @@ export default function Welcome() {
                 </section>
 
                 {/* Footer */}
-                <footer className="bg-slate-900 text-slate-400 py-8">
+                <footer className="bg-slate-900 text-slate-400 py-8 mt-auto">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="grid md:grid-cols-4 gap-8 mb-8">
                             <div>
