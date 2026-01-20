@@ -49,6 +49,7 @@ export interface SingleCrf {
     application_status?: ApplicationStatus;
     approved_by: number | null;
     approver?: User;
+    rejection_reason: string | null;
     assigned_to: number | null;
     assigned_user: User;
     assigned_vendor_admin_id: number | null;
