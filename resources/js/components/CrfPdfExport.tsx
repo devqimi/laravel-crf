@@ -257,8 +257,8 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                             border: '1px solid #ffcc00',
                             fontSize: '12px'
                         }}>
-                            <strong style={{ color: '#888800' }}>Redirect Reason:</strong>
-                            <div style={{ marginTop: '2px', color: '#888800' }}>{crf.redirect_reason}</div>
+                            <strong style={{ color: '#3f3f00' }}>Redirect Reason:</strong>
+                            <div style={{ marginTop: '2px', color: '#3f3f00' }}>{crf.redirect_reason}</div>
                         </div>
                     )}
 
@@ -370,7 +370,7 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                                 fontSize: '12px'
                             }}>
                                 <thead>
-                                    <tr style={{ backgroundColor: '#64748b', color: '#ffffff' }}>
+                                    <tr style={{ backgroundColor: '#70a7ee', color: '#1c1c1c' }}>
                                         <th style={{ padding: '4px', textAlign: 'left', width: '4%' }}>No.</th>
                                         <th style={{ padding: '4px', textAlign: 'left', width: '38%' }}>Status</th>
                                         <th style={{ padding: '4px', textAlign: 'left', width: '28%' }}>Action By</th>
