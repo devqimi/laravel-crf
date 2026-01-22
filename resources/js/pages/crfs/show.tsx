@@ -35,6 +35,7 @@ import ITAssignModal from '@/components/ITAssignModal';
 import RejectCrfModal from '@/components/RejectCrfModal';
 import RedirectToITDModal from '@/components/RedirectToITDModal';
 import VendorAdminAssignModal from '@/components/VendorAdminAssignModal';
+import { CrfPdfExport } from '@/components/CrfPdfExport';
 
 type User = {
     id: number;
@@ -281,6 +282,12 @@ export default function ShowCrf({
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>CRF NO : {crf.crf_number}</CardTitle>
                         <div className="flex gap-2">
+
+                            <CrfPdfExport 
+                                crf={crf} 
+                                statusTimeline={crf.status_timeline}
+                                attachments={crf.attachments}
+                            />
                             
                             {/* FOR ITD ADMIN TO REASSIGN */}
                             {canReassign && (
