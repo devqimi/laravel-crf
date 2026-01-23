@@ -170,17 +170,32 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                         textAlign: 'center', 
                         borderBottom: '1px solid #333333', 
                         paddingBottom: '12px', 
-                        marginBottom: '10px' 
+                        marginBottom: '10px',
+                        columnCount: '2',
+                        display: 'flex',
                     }}>
+                        <img src="https://images.seeklogo.com/logo-png/9/1/negara-malaysia-jata-negara-logo-png_seeklogo-98007.png" 
+                            alt="TP Logo" 
+                            style={{ 
+                                height: '100px', 
+                            }} 
+                        />
                         <h1 style={{ 
-                            margin: '0 0 3px 0', 
+                            margin: '0 0 3px 85px',
                             fontSize: '23px', 
                             fontWeight: 'bold',
-                            color: '#333333' 
+                            color: '#333333',
+                            alignSelf: 'center',
+                            justifyContent: 'center'
                         }}>
                             Customer Request Form (CRF)
                         </h1>
-                        <p style={{ color: '#333333', fontSize: '12px', margin: 0 }}>
+                        <p style={{
+                            color: '#333333',
+                            fontSize: '12px',
+                            margin: '0 0 0 65px',
+                            justifyContent: 'end'
+                        }}>
                             CRF No: {crf.crf_number}
                         </p>
                     </div>
