@@ -169,12 +169,12 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                     <div style={{ 
                         textAlign: 'center', 
                         borderBottom: '1px solid #333333', 
-                        paddingBottom: '8px', 
+                        paddingBottom: '12px', 
                         marginBottom: '10px' 
                     }}>
                         <h1 style={{ 
                             margin: '0 0 3px 0', 
-                            fontSize: '20px', 
+                            fontSize: '23px', 
                             fontWeight: 'bold',
                             color: '#333333' 
                         }}>
@@ -440,7 +440,7 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                     <div style={{ 
                         marginTop: '10px', 
                         paddingTop: '6px', 
-                        borderTop: '1px solid #333333',
+                        borderTop: '1px solid #dddddd',
                         textAlign: 'center',
                         fontSize: '12px',
                         color: '#666666',
