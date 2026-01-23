@@ -58,7 +58,7 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
     const handlePrint = () => {
         // Set document title for PDF filename
         const originalTitle = document.title;
-        document.title = `CRF-${crf.crf_number}`;
+        document.title = `CRF - ${crf.crf_number}`;
         
         window.print();
         
@@ -168,7 +168,7 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                     {/* Header */}
                     <div style={{ 
                         textAlign: 'center', 
-                        borderBottom: '2px solid #333333', 
+                        borderBottom: '1px solid #333333', 
                         paddingBottom: '8px', 
                         marginBottom: '10px' 
                     }}>
@@ -180,7 +180,7 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                         }}>
                             Customer Request Form (CRF)
                         </h1>
-                        <p style={{ color: '#666666', fontSize: '12px', margin: 0 }}>
+                        <p style={{ color: '#333333', fontSize: '12px', margin: 0 }}>
                             CRF No: {crf.crf_number}
                         </p>
                     </div>
@@ -338,7 +338,7 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
 
                     {/* IT Remark */}
                     {crf.it_remark && (
-                        <div style={{ marginBottom: '10px', fontSize: '12px' }}>
+                        <div style={{ marginBottom: '10px', fontSize: '12px'}}>
                             <strong>IT Remark:</strong>
                             <div style={{ 
                                 marginTop: '2px',
@@ -440,12 +440,12 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                     <div style={{ 
                         marginTop: '10px', 
                         paddingTop: '6px', 
-                        borderTop: '1px solid #dddddd',
+                        borderTop: '1px solid #333333',
                         textAlign: 'center',
                         fontSize: '12px',
-                        color: '#666666'
+                        color: '#666666',
                     }}>
-                        <div>Generated: {new Date().toLocaleDateString('en-MY')} | {new Date().toLocaleTimeString('en-MY')}</div>
+                        <div>Generated at: {new Date().toLocaleDateString('en-MY')}, {new Date().toLocaleTimeString('en-MY')}</div>
                     </div>
                 </div>
             </div>
