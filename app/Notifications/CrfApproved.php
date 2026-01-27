@@ -28,7 +28,7 @@ class CrfApproved extends Notification
         return [
             'crf_id' => $this->crf->id,
             'title' => 'CRF Approved by HOU',
-            'message' => 'CRF #' . $this->crf->id . ' has been approved by HOU and requires acknowledgment',
+            'message' => 'CRF #' . $this->crf->id . ' has been approved by HOU and requires further action.',
             'action_url' => '/crfs/' . $this->crf->id,
             'type' => 'crf_approved',
         ];

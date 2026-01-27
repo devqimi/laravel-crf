@@ -2,28 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
+use App\Notifications;
 use App\Models\Crf;
 use App\Models\User;
-use Inertia\Inertia;
 use App\Models\Factor;
-use App\Notifications;
-use App\Services\CrfNumberService;
-use App\Models\Category;
-use App\Models\Department;
-use Illuminate\Http\Request;
 use App\Models\CrfAttachment;
 use App\Models\ApplicationStatus;
-use App\Notifications\CrfCreated;
-use App\Notifications\CrfAssigned;
-use App\Notifications\CrfApproved;
+use App\Models\Category;
+use App\Models\Department;
+use App\Services\CrfNumberService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use App\Notifications\CrfCreated;
+use App\Notifications\CrfAssigned;
+use App\Notifications\CrfApproved;
 use App\Notifications\CrfApprovedByHOU;
 use App\Notifications\CrfRejected;
 use App\Notifications\CrfAssignedToVendorPICNotification;
 use App\Notifications\CrfRedirectedNotification;
+use App\Mail\CrfCreatedMail;
+use App\Mail\CrfApprovedByHouMail;
+use App\Mail\CrfApprovedByTpMail;
+use App\Mail\CrfAssignedToPicMail;
+use App\Mail\CrfAssignedToVendorAdminMail;
+use App\Mail\CrfReassignedMail;
+use App\Mail\CrfStatusUpdatedMail;
+use App\Mail\CrfRejectedMail;
+use App\Mail\CrfRedirectedToHouItMail;
 
 class CrfController extends Controller
 {
@@ -444,10 +454,14 @@ class CrfController extends Controller
             );
     
             // Notify HOD
-            $hod = $this->getHOD($crf->department_id);
-            if ($hod) {
-                $hod->notify(new CrfCreated($crf));
+            $hods = $this->getHOD($crf->department_id);
+            foreach ($hods as $hod) {
+                if($hod) {
+                    $hod->notify(new CrfCreated($crf));
+                    Mail::to($hod->email)->queue(new CrfCreatedMail($crf));
+                }
             }
+
     
             Log::info('=== CRF Store Method Completed Successfully ===');
             Log::info('CRF created successfully with number: ' . $crf->crf_number);
@@ -541,6 +555,7 @@ class CrfController extends Controller
             $tpUsers = $this->getTPs();
             foreach ($tpUsers as $tp) {
                 $tp->notify(new CrfApprovedByHOU($crf));
+                Mail::to($tp->email)->queue(new CrfApprovedByHouMail($crf));
             }
 
             return redirect()->back()->with('success', 'CRF approved. Notification sent to Timbalan Pengarah for approval.');
@@ -558,6 +573,7 @@ class CrfController extends Controller
             $itHOUs = $this->getITHOUs();
             foreach ($itHOUs as $itHOU) {
                 $itHOU->notify(new CrfApprovedByHOU($crf));
+                Mail::to($itHOU->email)->queue(new CrfApprovedByHouMail($crf));
             }
 
             return redirect()->back()->with('success', 'CRF approved. Notification sent to IT HOU for approval.');
@@ -632,6 +648,9 @@ class CrfController extends Controller
             'rejected_at' => now(),
         ]);
 
+        $requesterEmail = $crf->user->email ?? $crf->email;
+        Mail::to($requesterEmail)->queue(new CrfRejectedMail($crf, $request->rejection_reason));
+
         $requester = User::find($crf->user_id);
 
         if ($requester) {
@@ -692,6 +711,7 @@ class CrfController extends Controller
                     $request->redirect_reason,
                     $user->name . ' (Vendor Admin)'
                 ));
+                Mail::to($itHOU->email)->queue(new CrfRedirectedToHouItMail($crf, $request->redirect_reason));
             }
         }
 
@@ -753,6 +773,7 @@ class CrfController extends Controller
 
         // Notify assigned user
         $user->notify(new CrfAssigned($crf));
+        Mail::to($user->email)->queue(new CrfAssignedToPicMail($crf, $user));
 
         return redirect()->route('dashboard')->with('success', 'CRF assigned to ITD successfully!');
     }
@@ -790,6 +811,7 @@ class CrfController extends Controller
 
         // Notify assigned user
         $user->notify(new CrfAssigned($crf));
+        Mail::to($user->email)->queue(new CrfAssignedToPicMail($crf, $user));
 
         return redirect()->route('dashboard')->with('success', 'CRF assigned to Vendor successfully!');
     }
@@ -802,7 +824,6 @@ class CrfController extends Controller
             'vendor_admin_id' => 'required_if:assign_type,vendor|exists:users,id',
         ]);
 
-        
         if ($request->assign_type === 'itd') {
             
             $user = User::find($request['assigned_to']);
@@ -823,6 +844,7 @@ class CrfController extends Controller
             );
             
             $user->notify(new CrfAssigned($crf));
+            Mail::to($user->email)->queue(new CrfAssignedToPicMail($crf, $user));
 
             return redirect()->back()->with('message', 'CRF assigned to ITD PIC successfully!');
 
@@ -836,7 +858,6 @@ class CrfController extends Controller
                 'application_status_id' => 12, // Assigned to Vendor Admin (new status ID)
             ]);
 
-            
             $crf->addTimelineEntry(
                 status: 'Assigned to Vendor Admin',
                 actionType: 'status_change',
@@ -845,6 +866,7 @@ class CrfController extends Controller
             );
             
             $user->notify(new CrfAssigned($crf));
+            Mail::to($user->email)->queue(new CrfAssignedToVendorAdminMail($crf, $user));
             
             return redirect()->back()->with('message', 'CRF assigned to Vendor Admin successfully!');
         }
@@ -875,6 +897,7 @@ class CrfController extends Controller
         );
         
         $user->notify(new CrfAssignedToVendorPICNotification ($crf));
+        Mail::to($user->email)->queue(new CrfAssignedToPicMail($crf, $user));
         
         return redirect()->back()->with('message', 'CRF assigned to Vendor PIC successfully!');
     }
@@ -914,6 +937,7 @@ class CrfController extends Controller
 
         // Notify new assigned user
         $newUser->notify(new CrfAssigned($crf));
+        Mail::to($newUser->email)->queue(new CrfReassignedMail($crf, $newUser));
 
         return redirect()->back()->with('success', 'CRF reassigned to ITD successfully!');
     }
@@ -953,6 +977,7 @@ class CrfController extends Controller
 
         // Notify new assigned user
         $newUser->notify(new CrfAssigned($crf));
+        Mail::to($newUser->email)->queue(new CrfReassignedMail($crf, $newUser));
 
         return redirect()->back()->with('success', 'CRF reassigned to Vendor successfully!');
     }
@@ -1102,7 +1127,13 @@ class CrfController extends Controller
             abort(403);
         }
 
+        $crf->load('user');
         $crf->update(['application_status_id' => 8]); // Work in progress
+
+        $requesterEmail = $crf->user?->email;
+        if ($requesterEmail) {
+            Mail::to($requesterEmail)->queue(new CrfStatusUpdatedMail($crf, 'Work in Progress'));
+        }
 
         // Add timeline entry
         $crf->addTimelineEntry(
@@ -1120,7 +1151,13 @@ class CrfController extends Controller
             abort(403);
         }
 
+        $crf->load('user');
         $crf->update(['application_status_id' => 9]); // Closed
+
+        $requesterEmail = $crf->user?->email;
+        if ($requesterEmail) {
+            Mail::to($requesterEmail)->queue(new CrfStatusUpdatedMail($crf, 'Closed'));
+        }
 
         // Add timeline entry
         $crf->addTimelineEntry(
@@ -1175,7 +1212,7 @@ class CrfController extends Controller
         // Get HOD by role and department
         return User::role('HOU')
             ->where('department_id', $departmentId)
-            ->first();
+            ->get();
     }
 
     // Helper method to get ITD Admins

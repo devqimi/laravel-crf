@@ -14,6 +14,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CrfAttachmentController;
+use App\Http\Controllers\EmailController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -31,6 +32,8 @@ Route::get('/api/crforms', function () {
     return response()->json(Crf::all());
 });
 
+Route::get('/send-email', [EmailController::class, 'WelcomeEmail']);
+
 Route::middleware(['auth:sanctum'])->get('/api/user', function (Request $request) {
     $user = $request->user()->load('department'); // if user has relation
     return response()->json([
@@ -40,8 +43,8 @@ Route::middleware(['auth:sanctum'])->get('/api/user', function (Request $request
         'department_id' => $user->department_id,
         'department_name' => $user->department?->dname,
         'email' => $user->email,
-    ]);
-});
+        ]);
+        });
 
 Route::get('crfs/check-status', [CrfController::class, 'checkStatus'])->name('crfs.checkStatus');
 
