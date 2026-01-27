@@ -518,6 +518,9 @@ class CrfController extends Controller
                 userId: $user->id
             );
 
+            // Load relationships before sending mail
+            $crf->load('department', 'category', 'approver');
+
             // Notify IT ASSIGN
             $itAssigns = $this->getITAssign();
             foreach ($itAssigns as $itAssign) {
@@ -553,6 +556,9 @@ class CrfController extends Controller
                 userId: $user->id
             );
 
+            // Load relationships before sending mail
+            $crf->load('department', 'category', 'approver');
+
             // Notify Timbalan Pengarah
             $tpUsers = $this->getTPs();
             foreach ($tpUsers as $tp) {
@@ -570,6 +576,9 @@ class CrfController extends Controller
                 remark: 'Approved by HOU: ' . $user->name . ' (Awaiting IT HOU approval)',
                 userId: $user->id
             );
+
+            // Load relationships before sending mail
+            $crf->load('department', 'category', 'approver');
 
             // Notify IT HOU
             $itHOUs = $this->getITHOUs();
@@ -1255,6 +1264,9 @@ class CrfController extends Controller
             remark: 'Approved by Timbalan Pengarah: ' . $user->name,
             userId: $user->id
         );
+
+        // Load relationships before sending mail
+        $crf->load('department', 'category', 'tp_approver');
 
         // Notify IT HOU
         $itHOUs = $this->getITHOUs();

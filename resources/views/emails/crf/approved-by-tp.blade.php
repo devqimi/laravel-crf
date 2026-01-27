@@ -103,12 +103,20 @@
 
              <div class="info-row">
                 <strong>Approved BY</strong>
-                {{ $crf->tp_approver->name }}
+                {{ optional($crf->tp_approver)->name ?? 'N/A' }}
             </div>
             
             <div class="info-row">
                 <strong>Approved At</strong>
-                {{ $crf->approved_by_tp_at->format('d M Y, h:i A') }}
+                @if($crf->approved_by_tp_at)
+                    @if(is_string($crf->approved_by_tp_at))
+                        {{ \Carbon\Carbon::parse($crf->approved_by_tp_at)->format('d M Y, h:i A') }}
+                    @else
+                        {{ $crf->approved_by_tp_at->format('d M Y, h:i A') }}
+                    @endif
+                @else
+                    N/A
+                @endif
             </div>
             
             <div style="text-align: center;">
