@@ -25,9 +25,10 @@ class CrfApprovedByHOUNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'title' => 'CRF Approved - Pending Assignment',
-            'message' => "CRF #{$this->crf->id} for {$this->crf->fname} has been approved and needs assignment.",
             'crf_id' => $this->crf->id,
+            'crf_number' => $this->crf->crf_number,
+            'title' => 'CRF Approved - Pending Assignment',
+            'message' => "CRF #{$this->crf->crf_number} for {$this->crf->fname} has been approved and needs assignment.",
             'url' => url('/crfs/' . $this->crf->id),
             'type' => 'crf_approved',
             'created_at' => now()->toDateTimeString(),

@@ -4,8 +4,6 @@ namespace App\Notifications;
 
 use App\Models\Crf;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class CrfRedirectedNotification extends Notification
@@ -25,24 +23,7 @@ class CrfRedirectedNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['mail', 'database'];
-    }
-
-    public function toMail($notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->subject('CRF Redirected to ITD - ' . $this->crf->crf_number)
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('A CRF has been redirected back to IT Department for reassessment.')
-            ->line('**CRF Number:** ' . $this->crf->crf_number)
-            ->line('**Category:** ' . ($this->crf->category->cname ?? 'N/A'))
-            ->line('**Issue:** ' . $this->crf->issue)
-            ->line('**Redirected By:** ' . $this->redirectedBy)
-            ->line('**Redirect Reason:**')
-            ->line($this->redirectReason)
-            ->action('Review CRF', url('/crfs/' . $this->crf->id))
-            ->line('Please review and decide whether to assign to ITD or reject the request.')
-            ->salutation('Regards, CRF System');
+        return ['database'];
     }
 
     public function toArray($notifiable): array

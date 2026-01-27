@@ -68,13 +68,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 CRF Status Updated</h1>
+            <h1>📋 CRF Approved by HOU IT</h1>
         </div>
         
         <div class="content">
-            <p>Dear {{ $crf->fname }},</p>
-            
-            <p>Your CRF status has been updated.</p>
+
+            <p>Dear IT ASSIGN,</p>
+            <p>A CRF has been approved by HOU IT and requires your approval.</p>
             
             <div class="info-row">
                 <strong>CRF Number</strong>
@@ -82,8 +82,13 @@
             </div>
             
             <div class="info-row">
-                <strong>New Status</strong>
-                {{ $newStatus }}
+                <strong>Submitted By</strong>
+                {{ $crf->fname }}
+            </div>
+            
+            <div class="info-row">
+                <strong>Department</strong>
+                {{ optional($crf->department)->dname ?? 'N/A' }}
             </div>
             
             <div class="info-row">
@@ -95,10 +100,16 @@
                 <strong>Issue</strong>
                 {{ $crf->issue }}
             </div>
-
-            @if($newStatus === 'Closed')
-                <p>Your request has been completed successfully.</p>
-            @endif
+            
+            <div class="info-row">
+                <strong>Approved BY</strong>
+                {{ $crf->approver->name }}
+            </div>
+            
+            <div class="info-row">
+                <strong>Approved At</strong>
+                {{ $crf->approved_by_hou_at->format('d M Y, h:i A') }}
+            </div>
             
             <div style="text-align: center;">
                 <a href="{{ route('crfs.show', $crf->id) }}" class="button">

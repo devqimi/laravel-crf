@@ -25,9 +25,10 @@ class CrfAssignedToITDNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'title' => 'New CRF Assigned to You',
-            'message' => "CRF #{$this->crf->id} for {$this->crf->fname} has been assigned to you.",
             'crf_id' => $this->crf->id,
+            'crf_number' => $this->crf->crf_number,
+            'title' => 'New CRF Assigned to You',
+            'message' => "CRF #{$this->crf->crf_number} for {$this->crf->fname} has been assigned to you.",
             'url' => url('/crfs/' . $this->crf->id),
             'type' => 'crf_assigned_itd',
             'created_at' => now()->toDateTimeString(),

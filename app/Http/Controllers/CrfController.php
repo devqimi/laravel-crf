@@ -2,38 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
 use App\Notifications;
 use App\Models\Crf;
 use App\Models\User;
 use App\Models\Factor;
-use App\Models\CrfAttachment;
 use App\Models\ApplicationStatus;
+use App\Models\CrfAttachment;
 use App\Models\Category;
 use App\Models\Department;
 use App\Services\CrfNumberService;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Notifications\CrfCreated;
-use App\Notifications\CrfAssigned;
 use App\Notifications\CrfApproved;
-use App\Notifications\CrfApprovedByHOU;
+use App\Notifications\CrfAssigned;
 use App\Notifications\CrfRejected;
-use App\Notifications\CrfAssignedToVendorPICNotification;
+use App\Notifications\CrfApprovedByHOU;
 use App\Notifications\CrfRedirectedNotification;
+use App\Notifications\CrfAssignedToVendorPICNotification;
 use App\Mail\CrfCreatedMail;
-use App\Mail\CrfApprovedByHouMail;
-use App\Mail\CrfApprovedByTpMail;
-use App\Mail\CrfAssignedToPicMail;
-use App\Mail\CrfAssignedToVendorAdminMail;
-use App\Mail\CrfReassignedMail;
-use App\Mail\CrfStatusUpdatedMail;
 use App\Mail\CrfRejectedMail;
+use App\Mail\CrfReassignedMail;
+use App\Mail\CrfApprovedByTpMail;
+use App\Mail\CrfApprovedByHouMail;
+use App\Mail\CrfAssignedToPicMail;
+use App\Mail\CrfStatusUpdatedMail;
+use App\Mail\CrfApprovedByHouItMail;
 use App\Mail\CrfRedirectedToHouItMail;
+use App\Mail\CrfAssignedToVendorAdminMail;
 
 class CrfController extends Controller
 {
@@ -112,8 +113,8 @@ class CrfController extends Controller
             // HOU Role
             if (in_array('HOU', $userRoles)) {
                 if ($user->department_id == $itDepartmentId) {
-                    // IT HOU - show status 10, 11, 16
-                    $statusIds = array_merge($statusIds, [10, 11, 16]);
+                    // IT HOU - show status 1, 10, 11, 16
+                    $statusIds = array_merge($statusIds, [1, 10, 11, 16]);
                     $isAdmin_HOU_PIC = true;
 
                     // Also prepare department CRFs view
@@ -521,6 +522,7 @@ class CrfController extends Controller
             $itAssigns = $this->getITAssign();
             foreach ($itAssigns as $itAssign) {
                 $itAssign->notify(new CrfApproved($crf));
+                Mail::to($itAssign->email)->queue(new CrfApprovedByHouItMail($crf));
             }
 
             return redirect()->back()->with('success', 'CRF approved by IT HOU. Ready for assignment.');
@@ -1254,16 +1256,11 @@ class CrfController extends Controller
             userId: $user->id
         );
 
-        // Notify ITD Admin and IT ASSIGN
-        // $itdAdmins = $this->getITDAdmins();
-        // foreach ($itdAdmins as $admin) {
-        //     $admin->notify(new CrfApproved($crf));
-        // }
-
         // Notify IT HOU
         $itHOUs = $this->getITHOUs();
         foreach ($itHOUs as $itHOU) {
             $itHOU->notify(new CrfApprovedByHOU($crf));
+            Mail::to($itHOU->email)->queue(new CrfApprovedByTpMail($crf));
         }
 
         return redirect()->route('dashboard')->with('success', 'CRF approved successfully! Notification sent to ITD Admin.');

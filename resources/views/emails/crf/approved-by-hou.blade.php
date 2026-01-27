@@ -79,6 +79,7 @@
             @else
                 <p>Dear IT HOU,</p>
                 <p>A CRF has been approved by HOU and requires your approval.</p>
+            @endif
             
             <div class="info-row">
                 <strong>CRF Number</strong>

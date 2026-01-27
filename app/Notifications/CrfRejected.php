@@ -4,8 +4,6 @@ namespace App\Notifications;
 
 use App\Models\Crf;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class CrfRejected extends Notification
@@ -28,28 +26,7 @@ class CrfRejected extends Notification
      */
     public function via($notifiable): array
     {
-        return ['mail', 'database'];
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail($notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->subject('CRF Request Rejected - ' . $this->crf->crf_number)
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->error()
-            ->line('Your CRF request has been rejected.')
-            ->line('**CRF Number:** ' . $this->crf->crf_number)
-            ->line('**Category:** ' . ($this->crf->category->cname ?? 'N/A'))
-            ->line('**Issue:** ' . $this->crf->issue)
-            ->line('**Rejected By:** ' . $this->rejectedBy)
-            ->line('**Rejection Reason:**')
-            ->line($this->rejectionReason)
-            ->action('View CRF Details', url('/crfs/' . $this->crf->id))
-            ->line('You may submit a new request with the necessary corrections.')
-            ->salutation('Regards, IT Department');
+        return ['database'];
     }
 
     /**

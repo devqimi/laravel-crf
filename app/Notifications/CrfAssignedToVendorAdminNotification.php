@@ -25,9 +25,10 @@ class CrfAssignedToVendorAdminNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'title' => 'CRF Assigned - Select Vendor PIC',
-            'message' => "CRF #{$this->crf->id} for {$this->crf->fname} requires Vendor PIC assignment.",
             'crf_id' => $this->crf->id,
+            'crf_number' => $this->crf->crf_number,
+            'title' => 'CRF Assigned - Select Vendor PIC',
+            'message' => "CRF #{$this->crf->crf_number} for {$this->crf->fname} requires Vendor PIC assignment.",
             'action_url' => '/crfs/' . $this->crf->id,
             'type' => 'crf_assigned_vendor_admin',
             'created_at' => now()->toDateTimeString(),
