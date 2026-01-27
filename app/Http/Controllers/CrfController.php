@@ -25,6 +25,7 @@ use App\Notifications\CrfRejected;
 use App\Notifications\CrfApprovedByHOU;
 use App\Notifications\CrfRedirectedNotification;
 use App\Notifications\CrfAssignedToVendorPICNotification;
+use App\Notifications\CrfApprovedByTP;
 use App\Mail\CrfCreatedMail;
 use App\Mail\CrfRejectedMail;
 use App\Mail\CrfReassignedMail;
@@ -1271,7 +1272,7 @@ class CrfController extends Controller
         // Notify IT HOU
         $itHOUs = $this->getITHOUs();
         foreach ($itHOUs as $itHOU) {
-            $itHOU->notify(new CrfApprovedByHOU($crf));
+            $itHOU->notify(new CrfApprovedByTP($crf));
             Mail::to($itHOU->email)->queue(new CrfApprovedByTpMail($crf));
         }
 
