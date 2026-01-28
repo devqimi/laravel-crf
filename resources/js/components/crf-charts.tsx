@@ -151,7 +151,7 @@ export default function CRFCharts({ trendData, departmentData }: CRFChartsProps)
                                 tick={{ fontSize: 11 }}
                                 angle={-45}
                                 textAnchor="end"
-                                height={80}
+                                height={50}
                                 stroke="#6b7280"
                             />
                             <YAxis 
