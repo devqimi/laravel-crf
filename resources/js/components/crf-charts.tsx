@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { BarChart3, Users } from 'lucide-react';
+import { BarChart3, Building2 } from 'lucide-react';
 
 interface TrendData {
     date: string;
@@ -138,7 +138,7 @@ export default function CRFCharts({ trendData, departmentData }: CRFChartsProps)
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-slate-900">
-                        <Users className="h-5 w-5 text-purple-600" />
+                        <Building2 className="h-5 w-5 text-purple-600" />
                         CRF Department
                     </CardTitle>
                 </CardHeader>
@@ -148,10 +148,10 @@ export default function CRFCharts({ trendData, departmentData }: CRFChartsProps)
                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                             <XAxis 
                                 dataKey="department" 
-                                tick={{ fontSize: 11 }}
-                                angle={-45}
                                 textAnchor="end"
-                                height={50}
+                                angle={-30}
+                                tick={{ fontSize: 12 }}
+                                height={70}
                                 stroke="#6b7280"
                             />
                             <YAxis 
