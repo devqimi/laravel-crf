@@ -29,6 +29,7 @@ class CrfRedirectedNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
+            'title' => 'CRF Redirected',
             'crf_id' => $this->crf->id,
             'crf_number' => $this->crf->crf_number,
             'redirect_reason' => $this->redirectReason,
