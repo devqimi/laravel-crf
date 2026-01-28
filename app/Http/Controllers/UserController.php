@@ -29,12 +29,16 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'department_id' => $user->department_id,
                 'created_at' => $user->created_at->format('d-m-Y'),
                 'roles' => $user->roles->pluck('name'),
         ]);
 
+        $departments = Department::all();
+
         return inertia::render('users/index', [
-            'users' => $users
+            'users' => $users,
+            'departments' => $departments
         ]);
     }
 

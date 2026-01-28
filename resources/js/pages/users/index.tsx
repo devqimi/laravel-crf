@@ -30,11 +30,18 @@ type User = {
     nric: string;
     email: string;
     department_id: number | null;
-    department_name?: string;
+};
+
+type PaginatedUsers = {
+    data: (User & { roles: string[]; created_at: string })[];
+    total: number;
+    from: number;
+    to: number;
+    links: any[];
 };
 
 type Props = {
-    users: User;
+    users: PaginatedUsers;
     departments: Department[];
 };
 
@@ -52,11 +59,22 @@ export default function Users({ users, departments }: Props) {
     
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
+            const params: Record<string, any> = {};
+            
+            // Add search if present
             if (search) {
-                router.get('/users', { search: search }, { preserveState: true, preserveScroll: true, replace: true });
+                params.search = search;
+                // Reset to page 1 when searching
             } else {
-                router.get('/users', {}, { preserveState: true, preserveScroll: true, replace: true });
+                // Preserve current page from URL only when not searching
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentPage = urlParams.get('page');
+                if (currentPage) {
+                    params.page = currentPage;
+                }
             }
+            
+            router.get('/users', params, { preserveState: true, preserveScroll: true, replace: true });
         }, 300);
             return () => clearTimeout(delayDebounceFn);
     }, [search]);        
@@ -114,7 +132,7 @@ export default function Users({ users, departments }: Props) {
                         <Table>
                             <TableHeader className="bg-blue-900">
                                 <TableRow>
-                                    <TableHead className='font-bold text-white'>ID</TableHead>
+                                    <TableHead className='font-bold text-white'>No</TableHead>
                                     <TableHead className='font-bold text-white'>Name</TableHead>
                                     <TableHead className='font-bold text-white'>Email</TableHead>
                                     <TableHead className='font-bold text-white'>Roles</TableHead>
@@ -125,7 +143,7 @@ export default function Users({ users, departments }: Props) {
                             </TableHeader>
                             <TableBody>
                                 {users.data.map((user, index) => (
-                                    <TableRow className='odd:bg-slate-100 dark:odd:bg-slate-800'>
+                                    <TableRow key={user.id} className='odd:bg-slate-100 dark:odd:bg-slate-800'>
                                         <TableCell>{index + 1}</TableCell>
                                         <TableCell>{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
@@ -141,7 +159,7 @@ export default function Users({ users, departments }: Props) {
                                                 ))}
                                             </div>
                                         </TableCell>
-                                        <TableCell>{user.department_id ? user.department_id.dname : '-'}</TableCell>
+                                        <TableCell>{departments?.find(d => d.id === user.department_id)?.dname || '-'}</TableCell>
                                         <TableCell>{user.created_at}</TableCell>
                                         <TableCell>
                                             {can('update users') && (

@@ -1,6 +1,11 @@
 import { Pagination } from "./pagination";
 import { SingleRole } from "./roles";
 
+type Department = {
+    id: number;
+    dname: string;
+};
+
 export interface SingleUser {
     id: number;
     name: string;
@@ -9,6 +14,7 @@ export interface SingleUser {
     phone: string;
     roles: string[];
     department_id: int;
+    department?: Department;
     created_at: string;
 }
 

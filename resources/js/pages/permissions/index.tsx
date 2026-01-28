@@ -92,7 +92,7 @@ export default function Permissions({ permissions }: { permissions: Permission }
                         <Table>
                             <TableHeader className="bg-blue-900">
                                 <TableRow>
-                                    <TableHead className='font-bold text-white'>ID</TableHead>
+                                    <TableHead className='font-bold text-white'>No</TableHead>
                                     <TableHead className='font-bold text-white'>Name</TableHead>
                                     <TableHead className='font-bold text-white'>Created At</TableHead>
                                     <TableHead className='font-bold text-white'>Actions</TableHead>
