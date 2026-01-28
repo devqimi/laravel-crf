@@ -7,15 +7,19 @@ interface StatCardProps {
     bgColor: string;
     iconColor: string;
     textColor: string;
+    description?: string;
 }
 
-function StatCard({ title, value, icon, bgColor, iconColor, textColor }: StatCardProps) {
+function StatCard({ title, value, icon, bgColor, iconColor, textColor, description }: StatCardProps) {
     return (
         <div className={`${bgColor} rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow`}>
             <div className="flex items-center justify-between">
                 <div className="flex-1">
                     <p className={`text-sm font-medium ${textColor} opacity-90 mb-1`}>{title}</p>
                     <p className={`text-3xl font-semibold ${textColor}`}>{value}</p>
+                    {description && (
+                        <p className={`text-xs ${textColor} opacity-75`}>{description}</p>
+                    )}
                 </div>
                 <div className={`${iconColor} p-3 rounded-lg bg-white bg-opacity-30`}>
                     {icon}
@@ -64,6 +68,7 @@ export default function CRFStats({
                     bgColor="bg-gradient-to-br from-orange-400 to-orange-500"
                     iconColor="text-orange-500"
                     textColor="text-white"
+                    description="Awaiting HOU approval"
                 />
                 <StatCard
                     title="In Progress"
@@ -72,6 +77,7 @@ export default function CRFStats({
                     bgColor="bg-gradient-to-br from-blue-400 to-blue-500"
                     iconColor="text-blue-500"
                     textColor="text-white"
+                    description="Being worked on"
                 />
                 <StatCard
                     title="Completed"
@@ -80,6 +86,7 @@ export default function CRFStats({
                     bgColor="bg-gradient-to-br from-green-400 to-green-500"
                     iconColor="text-green-500"
                     textColor="text-white"
+                    description="Successfully resolved"
                 />
                 <StatCard
                     title="Total CRF"
@@ -88,6 +95,7 @@ export default function CRFStats({
                     bgColor="bg-gradient-to-br from-purple-400 to-purple-500"
                     iconColor="text-purple-500"
                     textColor="text-white"
+                    description="Submitted CRFs"
                 />
             </div>
         </div>
