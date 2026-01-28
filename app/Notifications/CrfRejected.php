@@ -35,6 +35,7 @@ class CrfRejected extends Notification
     public function toArray($notifiable): array
     {
         return [
+            'title' => 'Your CRF has been rejected',
             'crf_id' => $this->crf->id,
             'crf_number' => $this->crf->crf_number,
             'action_url' => route('crfs.show', $this->crf->id),

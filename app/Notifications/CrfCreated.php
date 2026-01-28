@@ -36,9 +36,9 @@ class CrfCreated extends Notification
     public function toBroadcast($notifiable): array
     {
         return [
+            'title' => 'New CRF Created',
             'crf_id' => $this->crf->id,
             'crf_number' => $this->crf->crf_number,
-            'title' => 'New CRF Created',
             'message' => "{$this->crf->fname} created a new CRF #{$this->crf->crf_number}",
             'action_url' => route('crfs.show', $this->crf->id),
             'created_by' => $this->crf->fname,
