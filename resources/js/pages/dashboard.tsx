@@ -145,7 +145,7 @@ export default function Dashboard({
                 {isAdminOrHOU ? (
                     <>
                         {/* Admin/HOU View */}
-                        <Card className="bg-gradient-to-br from-blue-600 to-blue-700">
+                        <Card>
                             <CRFStats 
                                 totalCRF={stats.total || 0}
                                 inProgress={stats.in_progress || 0}
@@ -166,7 +166,7 @@ export default function Dashboard({
                 ) : isPIC ? (
                     <>
                         {/* PIC View */}
-                        <Card className="bg-gradient-to-br from-blue-600 to-blue-700">
+                        <Card>
                             <MyCRFStats 
                                 myTotal={stats?.my_total || 0}
                                 myPending={stats?.my_pending || 0}
@@ -185,7 +185,7 @@ export default function Dashboard({
                 ) : (
                     <>
                         {/* Regular User View */}
-                        <Card className="bg-gradient-to-br from-blue-600 to-blue-700">
+                        <Card>
                             <MyCRFStats 
                                 myTotal={stats.my_total || 0}
                                 myPending={stats.my_pending || 0}

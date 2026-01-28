@@ -47,7 +47,7 @@ export default function MyCRFStats({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-2 px-3">
-                <h2 className="text-xl font-semibold text-white dark:text-white">My Customer Request Form (CRF) Progress</h2>
+                <h2 className="text-xl font-semibold">My Customer Request Form (CRF) Progress</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-2">
