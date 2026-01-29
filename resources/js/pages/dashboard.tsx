@@ -162,6 +162,9 @@ export default function Dashboard({
                                 departmentData={chartData.departmentData}
                             />
                         )}
+
+                        <RecentActivity activities={recent_activities} />
+                        
                     </>
                 ) : isPIC ? (
                     <>

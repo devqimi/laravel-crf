@@ -33,6 +33,7 @@ class DashboardController extends Controller
 
             $departmentCrfs = null;
             $isAdminOrHOU = true;
+            $recentActivities = $this->getAdminHouRecentActivities($user->id);
         }
         
         // ITD ADMIN can view both "assigned to ITD" and "assigned to Vendor" CRFs
@@ -44,6 +45,7 @@ class DashboardController extends Controller
 
             $departmentCrfs = null;
             $isAdminOrHOU = true;
+            $recentActivities = $this->getAdminHouRecentActivities($user->id);
         }
 
         // TP approve
@@ -56,6 +58,7 @@ class DashboardController extends Controller
             
             $departmentCrfs = null;
             $isAdminOrHOU = true;
+            $recentActivities = $this->getAdminHouRecentActivities($user->id, $user->department_id);
         }
 
         // IT ASSIGN view approved crf by hou
@@ -108,6 +111,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->get();
 
+                $recentActivities = $this->getAdminHouRecentActivities($user->id, $user->department_id);
                 $isAdminOrHOU = true;
         }
         
@@ -253,7 +257,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $crf->id,
                     'crf_id' => $crf->id,
-                    'message' => "CRF #{$crf->id} - {$crf->application_status->status}",
+                    'message' => "CRF {$crf->crf_number} - {$crf->application_status->status}",
                     'type' => $this->getActivityType($crf->application_status_id),
                     'created_at' => $crf->updated_at->toIso8601String(),
                 ];
@@ -272,6 +276,30 @@ class DashboardController extends Controller
                     'id' => $crf->id,
                     'crf_id' => $crf->id,
                     'message' => "CRF #{$crf->id} from {$crf->user->name} - {$crf->application_status->status}",
+                    'type' => $this->getActivityType($crf->application_status_id),
+                    'created_at' => $crf->updated_at->toIso8601String(),
+                ];
+            });
+    }
+
+    private function getAdminHouRecentActivities($userId, $departmentId = null)
+    {
+        $query = Crf::with('application_status', 'user', 'department');
+
+        // If departmentId is provided, filter by department (for HOU)
+        if ($departmentId) {
+            $query->where('department_id', $departmentId);
+        }
+
+        return $query
+            ->latest('updated_at')
+            ->take(7)
+            ->get()
+            ->map(function ($crf) {
+                return [
+                    'id' => $crf->id,
+                    'crf_id' => $crf->id,
+                    'message' => "CRF {$crf->crf_number} from {$crf->user->name} ({$crf->department->dname}) - {$crf->application_status->status}",
                     'type' => $this->getActivityType($crf->application_status_id),
                     'created_at' => $crf->updated_at->toIso8601String(),
                 ];
