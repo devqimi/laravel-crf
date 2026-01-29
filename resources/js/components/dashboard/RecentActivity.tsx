@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
-import { CheckCircle, Clock, FileText, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, Clock, FileText, AlertCircle, Clock9 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 type Activity = {
@@ -49,7 +49,10 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-slate-900">
+                    <Clock9 className="h-5 w-5 text-yellow-600" />
+                    Recent Activity
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 {activities.length > 0 ? (

@@ -293,7 +293,7 @@ class DashboardController extends Controller
 
         return $query
             ->latest('updated_at')
-            ->take(7)
+            ->take(5)
             ->get()
             ->map(function ($crf) {
                 return [

@@ -12,7 +12,7 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, bgColor, iconColor, textColor, description }: StatCardProps) {
     return (
-        <div className={`${bgColor} rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow`}>
+        <div className={`${bgColor} rounded-lg p-6 shadow-md`}>
             <div className="flex items-center justify-between">
                 <div className="flex-1">
                     <p className={`text-sm font-medium ${textColor} opacity-90 mb-1`}>{title}</p>

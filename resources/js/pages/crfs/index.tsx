@@ -105,9 +105,6 @@ export default function Dashboard({
     is_admin_hou_pic = false,
 }: Props) {
 
-
-    // const { can } = usePermission();
-    // const [deletingId, setDeletingId] = useState<number | null>(null);
     const [approvingId, setApprovingId] = useState<number | null>(null);
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
@@ -251,9 +248,6 @@ export default function Dashboard({
                                 <TableHeader className="bg-blue-900">
                                     <TableRow>
                                         <TableHead className="font-bold text-white">
-                                            No.
-                                        </TableHead>
-                                        <TableHead className="font-bold text-white">
                                             CRF No.
                                         </TableHead>
                                         <TableHead className="font-bold text-white">
@@ -308,9 +302,8 @@ export default function Dashboard({
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {crfs.data.map((crf, index) => (
+                                    {crfs.data.map((crf) => (
                                         <TableRow key={crf.id} className="bg-white dark:bg-gray-800">
-                                            <TableCell>{index + 1}</TableCell>
                                             <TableCell>{crf.crf_number}</TableCell>
                                             <TableCell>{crf.fname}</TableCell>
                                             <TableCell>{crf.nric}</TableCell>
@@ -539,9 +532,6 @@ export default function Dashboard({
                                     <TableHeader className="bg-blue-900">
                                         <TableRow>
                                             <TableHead className="font-bold text-white">
-                                                No.
-                                            </TableHead>
-                                            <TableHead className="font-bold text-white">
                                                 CRF No.
                                             </TableHead>
                                             <TableHead className="font-bold text-white">
@@ -593,9 +583,8 @@ export default function Dashboard({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {department_crfs.map((crf, index) => (
+                                        {department_crfs.map((crf) => (
                                             <TableRow key={crf.id} className="bg-white dark:bg-gray-800">
-                                                <TableCell>{index + 1}</TableCell>
                                                 <TableCell>{crf.crf_number}</TableCell>
                                                 <TableCell>{crf.fname}</TableCell>
                                                 <TableCell>{crf.nric}</TableCell>
