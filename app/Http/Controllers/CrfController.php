@@ -120,6 +120,7 @@ class CrfController extends Controller
 
                     // Also prepare department CRFs view
                     $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                        // ->where('department_id', $user->department_id)
                         ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
                         ->latest()
                         ->get();
@@ -197,6 +198,7 @@ class CrfController extends Controller
             // TP can view CRFs that need their approval (status 10)
             $crfs = clone $crfQuery;
             $crfs = $crfs
+                ->where('department_id', $user->department_id)
                 ->where('category_id', $hardwareRelocationCategoryId)
                 ->where('application_status_id', 10) // Approved by HOU, awaiting TP approval
                 ->latest()
@@ -561,7 +563,7 @@ class CrfController extends Controller
             $crf->load('department', 'category', 'approver');
 
             // Notify Timbalan Pengarah
-            $tpUsers = $this->getTPs();
+            $tpUsers = $this->getTPs($crf->department_id);
             foreach ($tpUsers as $tp) {
                 $tp->notify(new CrfApprovedByHOU($crf));
                 Mail::to($tp->email)->queue(new CrfApprovedByHouMail($crf));
@@ -1280,9 +1282,11 @@ class CrfController extends Controller
     }
 
     // Helper method to get TP users
-    private function getTPs()
+    private function getTPs($departmentId)
     {
-        return User::role('Timbalan Pengarah')->get();
+        return User::role('Timbalan Pengarah')
+            ->where('department_id', $departmentId)
+            ->get();
     }
 
     private function getITHOUs()
