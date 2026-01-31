@@ -87,6 +87,7 @@ class DashboardController extends Controller
                 ->paginate(10);
 
             $isAdminOrHOU = true;
+            $recentActivities = $this->getAdminHouRecentActivities($user->id, $user->department_id);
             $stats = [
                 'my_total' => Crf::where('assigned_vendor_admin_id', $user->id)->count(),
                 'my_pending' => Crf::where('assigned_vendor_admin_id', $user->id)->where('application_status_id', 12)->count(),
