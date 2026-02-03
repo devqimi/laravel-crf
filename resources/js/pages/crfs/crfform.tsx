@@ -439,9 +439,6 @@ export default function CrfForm({ user, departments, categories }: Props) {
                         </div>
                     )}
                 </div>
-                <p className="mt-1 text-m text-red-500 col-span-2">
-                    *Please print & sign before sending to IT Department.
-                </p>
                 <div className="mt-2 flex justify-center space-x-4 col-span-2">
                     <button
                         className="rounded bg-blue-900 px-4 py-2 text-white disabled:opacity-50"
