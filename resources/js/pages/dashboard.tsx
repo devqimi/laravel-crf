@@ -137,23 +137,21 @@ export default function Dashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="mt-1 ml-1">
-                    <h1 className="text-3xl font-bold text-slate-900 mb-2">Dashboard</h1>
-                    <p className="text-slate-600">Welcome back, {auth.user?.name}!</p>
+                <div className="mt-1 ml-1 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-lg rounded-lg p-4">
+                    <h1 className="text-3xl font-bold mb-2">Dashboard Overview</h1>
+                    <p>Welcome back, {auth.user?.name}!</p>
                 </div>
 
                 {isAdminOrHOU ? (
                     <>
                         {/* Admin/HOU View */}
-                        <Card>
-                            <CRFStats 
-                                totalCRF={stats.total || 0}
-                                inProgress={stats.in_progress || 0}
-                                completed={stats.completed || 0}
-                                pending={stats.pending || 0}
-                                departmentData={chartData?.departmentData || []}
-                            />
-                        </Card>
+                        <CRFStats 
+                            totalCRF={stats.total || 0}
+                            inProgress={stats.in_progress || 0}
+                            completed={stats.completed || 0}
+                            pending={stats.pending || 0}
+                            departmentData={chartData?.departmentData || []}
+                        />
 
                         {/* Charts for crfs by departments */}
                         {chartData && (
@@ -169,15 +167,13 @@ export default function Dashboard({
                 ) : isPIC ? (
                     <>
                         {/* PIC View */}
-                        <Card>
-                            <MyCRFStats 
-                                myTotal={stats?.my_total || 0}
-                                myPending={stats?.my_pending || 0}
-                                myInProgress={stats?.my_in_progress || 0}
-                                myCompleted={stats?.my_completed || 0}
-                                myThisMonth={stats?.my_this_month || 0}
-                            />
-                        </Card>
+                        <MyCRFStats 
+                            myTotal={stats?.my_total || 0}
+                            myPending={stats?.my_pending || 0}
+                            myInProgress={stats?.my_in_progress || 0}
+                            myCompleted={stats?.my_completed || 0}
+                            myThisMonth={stats?.my_this_month || 0}
+                        />
 
                         {/* PIC Quick Actions */}
                         <PICQuickActions />
@@ -188,15 +184,13 @@ export default function Dashboard({
                 ) : (
                     <>
                         {/* Regular User View */}
-                        <Card>
-                            <MyCRFStats 
-                                myTotal={stats.my_total || 0}
-                                myPending={stats.my_pending || 0}
-                                myInProgress={stats.my_in_progress || 0}
-                                myCompleted={stats.my_completed || 0}
-                                myThisMonth={stats.my_this_month || 0}
-                            />
-                        </Card>
+                        <MyCRFStats 
+                            myTotal={stats.my_total || 0}
+                            myPending={stats.my_pending || 0}
+                            myInProgress={stats.my_in_progress || 0}
+                            myCompleted={stats.my_completed || 0}
+                            myThisMonth={stats.my_this_month || 0}
+                        />
 
                         {/* Quick Actions */}
                         <QuickActions />
