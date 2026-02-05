@@ -26,6 +26,7 @@ use App\Notifications\CrfApprovedByHOU;
 use App\Notifications\CrfRedirectedNotification;
 use App\Notifications\CrfAssignedToVendorPICNotification;
 use App\Notifications\CrfApprovedByTP;
+use App\Notifications\CrfClosed;
 use App\Mail\CrfCreatedMail;
 use App\Mail\CrfRejectedMail;
 use App\Mail\CrfReassignedMail;
@@ -1168,11 +1169,17 @@ class CrfController extends Controller
         $crf->load('user');
         $crf->update(['application_status_id' => 9]); // Closed
 
+        $requester = User::find($crf->user_id);
         $requesterEmail = $crf->user?->email;
+
         if ($requesterEmail) {
             Mail::to($requesterEmail)->queue(new CrfStatusUpdatedMail($crf, 'Closed'));
         }
 
+        if ($requester) {
+            $requester->notify(new CrfClosed($crf));
+        }
+        
         // Add timeline entry
         $crf->addTimelineEntry(
             status: 'Closed',
