@@ -206,7 +206,7 @@ export default function Dashboard({
                         {can_approve ? (
                             <CardTitle>CRF Pending</CardTitle>
                         ) : (
-                            <CardTitle>CRF</CardTitle>
+                            <CardTitle>Customer Request Forms</CardTitle>
                         )}
                         <CardAction>
                             

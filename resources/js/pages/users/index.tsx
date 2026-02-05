@@ -12,6 +12,7 @@ import TablePagination from '@/components/table-pagination';
 import { router } from '@inertiajs/core';
 import { usePermission } from '@/hooks/user-permissions';
 import { Search, X } from 'lucide-react';
+import { Label } from 'recharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -140,7 +141,7 @@ export default function Users({ users, departments }: Props) {
                             </div>
 
                             {/* Department Filter */}
-                            <div className="w-64">
+                            <div className="w-100">
                                 <Select value={departmentId} onValueChange={setDepartmentId}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="All Departments" />
