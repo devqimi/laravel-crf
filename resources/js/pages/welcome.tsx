@@ -76,25 +76,12 @@ export default function Welcome() {
                                 <Shield className="h-4 w-4" />
                                 Secure Internal System
                             </div>
-                            <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
+                            <h1 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">
                                 Customer Request Form System
                             </h1>
                             <p className="text-lg text-slate-600 mb-8 leading-relaxed">
                                 Submit, track, and manage requests efficiently. Our integrated system ensures quick response times and complete transparency throughout the resolution process.
                             </p>
-                            <div className="flex flex-wrap gap-4">
-                                {!auth.user && (
-                                    <>
-                                        <Link
-                                            href="/login"
-                                            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl"
-                                        >
-                                            Get Started
-                                            <ArrowRight className="h-5 w-5" />
-                                        </Link>
-                                    </>
-                                )}
-                            </div>
                         </div>
 
                         {/* Right Stats Cards */}
