@@ -136,7 +136,7 @@ export default function Dashboard({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 bg-gray-100">
                 <div className="mt-1 ml-1 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-lg rounded-lg p-4">
                     <h1 className="text-3xl font-bold mb-2">Dashboard Overview</h1>
                     <p>Welcome back, {auth.user?.name}!</p>

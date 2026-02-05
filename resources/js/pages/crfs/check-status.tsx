@@ -122,7 +122,7 @@ export default function CheckCrfStatus({ searchResults, searchNric }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Check CRF Status" />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 bg-gray-100 rounded-xl overflow-x-auto">
                 <Card>
                     <CardHeader>
                         <CardTitle>Check CRF Status</CardTitle>

@@ -48,7 +48,7 @@ export default function Roles({ roles }: { roles: Role }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Roles" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 bg-gray-100">
                 <Card>
                     <CardHeader className="flex items-center justify-between">
                         <CardTitle>Roles Management</CardTitle>
