@@ -42,7 +42,7 @@ export default function CreateRoles({permissions}: { permissions: string[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Role" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 bg-gray-100">
                 <Card>
                     <CardHeader className="flex items-center justify-between">
                         <CardTitle>Create Role</CardTitle>
