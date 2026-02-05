@@ -15,7 +15,6 @@ export default function CRFSearchFilter({ departments, categories, factors }: Se
 
     const { url } = usePage();
     const urlParams = new URLSearchParams(window.location.search);
-
     const [search, setSearch] = useState(urlParams.get('search') || '');
     const [departmentId, setDepartmentId] = useState(urlParams.get('department_id') || 'all');
     const [categoryId, setCategoryId] = useState(urlParams.get('category_id') || 'all');

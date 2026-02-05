@@ -10,17 +10,18 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
 
         $search = $request->input('search');
+        $departmentId = $request->input('department_id');
 
         $users = User::query()
             ->when($search, function ($query, $search) {
                 $query->where('name', 'LIKE', "%{$search}%");
+            })
+            ->when($departmentId && $departmentId !== 'all', function ($query) use ($departmentId) {
+                $query->where('department_id', $departmentId);
             })
             ->latest()
             ->paginate(10)

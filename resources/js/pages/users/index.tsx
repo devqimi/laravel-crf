@@ -2,10 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import TablePagination from '@/components/table-pagination';
 import { router } from '@inertiajs/core';
@@ -49,35 +50,43 @@ export default function Users({ users, departments }: Props) {
 
     const {flash} = usePage<{flash: {message?: string}} >().props;
     const {can} = usePermission();
-    const [search, setSearch] = useState<string>('');
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const [search, setSearch] = useState(urlParams.get('search') || '');
+    const [departmentId, setDepartmentId] = useState(urlParams.get('department_id') || 'all');
+
+    const isInitialMount = useRef(true);
+    
+    // Debounced search and filter
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(() => {
+            const params: Record<string, any> = {};
+            
+            if (search) params.search = search;
+            if (departmentId !== 'all') params.department_id = departmentId;
+
+            params.page = 1;
+
+            router.get('/users', params, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            });
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [search, departmentId]);
 
     useEffect (() => {
         if (flash.message) {
             toast.success(flash.message);
         }
-    }, [flash.message]);
-    
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            const params: Record<string, any> = {};
-            
-            // Add search if present
-            if (search) {
-                params.search = search;
-                // Reset to page 1 when searching
-            } else {
-                // Preserve current page from URL only when not searching
-                const urlParams = new URLSearchParams(window.location.search);
-                const currentPage = urlParams.get('page');
-                if (currentPage) {
-                    params.page = currentPage;
-                }
-            }
-            
-            router.get('/users', params, { preserveState: true, preserveScroll: true, replace: true });
-        }, 300);
-            return () => clearTimeout(delayDebounceFn);
-    }, [search]);        
+    }, [flash.message]);        
 
     function deleteUser(id: number){
         if (confirm("Are you sure you want to delete this user?")) {
@@ -107,8 +116,10 @@ export default function Users({ users, departments }: Props) {
                     <hr />
                     <CardContent>
 
-                        {/* Search Bar */}
-                        <div className="mb-4 flex items-center gap-2">
+                        {/* Search Bar and Department Filter*/}
+                        <div className="mb-4 flex items-center gap-4">
+
+                            {/* Search Bar */}
                             <div className="relative flex-1 max-w-sm">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                                 <Input
@@ -126,6 +137,23 @@ export default function Users({ users, departments }: Props) {
                                         <X className="h-4 w-4" />
                                     </button>
                                 )}
+                            </div>
+
+                            {/* Department Filter */}
+                            <div className="w-64">
+                                <Select value={departmentId} onValueChange={setDepartmentId}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All Departments" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Departments</SelectItem>
+                                        {departments.map((dept) => (
+                                            <SelectItem key={dept.id} value={dept.id.toString()}>
+                                                {dept.dname}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 
