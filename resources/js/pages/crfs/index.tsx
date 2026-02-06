@@ -529,7 +529,7 @@ export default function Dashboard({
                 {(can_approve && can_view_department && department_crfs && department_crfs.length > 0) && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>CRF Progress/Closed</CardTitle>
+                            <CardTitle>All CRF</CardTitle>
                         </CardHeader>
                         <hr />
                         <CardContent>
