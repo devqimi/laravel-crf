@@ -10,7 +10,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Category, Crf } from '@/types/crf';
 import { Head, Link, router } from '@inertiajs/react';
-import { CheckCircle, ClipboardCheck, UserPlus, Eye, XCircle, ArrowLeftRight } from 'lucide-react';
+import { CheckCircle, ClipboardCheck, UserPlus, Eye, XCircle, ArrowLeftRight, ClipboardList } from 'lucide-react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
 import RejectCrfModal from '@/components/RejectCrfModal';
 import RedirectToITDModal from '@/components/RedirectToITDModal';
@@ -200,7 +200,13 @@ export default function Dashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Customer Request Form" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 bg-gray-100">
-
+                <div className="mt-1 ml-1 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-lg rounded-lg p-4">
+                    <h1 className="text-3xl font-bold mb-2">
+                        <ClipboardList className="inline-block mr-2 size-8" />
+                        Customer Request Forms
+                    </h1>
+                    <p>Manage Customer Request Forms (CRFs) here.</p>
+                </div>
                 <Card>
                     <CardHeader className="flex items-center justify-between">
                         {can_approve ? (

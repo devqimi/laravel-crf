@@ -11,7 +11,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
 import InputError from '@/components/input-error';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Permission, SinglePermission } from '@/types/role_permission';
 import { permission } from 'node:process';
@@ -75,6 +75,13 @@ export default function Permissions({ permissions }: { permissions: Permission }
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Permissions" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 bg-gray-100">
+                <div className="mt-1 ml-1 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-lg rounded-lg p-4">
+                    <h1 className="text-3xl font-bold mb-2">
+                        <Lock className="inline-block mr-2 size-8" />
+                        Permissions Management
+                    </h1>
+                    <p>Manage Permissions here.</p>
+                </div>
                 <Card>
                     <CardHeader className="flex items-center justify-between">
                         <CardTitle>Permissions Management</CardTitle>

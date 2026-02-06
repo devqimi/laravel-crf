@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import TablePagination from '@/components/table-pagination';
 import { router } from '@inertiajs/core';
 import { usePermission } from '@/hooks/user-permissions';
-import { Search, X } from 'lucide-react';
+import { Search, X, CircleUser } from 'lucide-react';
 import { Label } from 'recharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -103,6 +103,13 @@ export default function Users({ users, departments }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Users" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 bg-gray-100">
+                <div className="mt-1 ml-1 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-lg rounded-lg p-4">
+                    <h1 className="text-3xl font-bold mb-2">
+                        <CircleUser className="inline-block mr-2 size-8" />
+                        User Management
+                    </h1>
+                    <p>Manage Users here.</p>
+                </div>
                 <Card>
                     <CardHeader className="flex items-center justify-between">
                         <CardTitle>User Management</CardTitle>
