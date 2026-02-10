@@ -35,6 +35,7 @@ import ITAssignModal from '@/components/ITAssignModal';
 import RejectCrfModal from '@/components/RejectCrfModal';
 import RedirectToITDModal from '@/components/RedirectToITDModal';
 import VendorAdminAssignModal from '@/components/VendorAdminAssignModal';
+import AssignToVendorPICModal from '@/components/AssignToVendorPICModal';
 import { CrfPdfExport } from '@/components/CrfPdfExport';
 
 type User = {
@@ -107,9 +108,11 @@ type Props = {
     can_assign_vendor_pic: boolean;
     can_reassign_itd?: boolean;
     can_reassign_vendor?: boolean;
+    can_update_own_crf?: boolean;
     vendor_admins?: User[];
     itd_pics?: User[];
     vendor_pics?: User[];
+    hou_vendor?: User[];
     factors: Factor[];
     is_it_hou: boolean;
 };
@@ -123,7 +126,7 @@ export default function ShowCrf({
     crf, 
     can_approve,
     can_approve_tp,
-    can_acknowledge,
+    can_update_own_crf,
     can_assign_itd,
     can_assign_vendor,
     can_update,
@@ -132,6 +135,7 @@ export default function ShowCrf({
     can_reassign_itd = false,
     can_reassign_vendor = false,
     vendor_admins = [],
+    hou_vendor = [],
     itd_pics = [],
     vendor_pics = [],
     factors = [],
@@ -146,6 +150,7 @@ export default function ShowCrf({
     const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
     const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
     const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
+    const [vendorPICAssignModalOpen, setVendorPICAssignModalOpen] = useState(false);
     const [approvingId, setApprovingId] = useState<number | null>(null);
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [selectedRejectCrfId, setSelectedRejectCrfId] = useState<number | null>(null);
@@ -184,14 +189,6 @@ export default function ShowCrf({
         setRedirectModalOpen(true);
     };
 
-    const handleAcknowledge = () => {
-        if (confirm('Acknowledge this CRF?')) {
-            router.post(`/crfs/${crf.id}/acknowledge`, {}, {
-                preserveScroll: true,
-            });
-        }
-    };
-
     const handleOpenITAssignModal = (crfId: number) => {
         setSelectedCrfId(crfId);
         setItAssignModalOpen(true);
@@ -201,6 +198,12 @@ export default function ShowCrf({
     const handleOpenVendorAdminModal = (crfId: number) => {
         setSelectedCrfId(crfId);
         setVendorAdminModalOpen(true);
+    };
+    
+    // Handler for Vendor PIC Assign modal
+    const handleOpenVendorPICAssignModal = (crfId: number) => {
+        setSelectedCrfId(crfId);
+        setVendorPICAssignModalOpen(true);
     };
 
     const handleOpenAssignModal = (crfId: number) => {
@@ -392,7 +395,7 @@ export default function ShowCrf({
                                         title="Assign to Vendor PIC"
                                     >
                                         <UserPlus className="h-4 w-4" />
-                                        Assign to PIC
+                                        Assign to HOU VENDOR
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -403,6 +406,22 @@ export default function ShowCrf({
                                     >
                                         <ArrowLeftRight className="h-4 w-4" />
                                         Redirect to ITD
+                                    </Button>
+                                </>
+                            )}
+
+                            {/* Vendor HOU button - for CRFs assigned to vendor HOU (status 17) */}
+                            {can_update_own_crf && can_assign_vendor_pic && crf.application_status_id === 17 && (
+                                <>
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={() => handleOpenVendorPICAssignModal(crf.id)}
+                                        className="bg-blue-600 hover:bg-blue-700"
+                                        title="Assign to Vendor PIC"
+                                    >
+                                        <UserPlus className="h-4 w-4" />
+                                        Assign to Vendor PIC
                                     </Button>
                                 </>
                             )}
@@ -755,6 +774,9 @@ export default function ShowCrf({
                                                                     : timeline.status === 'Redirect to ITD'
                                                                     ? 'bg-yellow-100 text-yellow-800'
 
+                                                                    : timeline.status === 'Assigned to HOU Vendor'
+                                                                    ? 'bg-indigo-100 text-indigo-800'
+
                                                                     : 'bg-gray-100 text-gray-800'
                                                             }`}>
                                                                 {timeline.status}
@@ -999,7 +1021,17 @@ export default function ShowCrf({
                         crfId={selectedCrfId}
                         isOpen={vendorAdminModalOpen}
                         onClose={() => setVendorAdminModalOpen(false)}
-                        vendorPics={vendor_pics}
+                        houVendor={hou_vendor}
+                    />
+                )}
+
+                {/* Vendor HOU Assign To Vendor PIC Modal */}
+                {selectedCrfId && (
+                    <AssignToVendorPICModal
+                        crfId={selectedCrfId}
+                        isOpen={vendorPICAssignModalOpen}
+                        onClose={() => setVendorPICAssignModalOpen(false)}
+                        vendorPic={vendor_pics}
                     />
                 )}
 

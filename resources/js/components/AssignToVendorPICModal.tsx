@@ -24,31 +24,31 @@ interface User {
     name: string;
 }
 
-interface VendorAdminAssignModalProps {
+interface AssignToVendorPICModalProps {
     crfId: number;
     isOpen: boolean;
     onClose: () => void;
-    houVendor: User[];
+    vendorPic: User[];
 }
 
-export default function VendorAdminAssignModal({
+export default function AssignToVendorPICModal({
     crfId,
     isOpen,
     onClose,
-    houVendor,
-}: VendorAdminAssignModalProps) {
+    vendorPic,
+}: AssignToVendorPICModalProps) {
     const [selectedPic, setSelectedPic] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = () => {
         if (!selectedPic) {
-            alert('Please select HOU VENDOR before submitting.');
+            alert('Please select VENDOR PIC before submitting.');
             return;
         }
 
         setIsSubmitting(true);
 
-        router.post(`/crfs/${crfId}/assign-hou-vendor`, 
+        router.post(`/crfs/${crfId}/assign-vendor-pic`, 
             { assigned_to: selectedPic },
             {
                 preserveScroll: true,
@@ -59,7 +59,7 @@ export default function VendorAdminAssignModal({
                 onError: (errors) => {
                     setIsSubmitting(false);
                     console.error('Assignment error:', errors);
-                    alert('Failed to assign HOU VENDOR. Please try again.');
+                    alert('Failed to assign VENDOR PIC. Please try again.');
                 },
             }
         );
@@ -74,32 +74,32 @@ export default function VendorAdminAssignModal({
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Assign to HOU VENDOR</DialogTitle>
+                    <DialogTitle>Assign to VENDOR PIC</DialogTitle>
                     <DialogDescription>
-                        Select an HOU VENDOR to handle this CRF
+                        Select a VENDOR PIC to handle this CRF
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <Label htmlFor="vendorPic">Select HOU VENDOR</Label>
+                        <Label htmlFor="vendorPic">Select VENDOR PIC</Label>
                         <Select
                             value={selectedPic}
                             onValueChange={setSelectedPic}
                         >
                             <SelectTrigger id="vendorPic">
-                                <SelectValue placeholder="Choose an HOU VENDOR" />
+                                <SelectValue placeholder="Choose a VENDOR PIC" />
                             </SelectTrigger>
                             <SelectContent>
-                                {houVendor.length > 0 ? (
-                                    houVendor.map((hou_vendor) => (
-                                        <SelectItem key={hou_vendor.id} value={hou_vendor.id.toString()}>
-                                            {hou_vendor.name}
+                                {vendorPic.length > 0 ? (
+                                    vendorPic.map((pic) => (
+                                        <SelectItem key={pic.id} value={pic.id.toString()}>
+                                            {pic.name}
                                         </SelectItem>
                                     ))
                                 ) : (
                                     <SelectItem value="no-pics" disabled>
-                                        No HOU VENDORS available
+                                        No VENDOR PICS available
                                     </SelectItem>
                                 )}
                             </SelectContent>
@@ -107,7 +107,7 @@ export default function VendorAdminAssignModal({
                     </div>
 
                     <p className="text-xs text-gray-500">
-                        The selected HOU VENDOR will be responsible for handling this CRF
+                        The selected VENDOR PIC will be responsible for handling this CRF
                     </p>
                 </div>
 
@@ -132,7 +132,7 @@ export default function VendorAdminAssignModal({
                                 Assigning...
                             </>
                         ) : (
-                            `Assign to HOU VENDOR`
+                            `Assign to VENDOR PIC`
                         )}
                     </Button>
                 </DialogFooter>

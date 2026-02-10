@@ -16,6 +16,7 @@ import RejectCrfModal from '@/components/RejectCrfModal';
 import RedirectToITDModal from '@/components/RedirectToITDModal';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AssignToVendorPICModal from '@/components/AssignToVendorPICModal';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -72,6 +73,7 @@ type Props = {
     can_assign_by_it?: boolean;
     can_assign_vendor_pic?: boolean;
     vendor_admins?: User[];
+    hou_vendor?: User[];
     itd_pics?: User[];
     vendor_pics?: User[];
     factors: Factor[];
@@ -97,6 +99,7 @@ export default function Dashboard({
     can_assign_by_it = false,
     can_assign_vendor_pic = false,
     vendor_admins = [],
+    hou_vendor = [],
     itd_pics = [],
     vendor_pics = [],
     categories = [],
@@ -104,68 +107,6 @@ export default function Dashboard({
     is_it_hou = false,
     is_admin_hou_pic = false,
 }: Props) {
-
-    const [approvingId, setApprovingId] = useState<number | null>(null);
-    const [assignModalOpen, setAssignModalOpen] = useState(false);
-    const [selectedCrfId, setSelectedCrfId] = useState<number | null>(null);
-    const [itAssignModalOpen, setItAssignModalOpen] = useState(false);
-    const [vendorAdminModalOpen, setVendorAdminModalOpen] = useState(false);
-    const [rejectModalOpen, setRejectModalOpen] = useState(false);
-    const [selectedRejectCrfId, setSelectedRejectCrfId] = useState<number | null>(null);
-    const [redirectModalOpen, setRedirectModalOpen] = useState(false);
-    const [selectedRedirectCrfId, setSelectedRedirectCrfId] = useState<number | null>(null);
-    
-    const handleApprove = (crfId: number) => {
-        if (confirm('Approve this CRF?')) {
-            setApprovingId(crfId);
-            router.post(
-                `/crfs/${crfId}/approve`,
-                {},
-                {
-                    preserveScroll: true,
-                    onSuccess: () => {
-                        setApprovingId(null);
-                    },
-                    onError: () => {
-                        setApprovingId(null);
-                        alert('Failed to approve CRF');
-                    },
-                },
-            );
-        }
-    };
-
-    const handleOpenRejectModal = (crfId: number) => {
-        setSelectedRejectCrfId(crfId);
-        setRejectModalOpen(true);
-    }
-
-    const handleOpenRedirectModal = (crfId: number) => {
-        setSelectedRedirectCrfId(crfId);
-        setRedirectModalOpen(true);
-    };
-
-    const handleOpenAssignModal = (crfId: number) => {
-        setSelectedCrfId(crfId);
-        setAssignModalOpen(true);
-    };
-
-    const handleCloseAssignModal = () => {
-        setAssignModalOpen(false);
-        setSelectedCrfId(null);
-    };
-
-    // Handler for IT ASSIGN modal
-    const handleOpenITAssignModal = (crfId: number) => {
-        setSelectedCrfId(crfId);
-        setItAssignModalOpen(true);
-    };
-
-    // Handler for Vendor Admin modal
-    const handleOpenVendorAdminModal = (crfId: number) => {
-        setSelectedCrfId(crfId);
-        setVendorAdminModalOpen(true);
-    };
 
     const getStatusBadge = (status: string | undefined) => {
         if (!status) return null;
@@ -187,6 +128,7 @@ export default function Dashboard({
             'Rejected by TP': 'bg-red-100 text-red-800',
             'Rejected by HOU IT': 'bg-red-100 text-red-800',
             'Redirect to ITD': 'bg-yellow-100 text-yellow-800',
+            'Assigned to HOU VENDOR': 'bg-indigo-100 text-indigo-800',
         };
 
         return (
@@ -368,138 +310,6 @@ export default function Dashboard({
                                                                 </Button>
                                                             </Link>
                                                         )}
-
-                                                        {/* to approve/reject for HOU*/}
-                                                        {can_approve && crf.application_status_id === 1 && (
-                                                                <>
-                                                                    <Button
-                                                                        variant="default"
-                                                                        size="sm"
-                                                                        onClick={() => handleApprove(crf.id,)}
-                                                                        disabled={approvingId === crf.id}
-                                                                        className="bg-green-600 hover:bg-green-700"
-                                                                        title="Approve"
-                                                                    >
-                                                                        <CheckCircle className="h-4 w-4" />
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="destructive"
-                                                                        size="sm"
-                                                                        onClick={() => handleOpenRejectModal(crf.id)}
-                                                                        className="bg-red-600 hover:bg-red-700"
-                                                                        title="Reject"
-                                                                    >
-                                                                        <XCircle className="h-4 w-4" />
-                                                                    </Button>
-                                                                </>    
-                                                        )}
-
-                                                        {/* FOR TP TO APPROVE/REJECT AFTER HOU (Hardware Relocation) */}
-                                                        {can_approve_tp && crf.application_status_id === 10 && (
-                                                            <>
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    onClick={() => {
-                                                                        if (confirm('Approve this Hardware Request/Relocation CRF?')) {
-                                                                            router.post(`/crfs/${crf.id}/approve-by-tp`);
-                                                                        }
-                                                                    }}
-                                                                    className="bg-green-600 hover:bg-green-700"
-                                                                    title="TP Approve"
-                                                                >
-                                                                    <CheckCircle className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    onClick={() => handleOpenRejectModal(crf.id)}
-                                                                    className="bg-red-600 hover:bg-red-700"
-                                                                    title="Reject"
-                                                                >
-                                                                    <XCircle className="h-4 w-4" />
-                                                                </Button>
-                                                            </>
-                                                        )}
-
-                                                        {/* FOR IT HOU TO APPROVE (status 10 or 11) */}
-                                                        {can_approve && is_it_hou && (
-                                                            ((crf.application_status_id === 10 && crf.category?.cname !== 'Hardware Request/Relocation') ||
-                                                            (crf.application_status_id === 16 && crf.category?.cname !== 'Hardware Request/Relocation') ||
-                                                            (crf.application_status_id === 11 && crf.category?.cname === 'Hardware Request/Relocation')) && (
-                                                                <>
-                                                                    <Button
-                                                                        variant="default"
-                                                                        size="sm"
-                                                                        onClick={() => handleApprove(crf.id)}
-                                                                        disabled={approvingId === crf.id}
-                                                                        className="bg-green-600 hover:bg-green-700"
-                                                                        title="Approve as IT HOU"
-                                                                    >
-                                                                        <CheckCircle className="h-4 w-4" />
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="destructive"
-                                                                        size="sm"
-                                                                        onClick={() => handleOpenRejectModal(crf.id)}
-                                                                        className="bg-red-600 hover:bg-red-700"
-                                                                        title="Reject"
-                                                                    >
-                                                                        <XCircle className="h-4 w-4" />
-                                                                    </Button>
-                                                                </>
-                                                            )
-                                                        )}
-
-                                                        {/* For IT ASSIGN to assign */}
-                                                        {(can_assign_by_it && crf.application_status_id === 2) && (
-                                                            <Button
-                                                                variant="default"
-                                                                size="sm"
-                                                                onClick={() => handleOpenITAssignModal(crf.id)}
-                                                                className="bg-purple-600 hover:bg-purple-700"
-                                                                title="Assign CRF"
-                                                            >
-                                                                <UserPlus className="h-4 w-4" />
-                                                            </Button>
-                                                        )}
-
-                                                        {/* Vendor Admin button - for CRFs assigned to vendor admin (status 12) */}
-                                                        {can_assign_vendor_pic && crf.application_status_id === 12 && (
-                                                            <>
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    onClick={() => handleOpenVendorAdminModal(crf.id)}
-                                                                    className="bg-blue-600 hover:bg-blue-700"
-                                                                    title="Assign to Vendor PIC"
-                                                                >
-                                                                    <UserPlus className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => handleOpenRedirectModal(crf.id)}
-                                                                    className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                                                                    title="Redirect to ITD"
-                                                                >
-                                                                    <ArrowLeftRight className="h-4 w-4" />
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                        
-                                                        {/* to assign PIC */}
-                                                        {(can_assign_itd || can_assign_vendor) && crf.application_status_id === 3 && (
-                                                            <Button
-                                                                variant="default"
-                                                                size="sm"
-                                                                onClick={() => handleOpenAssignModal(crf.id)}
-                                                                className="bg-purple-600 hover:bg-purple-700"
-                                                                title="Assign"
-                                                            >
-                                                                <UserPlus className="h-4 w-4" />
-                                                            </Button>
-                                                        )}
                                                         
                                                     </div>
                                                 </TableCell>
@@ -517,7 +327,7 @@ export default function Dashboard({
                                 links={crfs.links}
                             />
                         ) : (
-                            <div className="flex h-full items-center justify-center p-4">
+                            <div className="flex h-full justify-center">
                                 No Crf Yet..
                             </div>
                         )}
@@ -648,35 +458,6 @@ export default function Dashboard({
                                                                     </Button>
                                                                 </Link>
                                                             )}
-
-                                                            {/* to approve for HOU*/}
-                                                            {can_approve && crf.application_status_id === 1 && (
-                                                                    <>
-                                                                        <Button
-                                                                            variant="default"
-                                                                            size="sm"
-                                                                            onClick={() => handleApprove(crf.id,)}
-                                                                            disabled={approvingId === crf.id}
-                                                                            className="bg-green-600 hover:bg-green-700"
-                                                                            title="Approve"
-                                                                        >
-                                                                            <CheckCircle className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </>    
-                                                            )}
-                                                            
-                                                            {/* to assign PIC */}
-                                                            {(can_assign_itd || can_assign_vendor) && crf.application_status_id === 3 && (
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    onClick={() => handleOpenAssignModal(crf.id)}
-                                                                    className="bg-purple-600 hover:bg-purple-700"
-                                                                    title="Assign"
-                                                                >
-                                                                    <UserPlus className="h-4 w-4" />
-                                                                </Button>
-                                                            )}
                                                             
                                                         </div>
                                                     </TableCell>
@@ -703,63 +484,6 @@ export default function Dashboard({
                         
                     </Card>    
                 )}
-
-                {/* Assignment Modal */}
-                {selectedCrfId && (
-                    <AssignCrfModal
-                        crfId={selectedCrfId}
-                        isOpen={assignModalOpen}
-                        onClose={handleCloseAssignModal}
-                        itdPics={itd_pics}
-                        vendorPics={vendor_pics}
-                        canAssignItd={can_assign_itd}
-                        canAssignVendor={can_assign_vendor}
-                    />
-                )}
-
-                {selectedRejectCrfId && (
-                    <RejectCrfModal
-                        crfId={selectedRejectCrfId}
-                        isOpen={rejectModalOpen}
-                        onClose={() => {
-                            setRejectModalOpen(false);
-                            setSelectedRejectCrfId(null);
-                        }}
-                    />
-                )}
-
-                {selectedRedirectCrfId && (
-                    <RedirectToITDModal
-                        crfId={selectedRedirectCrfId}
-                        isOpen={redirectModalOpen}
-                        onClose={() => {
-                            setRedirectModalOpen(false);
-                            setSelectedRedirectCrfId(null);
-                        }}
-                    />
-                )}
-
-                {/* IT ASSIGN Modal */}
-                {selectedCrfId && (
-                    <ITAssignModal
-                        crfId={selectedCrfId}
-                        isOpen={itAssignModalOpen}
-                        onClose={() => setItAssignModalOpen(false)}
-                        itdPics={itd_pics}
-                        vendorAdmins={vendor_admins}
-                    />
-                )}
-
-                {/* Vendor Admin Assign Modal */}
-                {selectedCrfId && (
-                    <VendorAdminAssignModal
-                        crfId={selectedCrfId}
-                        isOpen={vendorAdminModalOpen}
-                        onClose={() => setVendorAdminModalOpen(false)}
-                        vendorPics={vendor_pics}
-                    />
-                )}
-
             </div>
         </AppLayout>
     );

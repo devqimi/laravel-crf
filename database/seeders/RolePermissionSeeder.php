@@ -176,6 +176,20 @@ class RolePermissionSeeder extends Seeder
             'View CRF Detail'
         ]);
 
+        // 9. HOU VENDOR Role (vendor admin -> HOU VENDOR -> vendor pic)
+        $houIbn = Role::firstOrCreate(['name' => 'HOU VENDOR']);
+        $houIbn->syncPermissions([
+            'Assign Vendor PIC',
+            'Close Assigned CRF',
+            'Update CRF (own CRF)',
+            'Update CRF for Others Vendor',
+            'view dashboard',
+            'View Department CRF',
+            'View Personal CRF',
+            'View Vendor CRF',
+            'View CRF Detail'
+        ]);
+
         $this->command->info('Roles and Permissions created successfully!');
     }
 }

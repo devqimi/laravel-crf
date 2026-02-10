@@ -25,6 +25,7 @@ use App\Notifications\CrfRejected;
 use App\Notifications\CrfApprovedByHOU;
 use App\Notifications\CrfRedirectedNotification;
 use App\Notifications\CrfAssignedToVendorPICNotification;
+use App\Notifications\CrfAssignedToVendorHOU;
 use App\Notifications\CrfApprovedByTP;
 use App\Notifications\CrfClosed;
 use App\Mail\CrfCreatedMail;
@@ -37,6 +38,7 @@ use App\Mail\CrfStatusUpdatedMail;
 use App\Mail\CrfApprovedByHouItMail;
 use App\Mail\CrfRedirectedToHouItMail;
 use App\Mail\CrfAssignedToVendorAdminMail;
+use App\Mail\CrfAssignedToVendorHOUMail;
 
 class CrfController extends Controller
 {
@@ -226,7 +228,19 @@ class CrfController extends Controller
             $crfs = clone $crfQuery;
             $crfs = $crfs
                 ->where('assigned_vendor_admin_id', $user->id)
-                ->whereIn('application_status_id', [5, 7, 8, 9, 12]) // 12 = Assigned to Vendor Admin
+                ->whereIn('application_status_id', [5, 7, 8, 9, 12, 17]) // 12 = Assigned to Vendor Admin
+                ->latest()
+                ->paginate(10);
+
+            $departmentCrfs = null;
+            $isAdmin_HOU_PIC = true;
+        }
+
+        elseif (in_array('HOU VENDOR', $userRoles)) {
+            $crfs = clone $crfQuery;
+            $crfs = $crfs
+                // ->where('assigned_to', $user->id)
+                ->whereIn('application_status_id', [5, 7, 8, 9, 17]) // Assigned to Vendor, Reassigned to Vendor, Work in progress, Closed
                 ->latest()
                 ->paginate(10);
 
@@ -319,6 +333,7 @@ class CrfController extends Controller
         $itdPics = User::role('ITD PIC')->select('id', 'name')->get();
         $vendorPics = User::role('VENDOR PIC')->select('id', 'name')->get();
         $vendorAdmins = User::role('VENDOR ADMIN')->select('id','name')->get();
+        $hou_vendor = User::role('HOU VENDOR')->select('id','name')->get();
 
         return Inertia::render('crfs/index', [
             'crfs' => $crfs,
@@ -340,6 +355,7 @@ class CrfController extends Controller
             'itd_pics' => $itdPics,
             'vendor_pics' => $vendorPics,
             'vendor_admins' => $vendorAdmins,
+            'hou_vendor' => $hou_vendor,
             'can_approve_tp' => Gate::allows('approved by TP'),
             'is_it_hou' => $user->department_id == $itDepartmentId && Gate::allows('verified CRF'),
             'is_admin_hou_pic' => $isAdmin_HOU_PIC,
@@ -887,9 +903,39 @@ class CrfController extends Controller
         }
     }
 
+    public function assignToHOUVendor(Request $request, Crf $crf) {
+        
+        // for vendor admin assign to hou vendor
+        Gate::authorize('Assign Vendor PIC');
+
+        $request->validate([
+            'assigned_to' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request['assigned_to']);
+
+        $crf->update([
+            'assigned_to' => $request->assigned_to,
+            'application_status_id' => 17,
+        ]);
+
+        $crf->addTimelineEntry(
+            status: 'Assigned to HOU Vendor',
+            actionType: 'status_change',
+            remark: 'Assigned to ' . $user->name,
+            userId: Auth::id()
+        );
+
+        // notify and email hou vendor
+        $user->notify(new CrfAssignedToVendorHOU($crf));
+        Mail::to($user->email)->queue(new CrfAssignedToVendorHOUMail($crf, $user));
+
+        return redirect()->back()->with('messagea', 'CRF assigned to HOU Vendor successfully!');
+    }
+
     public function assignVendorPIC(Request $request, Crf $crf)
     {
-        // Only vendor admin can do this
+        // only vendor admin can do this
         Gate::authorize('Assign Vendor PIC');
         
         $request->validate([
@@ -1044,6 +1090,7 @@ class CrfController extends Controller
         $itdPics = User::role('ITD PIC')->select('id', 'name')->get();
         $vendorPics = User::role('VENDOR PIC')->select('id', 'name')->get();
         $vendorAdmins = User::role('VENDOR ADMIN')->select('id','name')->get();
+        $hou_vendor = User::role('HOU VENDOR')->select('id','name')->get();
 
         // Get all factors for dropdown
         $factors = Factor::all(['id', 'name']);
@@ -1058,6 +1105,7 @@ class CrfController extends Controller
             'can_acknowledge' => Gate::allows('Acknowledge CRF by ITD'),
             'can_assign_itd' => Gate::allows('Assign CRF To ITD'),
             'can_assign_vendor' =>Gate::allows('Assign CRF to Vendor'),
+            'can_update_own_crf' => Gate::allows('Update CRF (own CRF)'),
             'can_update' => Gate::allows('Update CRF (own CRF)') && $crf->assigned_to === Auth::id(),
             'can_assign_by_it' => Gate::allows('Assign CRF To ITD') && Gate::allows('Assign CRF to Vendor'),
             'can_assign_vendor_pic' => Gate::allows('Assign Vendor PIC'),
@@ -1066,6 +1114,7 @@ class CrfController extends Controller
             'vendor_admins' => $vendorAdmins,
             'itd_pics' => $itdPics,
             'vendor_pics' => $vendorPics,
+            'hou_vendor' => $hou_vendor,
             'factors' => $factors,
             'is_it_hou' => $user->department_id == $itDepartmentId && Gate::allows('verified CRF'),
         ]);

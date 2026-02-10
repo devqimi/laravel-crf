@@ -98,9 +98,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/crfs/{crf}/assign-by-it', [CrfController::class, 'assignByITAssign'])
         ->name('crfs.assign-by-it');
 
-    // vendor admin assign pic
+    // vendor admin assign hou
     Route::post('/crfs/{crf}/assign-vendor-pic', [CrfController::class, 'assignVendorPIC'])
         ->name('crfs.assign-vendor-pic');
+    Route::post('/crfs/{crf}/assign-hou-vendor', [CrfController::class, 'assignToHOUVendor'])
+        ->name('crfs.assign-hou-vendor');
     
     // approve by TP
     Route::post('/crfs/{crf}/approve-by-tp', [CrfController::class, 'approveByTP'])->name('crfs.approve-by-tp');
