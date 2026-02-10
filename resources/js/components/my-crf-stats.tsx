@@ -12,16 +12,16 @@ interface MyStatCardProps {
 
 function MyStatCard({ title, value, icon, bgColor, iconColor, textColor, description }: MyStatCardProps) {
     return (
-        <div className={`${bgColor} rounded-lg p-6 shadow-md`}>
-            <div className="flex items-start justify-between">
+        <div className={`${bgColor} rounded-lg p-6 border border-gray-200 shadow-sm`}>
+            <div className="flex items-center justify-between">
                 <div className="flex-1">
-                    <p className={`text-sm font-medium ${textColor} opacity-90 mb-1`}>{title}</p>
-                    <p className={`text-3xl font-semibold ${textColor} mb-2`}>{value}</p>
+                    <p className={`text-sm font-medium ${textColor} mb-1`}>{title}</p>
+                    <p className={`text-2xl font-bold ${textColor}`}>{value}</p>
                     {description && (
-                        <p className={`text-xs ${textColor} opacity-75`}>{description}</p>
+                        <p className={`text-xs ${textColor} opacity-70`}>{description}</p>
                     )}
                 </div>
-                <div className={`${iconColor} p-3 rounded-lg bg-white bg-opacity-30`}>
+                <div className={`${iconColor} p-2 rounded-md bg-white bg-opacity-20`}>
                     {icon}
                 </div>
             </div>
@@ -47,18 +47,17 @@ export default function MyCRFStats({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-2 px-3">
-                <h2 className="text-xl font-semibold">My Customer Request Form (CRF) Overview</h2>
+                <h2 className="text-xl font-semibold text-gray-800">My Customer Request Form (CRF) Overview</h2>
             </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-2">
                 
                 <MyStatCard
                     title="Pending Approval"
                     value={myPending}
                     icon={<AlertCircle className="w-6 h-6" />}
-                    bgColor="bg-gradient-to-br from-orange-400 to-orange-500"
-                    iconColor="text-orange-500"
-                    textColor="text-white"
+                    bgColor="bg-orange-50"
+                    iconColor="text-orange-600"
+                    textColor="text-gray-800"
                     description="Awaiting HOU approval"
                 />
                 
@@ -66,9 +65,9 @@ export default function MyCRFStats({
                     title="In Progress"
                     value={myInProgress}
                     icon={<Clock className="w-6 h-6" />}
-                    bgColor="bg-gradient-to-br from-blue-400 to-blue-500"
-                    iconColor="text-blue-500"
-                    textColor="text-white"
+                    bgColor="bg-blue-50"
+                    iconColor="text-blue-600"
+                    textColor="text-gray-800"
                     description="Being worked on"
                 />
                 
@@ -76,9 +75,9 @@ export default function MyCRFStats({
                     title="Completed"
                     value={myCompleted}
                     icon={<CheckCircle className="w-6 h-6" />}
-                    bgColor="bg-gradient-to-br from-green-400 to-green-500"
-                    iconColor="text-green-500"
-                    textColor="text-white"
+                    bgColor="bg-green-50"
+                    iconColor="text-green-600"
+                    textColor="text-gray-800"
                     description="Successfully resolved"
                 />
                 
@@ -86,9 +85,9 @@ export default function MyCRFStats({
                     title="Total Submitted"
                     value={myTotal}
                     icon={<FileText className="w-6 h-6" />}
-                    bgColor="bg-gradient-to-br from-purple-400 to-purple-500"
-                    iconColor="text-purple-500"
-                    textColor="text-white"
+                    bgColor="bg-purple-50"
+                    iconColor="text-purple-600"
+                    textColor="text-gray-800"
                     description={`${myThisMonth} this month`}
                 />
                 
