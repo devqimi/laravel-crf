@@ -4,7 +4,6 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight, BarChart3, Bell, CheckCircle, Clock, FileText, Shield, TrendingUp, Users } from 'lucide-react';
 
 export default function Welcome() {
-
     const { auth } = usePage<SharedData>().props;
 
     return (
@@ -18,7 +17,7 @@ export default function Welcome() {
             </Head>
 
             {/* Full Page Container */}
-            <div className="flex flex-col h-screen bg-gradient-to-br from-blue-200 via-blue-300 to-indigo-600">
+            <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-200 via-blue-300 to-indigo-500">
 
                 {/* Fixed Top Navigation Bar */}
                 <header className="bg-white border-b border-slate-200 shadow-sm">
@@ -67,8 +66,8 @@ export default function Welcome() {
                     </div>
                 </header>
 
-                <section className="max-w-7xl mx-auto px-6 py-16">
-                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                <main className="flex-1 flex items-center justify-center px-6 py-57">
+                    <div className="max-w-7xl grid md:grid-cols-2 gap-12 items-center">
 
                         {/* Left Content */}
                         <div>
@@ -84,61 +83,29 @@ export default function Welcome() {
                             </p>
                         </div>
 
-                        {/* Right Stats Cards */}
-                        <div className="space-y-4">
-                            <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-shadow">
-                                <div className="flex items-start gap-4">
-                                    <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <FileText className="h-6 w-6 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900 mb-1">Submit Requests</h3>
-                                        <p className="text-sm text-slate-600">Quick and easy form submission for IT support, hardware requests, and more</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-shadow">
-                                <div className="flex items-start gap-4">
-                                    <div className="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <Clock className="h-6 w-6 text-green-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900 mb-1">Track Progress</h3>
-                                        <p className="text-sm text-slate-600">Real-time status updates from submission to resolution</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-shadow">
-                                <div className="flex items-start gap-4">
-                                    <div className="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <BarChart3 className="h-6 w-6 text-purple-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900 mb-1">Generate Reports</h3>
-                                        <p className="text-sm text-slate-600">Comprehensive analytics and customizable Excel exports</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-shadow">
-                                <div className="flex items-start gap-4">
-                                    <div className="bg-amber-100 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <Users className="h-6 w-6 text-amber-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900 mb-1">Multi-Role Support</h3>
-                                        <p className="text-sm text-slate-600">Tailored interfaces for staff, HOUs, ITD, and vendors</p>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Right Simple Card */}
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-4">How It Works</h3>
+                            <ul className="space-y-3 text-sm text-slate-600">
+                                <li className="flex items-start gap-3">
+                                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                                    <span>Submit your request online in minutes</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <span>Track status and updates in real-time</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <Users className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                                    <span>Get support from our dedicated team</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-                </section>
+                </main>
 
                 {/* Footer */}
-                <footer className="bg-slate-900 text-slate-400 py-8 mt-auto">
+                <footer className="bg-slate-900 text-slate-400 py-8">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="grid md:grid-cols-4 gap-8 mb-8">
                             <div>
