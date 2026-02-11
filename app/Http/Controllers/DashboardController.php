@@ -65,7 +65,8 @@ class DashboardController extends Controller
                 ->latest()
                 ->paginate(10);
 
-            $isAdminOrHOU = false;
+            $isAdminOrHOU = true;
+            $recentActivities = $this->getAdminHouRecentActivities($user->id);
             $stats = [
                 'my_total' => Crf::where('application_status_id', 2)->count(),
                 'my_pending' => Crf::where('application_status_id', 2)->count(),
@@ -113,20 +114,20 @@ class DashboardController extends Controller
 
         elseif (in_array('HOU', $userRoles)) {
 
-                $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver' , 'assigned_user'])
-                    ->where('department_id', $user->department_id)
-                    ->where('application_status_id', 1)
-                    ->latest()
-                    ->paginate(10);
-                
-                $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
-                    ->where('department_id', $user->department_id)
-                    ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
-                    ->latest()
-                    ->get();
+            $crfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver' , 'assigned_user'])
+                ->where('department_id', $user->department_id)
+                ->where('application_status_id', 1)
+                ->latest()
+                ->paginate(10);
+            
+            $departmentCrfs = Crf::with(['department', 'category', 'factor', 'user', 'application_status', 'approver', 'assigned_user'])
+                ->where('department_id', $user->department_id)
+                ->whereIn('application_status_id', [2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+                ->latest()
+                ->get();
 
-                $recentActivities = $this->getPICRecentActivities($user->id);
-                $isAdminOrHOU = true;
+            $recentActivities = $this->getPICRecentActivities($user->id);
+            $isAdminOrHOU = true;
         }
         
         // ITD PIC can only view ITD CRFs assigned
