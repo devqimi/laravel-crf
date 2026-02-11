@@ -52,7 +52,7 @@ export default function MyCRFStats({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-2">
                 
                 <MyStatCard
-                    title="Pending Approval"
+                    title="Pending"
                     value={myPending}
                     icon={<AlertCircle className="w-6 h-6" />}
                     bgColor="bg-orange-50"
@@ -82,7 +82,7 @@ export default function MyCRFStats({
                 />
                 
                 <MyStatCard
-                    title="Total Submitted"
+                    title="Total CRF"
                     value={myTotal}
                     icon={<FileText className="w-6 h-6" />}
                     bgColor="bg-purple-50"

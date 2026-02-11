@@ -56,16 +56,32 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
     const printRef = useRef<HTMLDivElement>(null);
 
     const handlePrint = () => {
-        // Set document title for PDF filename
         const originalTitle = document.title;
-        document.title = `CRF - ${crf.crf_number}`;
+        document.title = `CRF-${crf.crf_number}`;
         
         window.print();
         
-        // Restore original title after print dialog
         setTimeout(() => {
             document.title = originalTitle;
         }, 1000);
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString + 'Z').toLocaleString('en-MY', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
+    const formatDateShort = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-MY', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+        });
     };
 
     return (
@@ -77,34 +93,34 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
-                    padding: '8px 16px',
+                    padding: '10px 20px',
                     fontSize: '14px',
                     fontWeight: '500',
-                    backgroundColor: '#ffffff',
-                    color: '#000000',
-                    border: '1px solid #d1d5db',
+                    backgroundColor: '#2563eb',
+                    color: '#ffffff',
+                    border: 'none',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                 }}
                 onMouseOver={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f9fafb';
-                    e.currentTarget.style.borderColor = '#9ca3af';
+                    e.currentTarget.style.backgroundColor = '#1d4ed8';
+                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
                 }}
                 onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor = '#ffffff';
-                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.backgroundColor = '#2563eb';
+                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
                 }}
             >
-                <FileDown style={{ width: '16px', height: '16px' }} />
-                Save as PDF
+                <FileDown style={{ width: '18px', height: '18px' }} />
+                Export to PDF
             </button>
 
             {/* Hidden content for printing */}
             <div ref={printRef} className="print-content">
                 <style>{`
                     @media print {
-                        /* Hide everything except print content */
                         body * {
                             visibility: hidden;
                         }
@@ -119,33 +135,24 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                             left: 0;
                             top: 0;
                             width: 100%;
-                            max-height: 100vh;
-                            overflow: hidden;
                         }
                         
-                        /* Page setup - fit to one page */
                         @page {
                             size: A4;
-                            margin: 8mm;
+                            margin: 10mm 12mm 10mm 12mm;
                         }
                         
-                        /* Reset all inherited styles */
                         .print-content * {
-                            all: revert;
-                            font-family: Arial, sans-serif;
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
                         
-                        /* Prevent page breaks */
-                        .print-content {
-                            page-break-inside: avoid;
-                            page-break-after: avoid;
-                        }
-                        
-                        .print-content table {
+                        .section-break {
                             page-break-inside: avoid;
                         }
                         
-                        .print-content div {
+                        table {
                             page-break-inside: avoid;
                         }
                     }
@@ -157,267 +164,698 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                     }
                 `}</style>
 
-                {/* Print-only content */}
+                {/* Corporate Document Content */}
                 <div style={{
-                    padding: '10px',
-                    fontFamily: 'Arial, sans-serif',
-                    fontSize: '9px',
-                    lineHeight: '1.2',
-                    color: '#000000',
+                    padding: '0',
+                    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+                    fontSize: '8pt',
+                    lineHeight: '1.3',
+                    color: '#1a1a1a',
+                    backgroundColor: '#ffffff',
                 }}>
-                    {/* Header */}
+                    {/* Document Header */}
                     <div style={{ 
-                        textAlign: 'center', 
-                        borderBottom: '1px solid #333333', 
-                        paddingBottom: '12px', 
+                        borderBottom: '2px solid #2563eb', 
+                        paddingBottom: '8px', 
                         marginBottom: '10px',
-                        columnCount: '2',
                         display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
                     }}>
-                        <img src="https://images.seeklogo.com/logo-png/9/1/negara-malaysia-jata-negara-logo-png_seeklogo-98007.png" 
-                            alt="TP Logo" 
-                            style={{ 
-                                height: '100px', 
-                            }} 
-                        />
-                        <h1 style={{ 
-                            margin: '0 0 3px 85px',
-                            fontSize: '23px', 
-                            fontWeight: 'bold',
-                            color: '#333333',
-                            alignSelf: 'center',
-                            justifyContent: 'center'
-                        }}>
-                            Customer Request Form (CRF)
-                        </h1>
-                        <p style={{
-                            color: '#333333',
-                            fontSize: '12px',
-                            margin: '0 0 0 65px',
-                            justifyContent: 'end'
-                        }}>
-                            CRF No: {crf.crf_number}
-                        </p>
-                    </div>
-
-                    {/* Basic Information - 2 columns */}
-                    <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
-                        <tbody>
-                            <tr>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', width: '50%', fontSize: '12px' }}>
-                                    <strong>Name:</strong> {crf.fname}
-                                </td>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', width: '50%', fontSize: '12px' }}>
-                                    <strong>NRIC:</strong> {crf.nric}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', fontSize: '12px' }}>
-                                    <strong>Department:</strong> {crf.department.dname}
-                                </td>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', fontSize: '12px' }}>
-                                    <strong>Designation:</strong> {crf.designation}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', fontSize: '12px' }}>
-                                    <strong>Ext & HP No:</strong> {crf.extno}
-                                </td>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', fontSize: '12px' }}>
-                                    <strong>Category:</strong> {crf.category.cname}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', fontSize: '12px' }}>
-                                    <strong>Factor:</strong> {crf.factor?.name || '-'}
-                                </td>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', fontSize: '12px' }}>
-                                    <strong>Status:</strong> {crf.application_status.status}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    {/* Issue and Reason */}
-                    <div style={{ marginBottom: '10px', fontSize: '12px' }}>
-                        <div style={{ marginBottom: '6px' }}>
-                            <strong>Issue:</strong>
-                            <div style={{ marginTop: '2px', whiteSpace: 'pre-wrap' }}>{crf.issue}</div>
-                        </div>
-                        <div>
-                            <strong>Reason:</strong>
-                            <div style={{ marginTop: '2px', whiteSpace: 'pre-wrap' }}>{crf.reason || '-'}</div>
-                        </div>
-                    </div>
-
-                    {/* Rejection/Redirect Info */}
-                    {crf.rejection_reason && (
-                        <div style={{ 
-                            backgroundColor: '#ffeeee', 
-                            padding: '6px', 
-                            marginBottom: '10px',
-                            border: '1px solid #ffcccc',
-                            fontSize: '12px'
-                        }}>
-                            <strong style={{ color: '#cc0000' }}>Rejection Reason:</strong>
-                            <div style={{ marginTop: '2px', color: '#cc0000' }}>{crf.rejection_reason}</div>
-                        </div>
-                    )}
-
-                    {crf.redirect_reason && (
-                        <div style={{ 
-                            backgroundColor: '#ffffcc', 
-                            padding: '6px', 
-                            marginBottom: '10px',
-                            border: '1px solid #ffcc00',
-                            fontSize: '12px'
-                        }}>
-                            <strong style={{ color: '#3f3f00' }}>Redirect Reason:</strong>
-                            <div style={{ marginTop: '2px', color: '#3f3f00' }}>{crf.redirect_reason}</div>
-                        </div>
-                    )}
-
-                    {/* Approvals */}
-                    <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse', fontSize: '12px' }}>
-                        <tbody>
-                            <tr>
-                                <td style={{ width: '33.33%', padding: '5px', border: '1px solid #dddddd', backgroundColor: '#f9fafb', verticalAlign: 'top' }}>
-                                    <strong style={{ display: 'block', marginBottom: '4px' }}>HOU Approval</strong>
-                                    <div>
-                                        <div><strong>By:</strong> {crf.approver?.name || 'N/A'}</div>
-                                        <div><strong>At:</strong> {crf.approved_by_hou_at 
-                                            ? new Date(crf.approved_by_hou_at + 'Z').toLocaleString('en-MY', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                year: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })
-                                            : 'N/A'}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style={{ width: '33.33%', padding: '5px', border: '1px solid #dddddd', backgroundColor: '#f9fafb', verticalAlign: 'top' }}>
-                                    <strong style={{ display: 'block', marginBottom: '4px' }}>TP Approval</strong>
-                                    <div>
-                                        <div><strong>By:</strong> {crf.tp_approver?.name || 'N/A'}</div>
-                                        <div><strong>At:</strong> {crf.approved_by_tp_at 
-                                            ? new Date(crf.approved_by_tp_at + 'Z').toLocaleString('en-MY', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                year: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })
-                                            : 'N/A'}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style={{ width: '33.33%', padding: '5px', border: '1px solid #dddddd', backgroundColor: '#f9fafb', verticalAlign: 'top' }}>
-                                    <strong style={{ display: 'block', marginBottom: '4px' }}>IT HOU Approval</strong>
-                                    <div>
-                                        <div><strong>By:</strong> {crf.it_hou_approver?.name || 'N/A'}</div>
-                                        <div><strong>At:</strong> {crf.it_hou_approved_at 
-                                            ? new Date(crf.it_hou_approved_at + 'Z').toLocaleString('en-MY', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                year: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })
-                                            : 'N/A'}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    {/* Additional Info */}
-                    <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
-                        <tbody>
-                            <tr>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', width: '50%', fontSize: '12px' }}>
-                                    <strong>Assigned To:</strong> {crf.assigned_user?.name || '-'}
-                                </td>
-                                <td style={{ padding: '3px 0', borderBottom: '1px solid #e5e7eb', width: '50%', fontSize: '12px' }}>
-                                    <strong>Created:</strong> {new Date(crf.created_at).toLocaleString('en-MY', { 
-                                        day: 'numeric', 
-                                        month: 'short', 
-                                        year: 'numeric' 
-                                    })}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    {/* IT Remark */}
-                    {crf.it_remark && (
-                        <div style={{ marginBottom: '10px', fontSize: '12px'}}>
-                            <strong>IT Remark:</strong>
-                            <div style={{ 
-                                marginTop: '2px',
-                                padding: '5px', 
-                                backgroundColor: '#f5f5f5',
-                                border: '1px solid #dddddd',
-                                whiteSpace: 'pre-wrap'
-                            }}>
-                                {crf.it_remark}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <img 
+                                src="https://images.seeklogo.com/logo-png/9/1/negara-malaysia-jata-negara-logo-png_seeklogo-98007.png" 
+                                alt="Organization Logo" 
+                                style={{ 
+                                    height: '80px',
+                                    width: 'auto'
+                                }} 
+                            />
+                            <div>
+                                <h1 style={{ 
+                                    margin: '0 0 2px 0',
+                                    fontSize: '16pt', 
+                                    fontWeight: '600',
+                                    color: '#1a1a1a',
+                                    letterSpacing: '-0.3px'
+                                }}>
+                                    Customer Request Form
+                                </h1>
+                                <p style={{
+                                    margin: '0',
+                                    fontSize: '7.5pt',
+                                    color: '#666666',
+                                    fontWeight: '400'
+                                }}>
+                                    Hospital Sultan Idris Shah Serdang
+                                </p>
                             </div>
                         </div>
-                    )}
-
-                    {/* Status Timeline */}
-                    {statusTimeline.length > 0 && (
-                        <div style={{ marginBottom: '12px' }}>
-                            <h3 style={{ 
-                                fontSize: '12px', 
-                                fontWeight: 'bold', 
-                                marginBottom: '5px',
-                                borderBottom: '1px solid #dddddd',
-                                paddingBottom: '3px'
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{
+                                backgroundColor: '#eff6ff',
+                                border: '1.5px solid #2563eb',
+                                padding: '6px 10px',
+                                borderRadius: '4px'
                             }}>
-                                Status Timeline
-                            </h3>
+                                <div style={{ 
+                                    fontSize: '7pt', 
+                                    color: '#666666',
+                                    marginBottom: '1px',
+                                    fontWeight: '500'
+                                }}>
+                                    CRF Number
+                                </div>
+                                <div style={{ 
+                                    fontSize: '10pt', 
+                                    fontWeight: '700',
+                                    color: '#2563eb',
+                                    letterSpacing: '0.3px'
+                                }}>
+                                    {crf.crf_number}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 1: Requestor Information */}
+                    <div className="section-break" style={{ marginBottom: '10px' }}>
+                        <h2 style={{ 
+                            fontSize: '9pt', 
+                            fontWeight: '600', 
+                            color: '#1a1a1a',
+                            marginBottom: '6px',
+                            paddingBottom: '4px',
+                            borderBottom: '1.5px solid #e5e7eb'
+                        }}>
+                            1. REQUESTOR INFORMATION
+                        </h2>
+                        
+                        <table style={{ 
+                            width: '100%', 
+                            borderCollapse: 'collapse',
+                            marginBottom: '0'
+                        }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ 
+                                        width: '20%',
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb'
+                                    }}>
+                                        Full Name
+                                    </td>
+                                    <td style={{ 
+                                        width: '30%',
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.fname}
+                                    </td>
+                                    <td style={{ 
+                                        width: '20%',
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb'
+                                    }}>
+                                        NRIC
+                                    </td>
+                                    <td style={{ 
+                                        width: '30%',
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.nric}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb'
+                                    }}>
+                                        Department
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.department.dname}
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb'
+                                    }}>
+                                        Designation
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.designation}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb'
+                                    }}>
+                                        Contact Number
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.extno}
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb'
+                                    }}>
+                                        Request Date
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {formatDateShort(crf.created_at)}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Section 2: Request Details */}
+                    <div className="section-break" style={{ marginBottom: '10px' }}>
+                        <h2 style={{ 
+                            fontSize: '9pt', 
+                            fontWeight: '600', 
+                            color: '#1a1a1a',
+                            marginBottom: '6px',
+                            paddingBottom: '4px',
+                            borderBottom: '1.5px solid #e5e7eb'
+                        }}>
+                            2. REQUEST DETAILS
+                        </h2>
+                        
+                        <table style={{ 
+                            width: '100%', 
+                            borderCollapse: 'collapse',
+                            marginBottom: '6px'
+                        }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ 
+                                        width: '20%',
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        verticalAlign: 'top'
+                                    }}>
+                                        Category
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.category.cname}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        verticalAlign: 'top'
+                                    }}>
+                                        Factor
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.factor?.name || 'Not Specified'}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        verticalAlign: 'top'
+                                    }}>
+                                        Issue
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt',
+                                        whiteSpace: 'pre-wrap',
+                                        lineHeight: '1.4'
+                                    }}>
+                                        {crf.issue}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        verticalAlign: 'top'
+                                    }}>
+                                        Justification
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt',
+                                        whiteSpace: 'pre-wrap',
+                                        lineHeight: '1.4'
+                                    }}>
+                                        {crf.reason || 'Not Provided'}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        {/* Rejection/Redirect Notices */}
+                        {crf.rejection_reason && (
+                            <div style={{ 
+                                backgroundColor: '#fef2f2', 
+                                border: '1px solid #fca5a5',
+                                borderLeft: '3px solid #dc2626',
+                                padding: '6px 8px', 
+                                marginBottom: '6px',
+                                borderRadius: '3px'
+                            }}>
+                                <div style={{ 
+                                    fontWeight: '600', 
+                                    color: '#991b1b',
+                                    marginBottom: '3px',
+                                    fontSize: '7.5pt'
+                                }}>
+                                    ⚠ REJECTION NOTICE
+                                </div>
+                                <div style={{ color: '#7f1d1d', fontSize: '7.5pt', lineHeight: '1.3' }}>
+                                    {crf.rejection_reason}
+                                </div>
+                            </div>
+                        )}
+
+                        {crf.redirect_reason && (
+                            <div style={{ 
+                                backgroundColor: '#fefce8', 
+                                border: '1px solid #fde047',
+                                borderLeft: '3px solid #eab308',
+                                padding: '6px 8px', 
+                                marginBottom: '6px',
+                                borderRadius: '3px'
+                            }}>
+                                <div style={{ 
+                                    fontWeight: '600', 
+                                    color: '#854d0e',
+                                    marginBottom: '3px',
+                                    fontSize: '7.5pt'
+                                }}>
+                                    ℹ REDIRECT NOTICE
+                                </div>
+                                <div style={{ color: '#713f12', fontSize: '7.5pt', lineHeight: '1.3' }}>
+                                    {crf.redirect_reason}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Section 3: Approval Chain */}
+                    <div className="section-break" style={{ marginBottom: '10px' }}>
+                        <h2 style={{ 
+                            fontSize: '9pt', 
+                            fontWeight: '600', 
+                            color: '#1a1a1a',
+                            marginBottom: '6px',
+                            paddingBottom: '4px',
+                            borderBottom: '1.5px solid #e5e7eb'
+                        }}>
+                            3. APPROVAL CHAIN
+                        </h2>
+                        
+                        <table style={{ 
+                            width: '100%', 
+                            borderCollapse: 'collapse',
+                            border: '1px solid #d1d5db'
+                        }}>
+                            <thead>
+                                <tr style={{ backgroundColor: '#2563eb' }}>
+                                    <th style={{ 
+                                        padding: '6px 8px',
+                                        textAlign: 'left',
+                                        color: '#ffffff',
+                                        fontWeight: '600',
+                                        fontSize: '7.5pt',
+                                        borderRight: '1px solid #3b82f6'
+                                    }}>
+                                        Approval Level
+                                    </th>
+                                    <th style={{ 
+                                        padding: '6px 8px',
+                                        textAlign: 'left',
+                                        color: '#ffffff',
+                                        fontWeight: '600',
+                                        fontSize: '7.5pt',
+                                        borderRight: '1px solid #3b82f6'
+                                    }}>
+                                        Approver Name
+                                    </th>
+                                    <th style={{ 
+                                        padding: '6px 8px',
+                                        textAlign: 'left',
+                                        color: '#ffffff',
+                                        fontWeight: '600',
+                                        fontSize: '7.5pt'
+                                    }}>
+                                        Approval Date & Time
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style={{ backgroundColor: '#ffffff' }}>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        borderRight: '1px solid #e5e7eb',
+                                        fontWeight: '600',
+                                        fontSize: '7.5pt',
+                                        color: '#374151'
+                                    }}>
+                                        Head of Unit (HOU)
+                                    </td>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        borderRight: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.approver?.name || 'Pending'}
+                                    </td>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '7.5pt',
+                                        color: '#6b7280'
+                                    }}>
+                                        {crf.approved_by_hou_at ? formatDate(crf.approved_by_hou_at) : 'Pending'}
+                                    </td>
+                                </tr>
+                                <tr style={{ backgroundColor: '#f9fafb' }}>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        borderRight: '1px solid #e5e7eb',
+                                        fontWeight: '600',
+                                        fontSize: '7.5pt',
+                                        color: '#374151'
+                                    }}>
+                                        Timbalan Pengarah (TP)
+                                    </td>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        borderRight: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.tp_approver?.name || 'Pending'}
+                                    </td>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '7.5pt',
+                                        color: '#6b7280'
+                                    }}>
+                                        {crf.approved_by_tp_at ? formatDate(crf.approved_by_tp_at) : 'Pending'}
+                                    </td>
+                                </tr>
+                                <tr style={{ backgroundColor: '#ffffff' }}>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        borderRight: '1px solid #e5e7eb',
+                                        fontWeight: '600',
+                                        fontSize: '7.5pt',
+                                        color: '#374151'
+                                    }}>
+                                        IT Head of Unit
+                                    </td>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        borderRight: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.it_hou_approver?.name || 'Pending'}
+                                    </td>
+                                    <td style={{ 
+                                        padding: '6px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '7.5pt',
+                                        color: '#6b7280'
+                                    }}>
+                                        {crf.it_hou_approved_at ? formatDate(crf.it_hou_approved_at) : 'Pending'}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Section 4: Processing Information */}
+                    <div className="section-break" style={{ marginBottom: '10px' }}>
+                        <h2 style={{ 
+                            fontSize: '9pt', 
+                            fontWeight: '600', 
+                            color: '#1a1a1a',
+                            marginBottom: '6px',
+                            paddingBottom: '4px',
+                            borderBottom: '1.5px solid #e5e7eb'
+                        }}>
+                            4. PROCESSING INFORMATION
+                        </h2>
+                        
+                        <table style={{ 
+                            width: '100%', 
+                            borderCollapse: 'collapse'
+                        }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ 
+                                        width: '25%',
+                                        padding: '5px 8px',
+                                        backgroundColor: '#f9fafb',
+                                        fontWeight: '600',
+                                        color: '#374151',
+                                        fontSize: '7.5pt',
+                                        borderBottom: '1px solid #e5e7eb'
+                                    }}>
+                                        Assigned To
+                                    </td>
+                                    <td style={{ 
+                                        padding: '5px 8px',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        fontSize: '8pt'
+                                    }}>
+                                        {crf.assigned_user?.name || 'Unassigned'}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        {crf.it_remark && (
+                            <div style={{ marginTop: '6px' }}>
+                                <div style={{ 
+                                    padding: '5px 8px',
+                                    backgroundColor: '#f9fafb',
+                                    fontWeight: '600',
+                                    color: '#374151',
+                                    fontSize: '7.5pt',
+                                    borderBottom: '1px solid #e5e7eb'
+                                }}>
+                                    IT Department Remarks
+                                </div>
+                                <div style={{ 
+                                    padding: '6px 8px',
+                                    backgroundColor: '#ffffff',
+                                    border: '1px solid #e5e7eb',
+                                    borderTop: 'none',
+                                    fontSize: '8pt',
+                                    whiteSpace: 'pre-wrap',
+                                    lineHeight: '1.4',
+                                    color: '#374151'
+                                }}>
+                                    {crf.it_remark}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Section 5: Status Timeline */}
+                    {statusTimeline.length > 0 && (
+                        <div className="section-break" style={{ marginBottom: '10px' }}>
+                            <h2 style={{ 
+                                fontSize: '9pt', 
+                                fontWeight: '600', 
+                                color: '#1a1a1a',
+                                marginBottom: '6px',
+                                paddingBottom: '4px',
+                                borderBottom: '1.5px solid #e5e7eb'
+                            }}>
+                                5. STATUS TIMELINE
+                            </h2>
+                            
                             <table style={{ 
                                 width: '100%', 
                                 borderCollapse: 'collapse',
-                                fontSize: '12px'
+                                border: '1px solid #d1d5db'
                             }}>
                                 <thead>
-                                    <tr style={{ backgroundColor: '#70a7ee', color: '#1c1c1c' }}>
-                                        <th style={{ padding: '4px', textAlign: 'left', width: '4%' }}>No.</th>
-                                        <th style={{ padding: '4px', textAlign: 'left', width: '38%' }}>Status</th>
-                                        <th style={{ padding: '4px', textAlign: 'left', width: '28%' }}>Action By</th>
-                                        <th style={{ padding: '4px', textAlign: 'left', width: '30%' }}>Time</th>
+                                    <tr style={{ backgroundColor: '#f3f4f6' }}>
+                                        <th style={{ 
+                                            padding: '5px 6px',
+                                            textAlign: 'left',
+                                            fontWeight: '600',
+                                            fontSize: '7.5pt',
+                                            color: '#374151',
+                                            borderRight: '1px solid #d1d5db',
+                                            width: '4%'
+                                        }}>
+                                            #
+                                        </th>
+                                        <th style={{ 
+                                            padding: '5px 6px',
+                                            textAlign: 'left',
+                                            fontWeight: '600',
+                                            fontSize: '7.5pt',
+                                            color: '#374151',
+                                            borderRight: '1px solid #d1d5db',
+                                            width: '38%'
+                                        }}>
+                                            Status / Remark
+                                        </th>
+                                        <th style={{ 
+                                            padding: '5px 6px',
+                                            textAlign: 'left',
+                                            fontWeight: '600',
+                                            fontSize: '7.5pt',
+                                            color: '#374151',
+                                            borderRight: '1px solid #d1d5db',
+                                            width: '28%'
+                                        }}>
+                                            Action By
+                                        </th>
+                                        <th style={{ 
+                                            padding: '5px 6px',
+                                            textAlign: 'left',
+                                            fontWeight: '600',
+                                            fontSize: '7.5pt',
+                                            color: '#374151',
+                                            width: '30%'
+                                        }}>
+                                            Date & Time
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {statusTimeline.map((timeline, index) => (
                                         <tr key={timeline.id} style={{ 
-                                            backgroundColor: index % 2 === 0 ? '#f8f9fa' : '#ffffff',
-                                            borderBottom: '1px solid #dddddd'
+                                            backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb'
                                         }}>
-                                            <td style={{ padding: '4px' }}>{index + 1}</td>
-                                            <td style={{ padding: '4px' }}>
-                                                <div>{timeline.status}</div>
+                                            <td style={{ 
+                                                padding: '5px 6px',
+                                                borderBottom: '1px solid #e5e7eb',
+                                                borderRight: '1px solid #e5e7eb',
+                                                fontSize: '7.5pt',
+                                                color: '#6b7280'
+                                            }}>
+                                                {index + 1}
+                                            </td>
+                                            <td style={{ 
+                                                padding: '5px 6px',
+                                                borderBottom: '1px solid #e5e7eb',
+                                                borderRight: '1px solid #e5e7eb',
+                                                fontSize: '8pt'
+                                            }}>
+                                                <div style={{ fontWeight: '600', marginBottom: '2px', color: '#1a1a1a' }}>
+                                                    {timeline.status}
+                                                </div>
                                                 {timeline.remark && (
                                                     <div style={{ 
-                                                        fontSize: '12px', 
-                                                        color: '#666666', 
-                                                        marginTop: '1px',
-                                                        whiteSpace: 'pre-wrap'
+                                                        fontSize: '7.5pt',
+                                                        color: '#6b7280',
+                                                        fontStyle: 'italic',
+                                                        whiteSpace: 'pre-wrap',
+                                                        lineHeight: '1.3'
                                                     }}>
                                                         {timeline.remark}
                                                     </div>
                                                 )}
                                             </td>
-                                            <td style={{ padding: '4px' }}>{timeline.action_by}</td>
-                                            <td style={{ padding: '4px', fontSize: '12px' }}>
+                                            <td style={{ 
+                                                padding: '5px 6px',
+                                                borderBottom: '1px solid #e5e7eb',
+                                                borderRight: '1px solid #e5e7eb',
+                                                fontSize: '8pt'
+                                            }}>
+                                                {timeline.action_by}
+                                            </td>
+                                            <td style={{ 
+                                                padding: '5px 6px',
+                                                borderBottom: '1px solid #e5e7eb',
+                                                fontSize: '7.5pt',
+                                                color: '#6b7280'
+                                            }}>
                                                 {new Date(timeline.created_at).toLocaleString('en-MY', {
-                                                    day: 'numeric',
+                                                    day: '2-digit',
                                                     month: 'short',
-                                                    year: '2-digit',
+                                                    year: 'numeric',
                                                     hour: '2-digit',
                                                     minute: '2-digit'
                                                 })}
@@ -429,38 +867,37 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                         </div>
                     )}
 
-                    {/* Attachments */}
-                    {attachments.length > 0 && (
-                        <div style={{ marginBottom: '8px' }}>
-                            <h3 style={{ 
-                                fontSize: '10px', 
-                                fontWeight: 'bold', 
-                                marginBottom: '5px',
-                                borderBottom: '1px solid #dddddd',
-                                paddingBottom: '3px'
-                            }}>
-                                Attachments
-                            </h3>
-                            <ul style={{ margin: 0, paddingLeft: '15px', fontSize: '12px' }}>
-                                {attachments.map((attachment) => (
-                                    <li key={attachment.id} style={{ marginBottom: '2px' }}>
-                                        {attachment.name} ({(attachment.size / 1024 / 1024).toFixed(2)} MB)
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* Footer */}
+                    {/* Document Footer */}
                     <div style={{ 
-                        marginTop: '10px', 
-                        paddingTop: '6px', 
-                        borderTop: '1px solid #dddddd',
-                        textAlign: 'center',
-                        fontSize: '12px',
-                        color: '#666666',
+                        marginTop: '12px',
+                        paddingTop: '8px',
+                        borderTop: '1.5px solid #e5e7eb',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
                     }}>
-                        <div>Generated at: {new Date().toLocaleDateString('en-MY')}, {new Date().toLocaleTimeString('en-MY')}</div>
+                        <div style={{ fontSize: '7pt', color: '#9ca3af' }}>
+                            <div style={{ marginBottom: '2px' }}>
+                                <strong>Document Reference:</strong> {crf.crf_number}
+                            </div>
+                            <div>
+                                <strong>Generated:</strong> {new Date().toLocaleString('en-MY', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </div>
+                        </div>
+                        <div style={{ 
+                            fontSize: '7pt', 
+                            color: '#9ca3af',
+                            textAlign: 'right'
+                        }}>
+                            <div style={{ fontWeight: '600' }}>CONFIDENTIAL DOCUMENT</div>
+                            <div>For Internal Use Only</div>
+                        </div>
                     </div>
                 </div>
             </div>

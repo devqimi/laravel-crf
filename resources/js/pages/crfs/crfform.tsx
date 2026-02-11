@@ -167,35 +167,37 @@ export default function CrfForm({ user, departments, categories }: Props) {
 
         console.log('📝 Submitting with', formData.supporting_file.length, 'files');
 
-        // Use router.post with FormData
-        router.post('/crfs', data, {
-            onSuccess: () => {
-
-                console.log('✅ Success!');
-                
-                setProcessing(false);
-                // Reset form
-                setFormData({
-                    name: user?.name || '',
-                    nric: user?.nric || '',
-                    department_id: user?.department_id || '',
-                    designation: user?.designation || '',
-                    extno: user?.extno || '',
-                    category_id: '',
-                    factor_id: '',
-                    issue: '',
-                    reason: '',
-                    supporting_file: [],
-                });
-                setFilePreviews([]);
-                setFileErrors([]);
-            },
-            onError: (errors) => {
-                console.error('❌ Errors:', errors);
-                setErrors(errors);
-                setProcessing(false);
-            },
-        });
+        if (confirm('Submit CRF ?')) {
+            // Use router.post with FormData
+            router.post('/crfs', data, {
+                onSuccess: () => {
+    
+                    console.log('✅ Success!');
+                    
+                    setProcessing(false);
+                    // Reset form
+                    setFormData({
+                        name: user?.name || '',
+                        nric: user?.nric || '',
+                        department_id: user?.department_id || '',
+                        designation: user?.designation || '',
+                        extno: user?.extno || '',
+                        category_id: '',
+                        factor_id: '',
+                        issue: '',
+                        reason: '',
+                        supporting_file: [],
+                    });
+                    setFilePreviews([]);
+                    setFileErrors([]);
+                },
+                onError: (errors) => {
+                    console.error('❌ Errors:', errors);
+                    setErrors(errors);
+                    setProcessing(false);
+                },
+            });
+        }
     };
 
     const handleReset = () => {

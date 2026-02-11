@@ -307,6 +307,7 @@ export default function Dashboard({
                                                                     title="View CRF"
                                                                 >
                                                                     <Eye className="h-4 w-4" />
+                                                                    View Details
                                                                 </Button>
                                                             </Link>
                                                         )}
@@ -455,6 +456,7 @@ export default function Dashboard({
                                                                         title="View CRF"
                                                                     >
                                                                         <Eye className="h-4 w-4" />
+                                                                        View Details
                                                                     </Button>
                                                                 </Link>
                                                             )}
