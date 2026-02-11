@@ -20,11 +20,7 @@ export default function AuthSimpleLayout({
             
             {/* Left Side - Text/Design */}
             <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-500 to-blue-900 flex-col items-center justify-center p-10 text-white">
-                <div className="space-y-6">
-                    <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                        <Shield className="h-4 w-4" />
-                        Secure Internal System
-                    </div>
+                <div className="space-y-3">
                     <h1 className="text-4xl font-bold">Customer Request Form</h1>
                     <div className="space-y-4">
                         <h2 className="text-3xl font-semibold">Welcome !</h2>
