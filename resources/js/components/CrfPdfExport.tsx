@@ -877,9 +877,6 @@ export const CrfPdfExport: React.FC<CrfPdfExportProps> = ({
                         alignItems: 'center'
                     }}>
                         <div style={{ fontSize: '7pt', color: '#9ca3af' }}>
-                            <div style={{ marginBottom: '2px' }}>
-                                <strong>Document Reference:</strong> {crf.crf_number}
-                            </div>
                             <div>
                                 <strong>Generated:</strong> {new Date().toLocaleString('en-MY', {
                                     day: '2-digit',
