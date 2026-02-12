@@ -29,6 +29,7 @@ class UserController extends Controller
             ->through(fn($user) => [
                 'id' => $user->id,
                 'name' => $user->name,
+                'enroll_id' => $user->enroll_id,
                 'email' => $user->email,
                 'department_id' => $user->department_id,
                 'created_at' => $user->created_at->format('d-m-Y'),

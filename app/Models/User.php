@@ -3,12 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Department;
+use App\Models\Crf;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Foundation\Auth\Access\Authorizable;
 
 class User extends Authenticatable
 {
@@ -23,6 +25,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'nric',
+        'enroll_id',
         'email',
         'phone',
         'designation',

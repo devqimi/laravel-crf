@@ -35,6 +35,7 @@ export interface User {
     id: number;
     name: string;
     nric: string;
+    enroll_id: string;
     email: string;
     phone: string;
     designation: string;

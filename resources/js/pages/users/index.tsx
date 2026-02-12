@@ -30,6 +30,7 @@ type User = {
     id: number;
     name: string;
     nric: string;
+    enroll_id: string;
     email: string;
     department_id: number | null;
 };
@@ -169,6 +170,7 @@ export default function Users({ users, departments }: Props) {
                             <TableHeader className="bg-blue-900">
                                 <TableRow>
                                     <TableHead className='font-bold text-white'>No</TableHead>
+                                    <TableHead className='font-bold text-white'>Enroll ID</TableHead>
                                     <TableHead className='font-bold text-white'>Name</TableHead>
                                     <TableHead className='font-bold text-white'>Email</TableHead>
                                     <TableHead className='font-bold text-white'>Roles</TableHead>
@@ -181,6 +183,7 @@ export default function Users({ users, departments }: Props) {
                                 {users.data.map((user, index) => (
                                     <TableRow key={user.id} className='odd:bg-slate-100 dark:odd:bg-slate-800'>
                                         <TableCell>{index + 1}</TableCell>
+                                        <TableCell>{user.enroll_id || 'N/A'}</TableCell>
                                         <TableCell>{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell>

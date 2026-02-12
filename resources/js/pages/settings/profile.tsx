@@ -31,6 +31,7 @@ type User = {
     id: number;
     name: string;
     nric: string;
+    enroll_id?: string;
     email: string;
     phone: string;
     designation?: string;
@@ -116,6 +117,20 @@ export default function Profile({
                                     <InputError
                                         className="mt-2"
                                         message={errors.nric}
+                                    />
+                                </div>
+
+                                {/* Enroll ID */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="enroll_id">Enroll ID</Label>
+                                    <Input
+                                        id="enroll_id"
+                                        type="text"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.enroll_id || 'N/A'}
+                                        name="enroll_id"
+                                        placeholder="Enroll ID"
+                                        readOnly
                                     />
                                 </div>
 
