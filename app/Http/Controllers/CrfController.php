@@ -65,6 +65,7 @@ class CrfController extends Controller
         $departmentFilter = $request->input('department_id');
         $categoryFilter = $request->input('category_id');
         $factorFilter = $request->input('factor_id');
+        $statusFilter = $request->input('application_status_id');
 
         // Get IT Department ID (used multiple times)
         $itDepartmentId = Department::where('dname', 'LIKE', '%Unit Teknologi Maklumat%')
@@ -85,6 +86,9 @@ class CrfController extends Controller
         })
         ->when($factorFilter, function ($query, $factorFilter) {
             $query->where('factor_id', $factorFilter);
+        })
+        ->when($statusFilter, function ($query, $statusFilter) {  // ✅ Add this
+            $query->where('application_status_id', $statusFilter);
         });
 
         $multiRoleCheck = ['ITD ADMIN', 'HOU', 'IT ASSIGN', 'TIMBALAN PENGARAH', 'VENDOR ADMIN'];
@@ -352,6 +356,7 @@ class CrfController extends Controller
             'can_assign_vendor_pic' => Gate::allows('Assign Vendor PIC'),
             'categories' => Category::all(),
             'factors' => Factor::all(),
+            'statuses' => ApplicationStatus::all(),
             'itd_pics' => $itdPics,
             'vendor_pics' => $vendorPics,
             'vendor_admins' => $vendorAdmins,

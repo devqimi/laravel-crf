@@ -8,7 +8,7 @@ import {Card, CardAction, CardContent, CardHeader, CardTitle,} from '@/component
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Category, Crf } from '@/types/crf';
+import { ApplicationStatus, Category, Crf } from '@/types/crf';
 import { Head, Link, router } from '@inertiajs/react';
 import { CheckCircle, ClipboardCheck, UserPlus, Eye, XCircle, ArrowLeftRight, ClipboardList } from 'lucide-react';
 import AssignCrfModal from '@/pages/crfs/AssignCrfModal';
@@ -78,6 +78,7 @@ type Props = {
     vendor_pics?: User[];
     factors: Factor[];
     categories: Category[];
+    statuses: ApplicationStatus[];
     is_it_hou: boolean;
     is_admin_hou_pic?: boolean;
 };
@@ -86,6 +87,7 @@ export default function Dashboard({
     crfs,
     department_crfs = null,
     departments,
+    statuses,
     can_view = false,
     can_view_department = false,
     can_delete = false,
@@ -188,6 +190,7 @@ export default function Dashboard({
                                 departments={departments}
                                 categories={categories}
                                 factors={factors}
+                                statuses={statuses}
                             />
                         )}
 

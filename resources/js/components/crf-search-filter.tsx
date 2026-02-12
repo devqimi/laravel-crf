@@ -9,16 +9,17 @@ interface SearchFilterProps {
     departments: Array<{ id: number; dname: string }>;
     categories: Array<{ id: number; cname: string }>;
     factors: Array<{ id: number; name: string }>;
+    statuses: Array<{ id: number; status: string }>;
 }
 
-export default function CRFSearchFilter({ departments, categories, factors }: SearchFilterProps) {
+export default function CRFSearchFilter({ departments, categories, factors, statuses }: SearchFilterProps) {
 
-    const { url } = usePage();
     const urlParams = new URLSearchParams(window.location.search);
     const [search, setSearch] = useState(urlParams.get('search') || '');
     const [departmentId, setDepartmentId] = useState(urlParams.get('department_id') || 'all');
     const [categoryId, setCategoryId] = useState(urlParams.get('category_id') || 'all');
     const [factorId, setFactorId] = useState(urlParams.get('factor_id') || 'all');
+    const [statusId, setStatusId] = useState(urlParams.get('application_status_id') || 'all');
     const [showFilters, setShowFilters] = useState(false);
 
     const isInitialMount = useRef(true);
@@ -38,6 +39,7 @@ export default function CRFSearchFilter({ departments, categories, factors }: Se
             if (departmentId !== 'all') params.department_id = departmentId;
             if (categoryId !== 'all') params.category_id = categoryId;
             if (factorId !== 'all') params.factor_id = factorId;
+            if (statusId !== 'all') params.application_status_id = statusId;
 
             params.page = 1; // Reset to first page on filter change, to avoid empty results
 
@@ -49,16 +51,17 @@ export default function CRFSearchFilter({ departments, categories, factors }: Se
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [search, departmentId, categoryId, factorId]);
+    }, [search, departmentId, categoryId, factorId, statusId]);
 
     function clearAll() {
         setSearch('');
         setDepartmentId('all');
         setCategoryId('all');
         setFactorId('all');
+        setStatusId('all');
     }
 
-    const hasActiveFilters = search || departmentId !== 'all' || categoryId !== 'all' || factorId !== 'all';
+    const hasActiveFilters = search || departmentId !== 'all' || categoryId !== 'all' || factorId !== 'all' || statusId !== 'all';
 
     return (
         <div className="mb-4 space-y-3">
@@ -100,7 +103,7 @@ export default function CRFSearchFilter({ departments, categories, factors }: Se
 
             {/* Filters Section */}
             {showFilters && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg border">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border">
                     {/* Department Filter */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">Department</label>
@@ -154,6 +157,24 @@ export default function CRFSearchFilter({ departments, categories, factors }: Se
                             </SelectContent>
                         </Select>
                     </div>
+
+                    {/* Status Filter */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Status</label>
+                        <Select value={statusId} onValueChange={setStatusId}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All Statuses" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Statuses</SelectItem>
+                                {statuses.map((status) => (
+                                    <SelectItem key={status.id} value={status.id.toString()}>
+                                        {status.status}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             )}
 
@@ -188,6 +209,14 @@ export default function CRFSearchFilter({ departments, categories, factors }: Se
                         <div className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
                             Factor: {factors.find(f => f.id.toString() === factorId)?.name}
                             <button onClick={() => setFactorId('all')} className="hover:text-orange-900">
+                                <X className="h-3 w-3" />
+                            </button>
+                        </div>
+                    )}
+                    {statusId !== 'all' && (
+                        <div className="inline-flex items-center gap-1 px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-sm">
+                            Status: {statuses.find(s => s.id.toString() === statusId)?.status}
+                            <button onClick={() => setStatusId('all')} className="hover:text-pink-900">
                                 <X className="h-3 w-3" />
                             </button>
                         </div>
