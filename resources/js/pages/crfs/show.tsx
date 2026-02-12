@@ -115,6 +115,7 @@ type Props = {
     hou_vendor?: User[];
     factors: Factor[];
     is_it_hou: boolean;
+    is_hardware_request_relocation?: boolean;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -140,6 +141,7 @@ export default function ShowCrf({
     vendor_pics = [],
     factors = [],
     is_it_hou = false,
+    is_hardware_request_relocation = false,
 }: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [reassignModalOpen, setReassignModalOpen] = useState(false);
@@ -596,31 +598,33 @@ export default function ShowCrf({
                             </div>
 
                             {/* Approved by TP Section */}
-                            <div className="border p-4 rounded-md bg-gray-50">
-                                <h3 className="font-semibold mb-3">TP Approval</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <Label className="text-gray-600">Approved By</Label>
-                                        <p className="text-gray-900 font-medium">
-                                            {crf.tp_approver?.name || 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <Label className="text-gray-600">Approved At</Label>
-                                        <p className="text-gray-900">
-                                            {new Date(crf.approved_by_tp_at + 'Z').toLocaleString('en-MY', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })}
-                                        </p>
+                            {is_hardware_request_relocation && (
+                                <div className="border p-4 rounded-md bg-gray-50">
+                                    <h3 className="font-semibold mb-3">TP Approval</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label className="text-gray-600">Approved By</Label>
+                                            <p className="text-gray-900 font-medium">
+                                                {crf.tp_approver?.name || 'N/A'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-gray-600">Approved At</Label>
+                                            <p className="text-gray-900">
+                                                {new Date(crf.approved_by_tp_at + 'Z').toLocaleString('en-MY', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
-                            <div className="col-span-2">
+                            <div className="">
                                 {/* Approved by HOU IT */}
                                 <div className="border p-4 rounded-md bg-gray-50">
                                     <h3 className="font-semibold mb-3">HOU IT Approval</h3>

@@ -1,7 +1,6 @@
 import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
 import { Link } from '@inertiajs/react';
-import { Shield } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
 interface AuthLayoutProps {
@@ -17,44 +16,25 @@ export default function AuthSimpleLayout({
 }: PropsWithChildren<AuthLayoutProps>) {
     return (
         <div className="flex min-h-svh">
-            
-            {/* Left Side - Text/Design */}
-            <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-500 to-blue-900 flex-col items-center justify-center p-10 text-white">
-                <div className="space-y-3">
-                    <h1 className="text-4xl font-bold">Customer Request Form</h1>
-                    <div className="space-y-4">
-                        <h2 className="text-3xl font-semibold">Welcome !</h2>
-                        <p className="text-lg opacity-90">
-                            Sign in to access your account and start submitting requests.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Right Side - Auth Container */}
-            <div className="flex w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-slate-100 to-blue-400 relative overflow-hidden">
-
-                {/* Background Pattern Overlay */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.1)_0%,_transparent_50%)] bg-[length:20px_20px]"></div>
-                <div className="w-full max-w-md relative z-10">
-                    <div className="border border-black bg-accent rounded-4xl shadow-sm flex flex-col gap-8 p-6 shadow-md dark:border-gray-900">
+            <div className="flex w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-blue-200 via-blue-300 to-indigo-500">
+                <div className="w-full max-w-md">
+                    <div className="bg-white rounded-4xl shadow-sm border border-gray-200 flex flex-col gap-8 p-6">
                         <div className="flex flex-col items-center gap-4">
-                            
-                            <div className="">
+                            <div>
                                 <Link
                                     href={home()}
                                     className="flex flex-col items-center gap-2 font-medium"
                                 >
-                                    <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md dark:text-black">
-                                        <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
+                                    <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md bg-blue-100">
+                                        <AppLogoIcon className="size-9 fill-current text-blue-600" />
                                     </div>
                                     <span className="sr-only">{title}</span>
                                 </Link>
                             </div>
 
                             <div className="space-y-2 text-center">
-                                <h1 className="text-xl font-medium">{title}</h1>
-                                <p className="text-center text-sm text-muted-foreground">
+                                <h1 className="text-xl font-medium text-gray-900">{title}</h1>
+                                <p className="text-center text-sm text-gray-600">
                                     {description}
                                 </p>
                             </div>

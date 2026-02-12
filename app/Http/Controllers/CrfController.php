@@ -1051,6 +1051,8 @@ class CrfController extends Controller
         $itDepartmentId = Department::where('dname', 'LIKE', '%Unit Teknologi Maklumat%')
             ->first()?->id;
 
+        $isHardwareRelocation = $crf->category->cname === 'Hardware Request/Relocation';
+
         $crf->load([
             'department',
             'category',
@@ -1117,6 +1119,7 @@ class CrfController extends Controller
             'hou_vendor' => $hou_vendor,
             'factors' => $factors,
             'is_it_hou' => $user->department_id == $itDepartmentId && Gate::allows('verified CRF'),
+            'is_hardware_request_relocation' => $isHardwareRelocation,
         ]);
     }
 
